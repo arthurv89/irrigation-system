@@ -38,45 +38,29 @@ const char fingerprint[] PROGMEM = "E6 8D 15 A0 C3 FD 67 F7 B2 DF 69 93 6C 80 A8
 void setup() {
   Serial.begin(115200);
 
-  setup_moisture_sensor();
-  disconnect_wifi_setup();
+  long long currentMillis = millis();
+  previousMillis = currentMillis;
+  
+  perform_action();
 
+  currentMillis = millis();
+  long long delay_time_millis = max(0LL, interval - (currentMillis - previousMillis));
+
+  ESP.deepSleep( delay_time_millis * 1000, WAKE_RF_DISABLED );
 }
 
 void setup_moisture_sensor() {
   pinMode(moisture_sensor_in, INPUT);
 }
 
-void disconnect_wifi_setup() {
-  WiFi.mode( WIFI_OFF );
-  WiFi.forceSleepBegin();
-  delay( 1 );
-}
 
 
 
-/*********************************************
-                     Loop
- *********************************************/
 
-
-void loop() {
-  long long currentMillis = millis();
-
-  previousMillis = currentMillis;
-  _loop();
-
-
-  currentMillis = millis();
-  long long delay_time = max(0LL, interval - (currentMillis - previousMillis));
-  disconnect_wifi(delay_time);
-  delay(delay_time);
-}
-
-
-void _loop() {
+void perform_action() {
   Serial.println();
   Serial.println("==========");
+  setup_moisture_sensor();
   int moisture_value = get_moisture_value();
 
   connect_wifi();
@@ -96,8 +80,8 @@ void _loop() {
 //}
 
 void connect_wifi() {
-  WiFi.forceSleepWake();
-  delay( 1 );
+//  WiFi.forceSleepWake();
+//  delay( 1 );
   
   // Bring up the WiFi connection
   WiFi.mode( WIFI_STA );
@@ -116,13 +100,12 @@ void connect_wifi() {
   Serial.println(WiFi.localIP());
 }
 
-void disconnect_wifi(int delay_time) {
-  WiFi.disconnect( true );
-  delay( 1 );
+//void disconnect_wifi(int delay_time_millis) {
+//  WiFi.disconnect( true );
+//  delay( 1 );
   
   // WAKE_RF_DISABLED to keep the WiFi radio disabled when we wake up
-//  ESP.deepSleep( delay_time, WAKE_RF_DISABLED );
-}
+//}
 
 void send_request(WiFiClientSecure& client, int moisture_value) {
   client.setTimeout(8000);
@@ -234,3 +217,6 @@ int get_moisture_value() {
   Serial.println(moisture_value);
   return moisture_value;
 }
+
+
+void loop() {}hgb
