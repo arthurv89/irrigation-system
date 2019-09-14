@@ -1,6 +1,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
+#include <EEPROM.h>
 
 // Loop variables
 long long previousMillis = 0;
@@ -25,29 +26,86 @@ const String url = "/prod/post-data";
 const int httpsPort = 443;
 const char fingerprint[] PROGMEM = "E6 8D 15 A0 C3 FD 67 F7 B2 DF 69 93 6C 80 A8 50 0C 85 EE 9A";
 
-
-
+const String owner = "casabatata";
+const boolean resetDeviceId = false;
+const char prefix[] = "IRSYS-";
+const int deviceIdLength = 20;
 
 
 /*********************************************
                      Setup
  *********************************************/
 
-
-
 void setup() {
   Serial.begin(115200);
+  EEPROM.begin(512);
 
-  long long currentMillis = millis();
-  previousMillis = currentMillis;
-  
-  perform_action();
+  long long beforeMillis = millis();
+  Serial.println();
+  Serial.println("[Setup] Starting up");
 
-  currentMillis = millis();
-  long long delay_time_millis = max(0LL, interval - (currentMillis - previousMillis));
 
-  ESP.deepSleep( delay_time_millis * 1000, WAKE_RF_DISABLED );
+  setDeviceId();
+  String deviceId = getDeviceId();
+  Serial.print("Device id: ");
+  Serial.println(deviceId);
+
+  perform_action(deviceId);
+  long long afterMillis = millis();
+
+  long long delay_time_millis = max(1LL, interval - (afterMillis - beforeMillis));
+
+  // Avoid sleeping forever
+  Serial.print("Sleeping for some time: ");
+  Serial.println(to_str(delay_time_millis));
+  ESP.deepSleep( delay_time_millis * 1000, WAKE_RF_DEFAULT);
 }
+
+String getDeviceId() {
+  char deviceId[deviceIdLength];
+  for (int i = 0; i < deviceIdLength; i++) {
+    deviceId[i] = EEPROM.read(i);
+  }
+//  String deviceId = "IRSYS-66320771887196";
+  return deviceId;
+}
+
+String getPrefix(String s) {
+  return s.substring(0, strlen(prefix));
+}
+
+/**
+   Only sets it if we don't have a deviceId yet!
+*/
+void setDeviceId() {
+  String deviceId = getDeviceId();
+  Serial.print("DeviceId: ");
+  Serial.println(deviceId);
+  if (resetDeviceId || !getPrefix(deviceId).equals(prefix)) {
+    Serial.println("Writing back deviceId to EEPROM");
+
+    // Create random deviceId and write it back to EEPROM
+    for (int i = 0; i < strlen(prefix); i++) {
+      EEPROM.write(i, prefix[i]);
+      delay(100);
+    }
+    for (int i = strlen(prefix); i < deviceIdLength; i++) {
+      char x = '0' + random(0, 10);
+      EEPROM.write(i, x);
+      delay(100);
+    }
+    EEPROM.commit();
+    for (int i = 0; i < deviceIdLength; i++) {
+      char y = (char) EEPROM.read(i);
+      Serial.print(y);
+    }
+    Serial.println("");
+  } else {
+    Serial.println("DeviceId already set");
+  }
+}
+
+
 
 void setup_moisture_sensor() {
   pinMode(moisture_sensor_in, INPUT);
@@ -57,32 +115,20 @@ void setup_moisture_sensor() {
 
 
 
-void perform_action() {
+void perform_action(String deviceId) {
   Serial.println();
   Serial.println("==========");
   setup_moisture_sensor();
   int moisture_value = get_moisture_value();
 
   connect_wifi();
-  do_post_request(moisture_value);
+  do_post_request(moisture_value, owner, deviceId);
 }
 
-
-//void setup_wifi() {
-//  WiFi.mode( WIFI_OFF );
-//  WiFi.forceSleepBegin();
-//  delay( 1 );
-//
-//  WiFi.forceSleepWake();
-//  WiFi.mode(WIFI_STA);
-////  WiFi.setSleepMode(WIFI_NONE_SLEEP);
-//  WiFi.begin(ssid, password);
-//}
-
 void connect_wifi() {
-//  WiFi.forceSleepWake();
-//  delay( 1 );
-  
+  WiFi.forceSleepWake();
+  delay( 1 );
+
   // Bring up the WiFi connection
   WiFi.mode( WIFI_STA );
   WiFi.begin( ssid, password );
@@ -100,14 +146,10 @@ void connect_wifi() {
   Serial.println(WiFi.localIP());
 }
 
-//void disconnect_wifi(int delay_time_millis) {
-//  WiFi.disconnect( true );
-//  delay( 1 );
-  
-  // WAKE_RF_DISABLED to keep the WiFi radio disabled when we wake up
-//}
-
-void send_request(WiFiClientSecure& client, int moisture_value) {
+void send_request(WiFiClientSecure& client, int moisture_value, String owner, String deviceId) {
+  Serial.println(deviceId);
+  Serial.println("---");
+  Serial.println(deviceId.length());
   client.setTimeout(8000);
   Serial.print("Sending post request to ");
   Serial.println(host);
@@ -124,7 +166,10 @@ void send_request(WiFiClientSecure& client, int moisture_value) {
   Serial.print("requesting URL: ");
   Serial.println(url);
 
-  String PostData = "{\"moisture-value\": " + String(moisture_value) + "}";
+  String PostData = create_json(moisture_value, owner, deviceId);
+  Serial.print("Post data: " );
+  Serial.println(PostData);
+  
   client.println("POST /prod/post-data HTTP/1.1");
   client.println("Host: " + String(host));
   client.println("Cache-Control: no-cache");
@@ -135,9 +180,17 @@ void send_request(WiFiClientSecure& client, int moisture_value) {
   client.println(PostData);
 }
 
-void do_post_request(int moisture_value) {
+String create_json(int moisture_value, String owner, String deviceId) {
+  return "{"
+         "\"moisture-value\": " + String(moisture_value) + ","
+         "\"owner\": \"" + owner + "\","
+         "\"deviceId\": \"" + deviceId + "\""
+         "}";
+}
+
+void do_post_request(int moisture_value, String owner, String deviceId) {
   WiFiClientSecure client;
-  send_request(client, moisture_value);
+  send_request(client, moisture_value, owner, deviceId);
   Serial.println("request sent");
 
   // Handle response
@@ -219,4 +272,11 @@ int get_moisture_value() {
 }
 
 
-void loop() {}hgb
+void loop() {
+}
+
+String to_str(long l) {
+  char mystr[40];
+  sprintf(mystr, "%u", l);
+  return mystr;
+}
