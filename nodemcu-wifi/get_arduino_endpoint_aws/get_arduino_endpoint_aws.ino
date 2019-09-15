@@ -2,6 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <EEPROM.h>
+#include <sstream>
 
 // Loop variables
 long long previousMillis = 0;
@@ -62,10 +63,12 @@ void setup() {
 }
 
 String getDeviceId() {
-  char deviceId[deviceIdLength];
+  char deviceId[deviceIdLength+1];
+  memset(deviceId, 0, sizeof deviceId);
   for (int i = 0; i < deviceIdLength; i++) {
     deviceId[i] = EEPROM.read(i);
   }
+  deviceId[deviceIdLength] = '\0';
 //  String deviceId = "IRSYS-66320771887196";
   return deviceId;
 }
@@ -147,9 +150,6 @@ void connect_wifi() {
 }
 
 void send_request(WiFiClientSecure& client, int moisture_value, String owner, String deviceId) {
-  Serial.println(deviceId);
-  Serial.println("---");
-  Serial.println(deviceId.length());
   client.setTimeout(8000);
   Serial.print("Sending post request to ");
   Serial.println(host);
@@ -166,26 +166,36 @@ void send_request(WiFiClientSecure& client, int moisture_value, String owner, St
   Serial.print("requesting URL: ");
   Serial.println(url);
 
-  String PostData = create_json(moisture_value, owner, deviceId);
+  String postData = create_json(moisture_value, owner, deviceId);
   Serial.print("Post data: " );
-  Serial.println(PostData);
+  Serial.println(postData);
   
   client.println("POST /prod/post-data HTTP/1.1");
   client.println("Host: " + String(host));
   client.println("Cache-Control: no-cache");
   client.println("Content-Type: multipart/form-data");
   client.print("Content-Length: ");
-  client.println(PostData.length());
+  client.println(postData.length());
   client.println();
-  client.println(PostData);
+  client.println(postData);
 }
 
 String create_json(int moisture_value, String owner, String deviceId) {
-  return "{"
-         "\"moisture-value\": " + String(moisture_value) + ","
-         "\"owner\": \"" + owner + "\","
-         "\"deviceId\": \"" + deviceId + "\""
-         "}";
+//  std::ostringstream stream;
+//  stream << "aaaaaaaaaaaaaaaaaaaaa" << "aaaaaaaaaaaaaaaaaaaaa";
+//  std::string buf(stream.str());
+
+  char buffer [100];
+  sprintf (buffer, "{"
+           "\"moisture-value\": %d,"
+           "\"owner\": \"%s\","
+           "\"deviceId\": \"%s\""
+           "}",
+         moisture_value,
+         owner.c_str(),
+         deviceId.c_str());
+
+  return buffer;
 }
 
 void do_post_request(int moisture_value, String owner, String deviceId) {
