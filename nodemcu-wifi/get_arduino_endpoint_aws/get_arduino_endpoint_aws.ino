@@ -6,7 +6,7 @@
 
 // Loop variables
 long long previousMillis = 0;
-const int interval = 300000; // Should be 900000 (15 minutes)
+const int interval = 300000; // Should be 300000 (5 minutes)
 
 // Channels
 const int moisture_sensor_in = A0;
@@ -25,7 +25,7 @@ const char* password = STAPSK;
 const char* host = "gktyevilwf.execute-api.us-east-1.amazonaws.com";
 const String url = "/prod/post-data";
 const int httpsPort = 443;
-const char fingerprint[] PROGMEM = "E6 8D 15 A0 C3 FD 67 F7 B2 DF 69 93 6C 80 A8 50 0C 85 EE 9A";
+const char fingerprint[] PROGMEM = "72 D4 00 92 77 37 50 C9 9B A1 38 FA 21 8A 9B FD BA CF CD 49";
 
 const String owner = "casabatata";
 const boolean resetDeviceId = false;
