@@ -21,7 +21,7 @@ using namespace std;
 
 // Loop variables
 long long previousMillis = 0;
-const int interval = 1000; // Should be 300000 (5 minutes)
+const int interval = 300000; // Should be 300000 (5 minutes)
 
 
 // WIFI
@@ -51,36 +51,6 @@ const int wateringThreshold = 500;
 void setup() {
   Serial.begin(115200);
   EEPROM.begin(512);
-
-  Serial.println(D0);
-  Serial.println(D1);
-  Serial.println(D2);
-  Serial.println(D3);
-  Serial.println(D4);
-  Serial.println(D5);
-  Serial.println(D6);
-  Serial.println(D7);
-
-  long long beforeMillis = millis();
-  Serial.println();
-  Serial.println("[Setup] Starting up");
-
-
-  setDeviceId();
-  String deviceId = getDeviceId();
-  Serial.print("Device id: ");
-  Serial.println(deviceId);
-
-  perform_action();
-  long long afterMillis = millis();
-
-  long long delay_time_millis = max(1LL, interval - (afterMillis - beforeMillis));
-//  long long delay_time_millis = 1000;
-
-  // Avoid sleeping forever
-  Serial.print("Sleeping for some time: ");
-  Serial.println(to_str(delay_time_millis));
-  ESP.deepSleep( delay_time_millis * 1000, WAKE_RF_DEFAULT);
 }
 
 String getDeviceId() {
@@ -139,9 +109,10 @@ void perform_action() {
   
   connect_wifi();
   String response = do_get_request(owner);
-//  x = 1-x;
+  x = 1-x;
 //  String response = getStaticResponse(x);
-  
+  Serial.println(response);
+
   DynamicJsonDocument jsonObj = deserialize(response);
   handle(jsonObj);
 }
@@ -179,6 +150,11 @@ void handleDigitalWriteInstruction(uint8_t pinNo, int iVal) {
   Serial.print(" to ");
   Serial.println(val);
   pinMode(pinNo, OUTPUT);
+
+  
+  Serial.print(pinNo == 4);
+  Serial.print(val == 0);
+  Serial.print(val == 1);
   digitalWrite(pinNo, val);
 }
 
@@ -300,6 +276,36 @@ DynamicJsonDocument deserialize(String json) {
 }
 
 void loop() {
+
+  Serial.println(D0);
+  Serial.println(D1);
+  Serial.println(D2);
+  Serial.println(D3);
+  Serial.println(D4);
+  Serial.println(D5);
+  Serial.println(D6);
+  Serial.println(D7);
+
+  long long beforeMillis = millis();
+  Serial.println();
+  Serial.println("[Setup] Starting up");
+
+
+  setDeviceId();
+  String deviceId = getDeviceId();
+  Serial.print("Device id: ");
+  Serial.println(deviceId);
+
+  perform_action();
+  long long afterMillis = millis();
+
+//  long long delay_time_millis = max(1LL, interval - (afterMillis - beforeMillis));
+  long long delay_time_millis = 1000;
+
+  // Avoid sleeping forever
+  Serial.print("Sleeping for some time: ");
+  Serial.println(to_str(delay_time_millis));
+  delay( delay_time_millis);
 }
 
 String to_str(long l) {

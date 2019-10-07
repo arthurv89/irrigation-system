@@ -1,10 +1,9 @@
-const int ledPin =  D0;// the number of the LED pin
-int ledState = LOW;             // ledState used to set the LED
+const int ledPin =  4;// the number of the LED pin
+int ledState = 0;             // ledState used to set the LED
 unsigned long previousMillis = 0;        // will store last time LED was updated
 const long interval = 1000;           // interval at which to blink (milliseconds)
 
 void setup() {
-  pinMode(ledPin, OUTPUT);
 }
 
 void loop() {
@@ -13,11 +12,13 @@ void loop() {
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
 
-    if (ledState == LOW) {
-      ledState = HIGH;
+    if (ledState == 0) {
+      ledState = 1;
+      pinMode(ledPin, OUTPUT);
       Serial.println("ON");
     } else {
-      ledState = LOW;
+      ledState = 0;
+      pinMode(ledPin, OUTPUT);
       Serial.println("OFF");
     }
 
