@@ -21,7 +21,7 @@ using namespace std;
 
 // Loop variables
 long long previousMillis = 0;
-const int interval = 1000; // Should be 300000 (5 minutes)
+const int interval = 300000; // Should be 300000 (5 minutes)
 
 
 // WIFI
