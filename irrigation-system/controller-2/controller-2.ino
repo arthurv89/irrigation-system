@@ -139,8 +139,10 @@ void perform_action() {
   
   connect_wifi();
   String response = do_get_request(owner);
-//  x = 1-x;
+  x = 1-x;
 //  String response = getStaticResponse(x);
+  Serial.println("Response:");
+  Serial.println(response);
   
   DynamicJsonDocument jsonObj = deserialize(response);
   handle(jsonObj);

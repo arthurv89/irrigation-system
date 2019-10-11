@@ -1,7 +1,7 @@
-const int ledPin =  4;// the number of the LED pin
-int ledState = 0;             // ledState used to set the LED
-unsigned long previousMillis = 0;        // will store last time LED was updated
-const long interval = 1000;           // interval at which to blink (milliseconds)
+const int ledPin =  4;
+int ledState = 0;
+unsigned long previousMillis = 0;
+const long interval = 4000;
 
 void setup() {
 }
