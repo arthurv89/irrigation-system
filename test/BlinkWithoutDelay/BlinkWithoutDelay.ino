@@ -1,28 +1,53 @@
-const int ledPin =  4;
-int ledState = 0;
-unsigned long previousMillis = 0;
-const long interval = 4000;
+/* 
+ * 16
+ * 5
+ * 4
+ * 0
+ * 2
+ * 14
+ * 12
+ * 13
+ * 15
+ * 3
+ * 
+ */
+ 
+//const int ledPins[3] = {5, 4, 0};
+//const int ledPins[3] = {14, 12, 13};
+const int ledPins[1] = {LED_BUILTIN};
+
+const int on_value = LOW;
+const int off_value = HIGH;
+
+const long interval = 5000;
+
+int i = 0;
 
 void setup() {
+ Serial.begin(115200);
+ pinMode(ledPins[0], OUTPUT);
+    
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
+  handle();
+  Serial.println();
+  delay(interval);
+}
 
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
+void handle() {
+  blink_times(0, 3);
+}
 
-    if (ledState == 0) {
-      ledState = 1;
-      pinMode(ledPin, OUTPUT);
-      Serial.println("ON");
-    } else {
-      ledState = 0;
-      pinMode(ledPin, OUTPUT);
-      Serial.println("OFF");
-    }
+void blink_times(int pin, int times) {
+  Serial.print(ledPins[pin]);
+  for(int i=0; i<times; i++) {
+    digitalWrite(ledPins[pin], on_value);
+    Serial.println("On");
+    delay(200);
 
-    digitalWrite(ledPin, ledState);
+    digitalWrite(ledPins[pin], off_value);
+    Serial.println("Off");
+    delay(200);
   }
-  delay(1000);
 }
