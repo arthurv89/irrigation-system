@@ -1,30 +1,52 @@
 import sys
 import json
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_api import status
 from handlers import index, health, submit
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="jinja_templates")
 
 @app.route('/', methods=['GET'])
 def _index():
-    return handle(index)
+    return handle(index, "html")
 
-@app.route('/submit', methods=['POST'])
+@app.route('/css/<path:path>')
+def send_css(path):
+    return send_from_directory('css', path)
+
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory('js', path)
+
+@app.route('/bower_components/<path:path>')
+def send_bower_components(path):
+    return send_from_directory('bower_components', path)
+
+@app.route('/fonts/<path:path>')
+def send_fonts(path):
+    return send_from_directory('fonts', path)
+
+@app.route('/api/submit', methods=['POST'])
 def _submit():
-    return handle(submit)
+    return handle(submit, "json")
 
-@app.route('/health', methods=['GET'])
+@app.route('/api/health', methods=['GET'])
 def _health():
-    return handle(health)
+    return handle(health, "json")
 
 
-def handle(handler):
+def handle(handler, type):
     try:
-        response = {
-            "status": "OK",
-            "response": handler.handle(),
-        }
+        result = handler.handle()
+        if type == "json":
+            response = {
+                "status": "OK",
+                "response": result
+            }
+        elif type == "html":
+            response = result
+        else:
+            raise Exception("Could not determine type")
         return response, status.HTTP_200_OK
     except Exception as ex:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"

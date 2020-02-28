@@ -46,7 +46,7 @@ void _setup() {
   } else {
     handleWakeup();
   }
-  
+
   delay(1000);
 }
 
@@ -100,7 +100,7 @@ void deep_sleep(int interval, long long beforeMillis, long long afterMillis) {
   Serial.println(String(interval));
   Serial.println(to_str(beforeMillis));
   Serial.println(to_str(afterMillis));
-  
+
   delay(100);
   ESP.deepSleep( delay_time_millis * 1000, WAKE_RF_DEFAULT);
 }
@@ -125,7 +125,7 @@ int get_moisture_value() {
 
 
 void submit_results() {
-  String url = "http://192.168.1.3:8123/submit";
+  String url = "http://192.168.1.3:8123/api/submit";
   String payload;
   StaticJsonDocument<200> doc;
   doc["deviceId"] = getDeviceId();

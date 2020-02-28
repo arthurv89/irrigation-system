@@ -1,5 +1,8 @@
 import json
-from flask import request
+from flask import Flask, request, render_template
+
+app = Flask(__name__, template_folder="jinja_templates")
 
 def handle():
-    return "Welcome! Please call the submit method."
+    template_context = dict(name="World")
+    return render_template('index.html', **template_context)
