@@ -1,5 +1,5 @@
 #include "Arduino.h"
 
-String getWifiName();
-
-String getPassword();
+//String getWifiName();
+//
+//String getPassword();

@@ -1,3 +1,4 @@
+import sys
 import json
 from flask import Flask
 from flask_api import status
@@ -25,7 +26,11 @@ def handle(handler):
             "response": handler.handle(),
         }
         return response, status.HTTP_200_OK
-    except:
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        print(message)
+
         response = {
             "status": "Failed"
         }

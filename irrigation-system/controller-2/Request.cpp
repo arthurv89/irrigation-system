@@ -50,22 +50,17 @@ String do_get_request(String url) {
 }
 
 
-String do_post_request(String url, String payload) {
+String do_post_request(String url, String json_payload) {
   HTTPClient httpClient;
   httpClient.begin(url);
-  httpClient.addHeader("Content-Type","application/x-www-form-urlencoded");
+  httpClient.addHeader("Content-Type", "application/json");
 
-  int httpCode = httpClient.POST(payload);
+  int httpCode = httpClient.POST(json_payload);
 
   String response = "";
   if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
     response = httpClient.getString();
   }
-
-//  String content = "{\"temperature\":\"14\"}";
-//  client.println("Content-Length: 16"); //insert, well, your content length
-//  client.println(content);
-  
 
   Serial.println("httpcode");
   Serial.println(httpCode);

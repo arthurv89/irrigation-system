@@ -1,9 +1,9 @@
 #include "Properties.h"
 
-String getWifiName() {
-  return "CasaBatata";
-}
-
-String getPassword() {
-  return "nopassword";
-}
+//String getWifiName() {
+//  return "CasaBatata";
+//}
+//
+//String getPassword() {
+//  return "nopassword";
+//}

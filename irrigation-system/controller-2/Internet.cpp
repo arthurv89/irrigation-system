@@ -5,17 +5,16 @@
 #include <WiFiClientSecure.h>
 #include <ESP8266HTTPClient.h>
 
-void connect_wifi() {
+void connect_wifi(String wifiName, String password) {
   WiFi.forceSleepWake();
   delay( 1 );
 
   // Bring up the WiFi connection
   WiFi.mode( WIFI_STA );
-  WiFi.begin( getWifiName(), getPassword() );
+  WiFi.begin( wifiName, password );
 
   Serial.println();
-  Serial.print("connecting to ");
-  Serial.println(getWifiName());
+  Serial.println("connecting to " + wifiName);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");

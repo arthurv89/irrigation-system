@@ -1,1 +1,1 @@
-void connect_wifi();
+void connect_wifi(String wifiName, String password);
