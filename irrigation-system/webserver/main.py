@@ -6,25 +6,12 @@ from handlers import index, health, submit
 
 app = Flask(__name__, template_folder="jinja_templates")
 
+
+# Dynamic
+
 @app.route('/', methods=['GET'])
 def _index():
     return handle(index, "html")
-
-@app.route('/css/<path:path>')
-def send_css(path):
-    return send_from_directory('css', path)
-
-@app.route('/js/<path:path>')
-def send_js(path):
-    return send_from_directory('js', path)
-
-@app.route('/bower_components/<path:path>')
-def send_bower_components(path):
-    return send_from_directory('bower_components', path)
-
-@app.route('/fonts/<path:path>')
-def send_fonts(path):
-    return send_from_directory('fonts', path)
 
 @app.route('/api/submit', methods=['POST'])
 def _submit():
@@ -33,6 +20,31 @@ def _submit():
 @app.route('/api/health', methods=['GET'])
 def _health():
     return handle(health, "json")
+
+
+# Static resources
+
+@app.route('/css/<path:path>')
+def send_css(path):
+    return send_from_directory('static/css', path)
+
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory('static/js', path)
+
+@app.route('/img/<path:path>')
+def send_img(path):
+    return send_from_directory('static/img', path)
+
+@app.route('/bower_components/<path:path>')
+def send_bower_components(path):
+    return send_from_directory('static/bower_components', path)
+
+@app.route('/fonts/<path:path>')
+def send_fonts(path):
+    return send_from_directory('static/fonts', path)
+
+
 
 
 def handle(handler, type):
