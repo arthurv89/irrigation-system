@@ -1,11 +1,4 @@
-function render(datapoints, id) {
-  // Just a normal responce from the server
-  var response = {
-    "status": "Ok",
-    "data": datapoints
-  };
-
-  // Parse the response
+function render(lines, id) {
   var chart = new Vue({
     el: '#' + id,
     data: function() {
@@ -76,7 +69,7 @@ function render(datapoints, id) {
           .y(function(d) { return scale.y(d.moisture); });
 
         // Push individual points into data
-        var _d = response.data;
+        var _d = lines[0];
         for (let i in _d) {
           console.log(i, _d)
           this.plot.points.push({

@@ -1,10 +1,10 @@
 echo "Press [CTRL+C] to stop.."
-endpoint="http://192.168.1.3:8123/submit"
+endpoint="http://192.168.1.3:8123/api/submit"
 
 while :
 do
 	r=$RANDOM
-	json="{\"id\": 1, \"deviceId\": \"casabatata-roses\", \"moisture\": $r}"
+	json="{\"deviceId\": \"casabatata-tulips\", \"moisture\": $r}"
 	# echo $json
 	result=`curl -s \
 	  --header "Content-Type: application/json" \
