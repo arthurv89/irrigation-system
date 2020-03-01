@@ -1,125 +1,75 @@
-function render(lines, id) {
-  var chart = new Vue({
-    el: '#' + id,
-    data: function() {
-      return {
-        layout: {
-          width: 800,
-          height: 400,
-          margin: {
-            left: 50,
-            top: 50,
-            right: 50,
-            bottom: 50
-          }
-        },
-        plot: {
-          points: []
-        }
-      }
-    },
+function render(timeseries, id) {
+    data = timeseries['rows']
+    console.log(data)
 
-    // Computed functions
-    computed: {
 
-      // Return dimensions of SVG chart
-      svgViewBox: function() {
-        return '0 0 ' + (this.layout.width + this.layout.margin.left + this.layout.margin.right) + ' ' + (this.layout.height + this.layout.margin.top + this.layout.margin.bottom);
-      },
+    // set the dimensions and margins of the graph
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
 
-      // Stage
-      stageTransform: function() {
-        return {
-          'transform': 'translate(' + this.layout.margin.left + 'px,' + this.layout.margin.top + 'px)'
-        }
-      }
-    },
+    // set the ranges
+    var x = d3.scaleTime().range([0, width]);
+    var y = d3.scaleLinear().range([height, 0]);
 
-    // Initialisation
-    mounted: function() {
+    // define the 1st line
+    var valueline = d3.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d) { return y(d[1]); });
 
-      // Update plot
-      this.update();
-    },
+    // define the 2nd line
+    var valueline2 = d3.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d) { return y(d[2]); });
 
-    // Methods
-    methods: {
-      // Update elements in chart
-      update: function() {
-        // Internal variables
-        var _w = this.layout.width;
-        var _h = this.layout.height;
+    // define the 2nd line
+    var valueline3 = d3.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d) { return y(d[3]); });
 
-        // Compute scale
-        this.plot.scale = {
-          x: d3.scaleTime().range([0, _w]),
-          y: d3.scaleLinear().range([_h, 0])
-        };
-        var scale = this.plot.scale;
-        //
-        // // Generate area
-        // this.plot.area = d3.area()
-        //   .x(function(d) { return scale.x(d.date); })
-        //   .y1(function(d) { return scale.y(d.moisture); });
+    // append the svg obgect to the body of the page
+    // appends a 'group' element to 'svg'
+    // moves the 'group' element to the top left margin
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
 
-        // Generate line
-        this.plot.line = d3.line()
-          .defined(function (d) { return d[1] !== null; })
-          .x(function(d) { return scale.x(d.date); })
-          .y(function(d) { return scale.y(d.moisture); });
+    // Scale the range of the data
+    x.domain(d3.extent(data, function(d) { return d[0]; }));
+    y.domain([0, d3.max(data, function(d) {
+  	  return Math.max(d[1], d[2], d[3]); })]);
 
-        // Push individual points into data
-        var _d = lines[0];
-        for (let i in _d) {
-          console.log(i, _d)
-          this.plot.points.push({
-            date: new Date(_d[i][0]),  // Clean up dates with trailing GMT offsets
-            moisture: _d[i][1]
-          })
-        }
+    // Add the valueline path.
+    svg.append("path")
+        .data([data])
+        .attr("class", "line")
+        .attr("d", valueline);
 
-        // Set extend of data
-        this.plot.scale.x.domain(d3.extent(this.plot.points, function(d) { return d.date; }));
-        this.plot.scale.y.domain([0, d3.max(this.plot.points, function(d) { return d.moisture; })]);
-        // this.plot.area.y0(this.plot.scale.y(0));
+    // Add the valueline2 path.
+    svg.append("path")
+        .data([data])
+        .attr("class", "line")
+        .style("stroke", "red")
+        .attr("d", valueline2);
 
-        // Draw axes
-        d3.select(this.$refs.xAxis)
-        .attr('transform', 'translate(0,' + this.layout.height + ')')
-        .call(
-          d3.axisBottom(scale.x)
-          .ticks(7)
-          .tickFormat(d3.timeFormat("%-H:%M"))
-        );
-        d3.select(this.$refs.yAxis)
-        .call(
-          d3.axisLeft(scale.y)
-        );
+    // Add the valueline path.
+    svg.append("path")
+    .data([data])
+    .attr("class", "line")
+    .attr("d", valueline3);
 
-        // Draw area
-        // var $area = d3.select(this.$refs.area);
-        // $area
-        //   .datum(this.plot.points)
-        //   .attr('d', this.plot.area)
-        //   .attr('fill', 'none');
+    // Add the X Axis
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x)
+                .tickFormat(d3.timeFormat("%H:00")))
 
-        // Draw line
-        var $line = d3.select(this.$refs.line);
-        $line
-          .data([this.plot.points])
-          .attr('d', this.plot.line);
+    // Add the Y Axis
+    svg.append("g")
+        .call(d3.axisLeft(y));
 
-        // Draw points
-        var $g = d3.select(this.$refs.points);
-        $g.selectAll('circle.point').data(this.plot.points)
-          .enter()
-          .append('circle')
-            .attr('r', 5)
-            .attr('class', 'point')
-            .attr('cx', function(d) { return scale.x(d.date); })
-            .attr('cy', function(d) { return scale.y(d.moisture); });
-
-      }
-    }
-  });
 }

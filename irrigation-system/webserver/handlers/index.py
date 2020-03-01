@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 
 from elasticsearch import Elasticsearch
 
@@ -83,8 +83,8 @@ def handle():
     print()
     print()
     print()
-    print(res)
-    print("Got %d Hits:" % res['hits']['total'])
+    # print(res)
+    # print("Got %d Hits:" % res['hits']['total'])
 
     aggregations = res['aggregations']
 
@@ -101,10 +101,10 @@ def handle():
             timestamps_obj[timestamp] = {}
             device_ids_obj[device_id] = {}
 
-            if device_id not in data:
-                data[device_id] = {}
-            data[device_id][timestamp] = moisture_value
-    debug(data)
+            if timestamp not in data:
+                data[timestamp] = {}
+            data[timestamp][device_id] = moisture_value
+    # debug(data)
 
     timestamps = list(timestamps_obj.keys())
     timestamps.sort()
@@ -113,26 +113,35 @@ def handle():
     device_ids.sort()
 
 
-    # debug(timestamps)
-    # debug(device_ids_obj)
+    debug(timestamps)
+    debug(device_ids)
 
-    device_lines = []
-    for device_id in device_ids:
-        rows = []
-        for timestamp in timestamps:
-            row = [timestamp]
-            if timestamp in data[device_id]:
-                v = data[device_id][timestamp]
+    rows = []
+    for timestamp in timestamps:
+        # row = {
+        #     "time": timestamp
+        # }
+        row = [timestamp]
+        for device_id in device_ids:
+            if device_id in data[timestamp]:
+                v = data[timestamp][device_id]
+                # row[device_id] = v
                 row.append(v)
             else:
+                # row[device_id] = None
                 row.append(None)
-            rows.append(row)
-        device_lines.append(rows)
+        rows.append(row)
 
-    # debug(lines)
+    debug(rows)
 
     # datapoints = [[1582921800, 10], [1582921860, 100], [1582921920, 30]]
-    template_context = dict(lines=json.dumps(device_lines))
+    timeseries = {
+        "rows": rows,
+        "meta": {
+            "device_ids": device_ids
+        }
+    }
+    template_context = dict(timeseries=json.dumps(timeseries))
 
     return render_template('index.html', **template_context)
 
