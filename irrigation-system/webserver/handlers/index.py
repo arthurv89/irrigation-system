@@ -136,9 +136,12 @@ def handle():
             "device_ids": device_ids
         }
     }
-    template_context = dict(timeseries=json.dumps(timeseries))
+    template_context = dict(
+        page="index",
+        timeseries=json.dumps(timeseries)
+    )
 
-    return render_template('index.html', **template_context)
+    return render_template('template.html', **template_context)
 
 def debug(v):
     print("-------------> ")

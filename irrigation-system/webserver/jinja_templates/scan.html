@@ -1,0 +1,59 @@
+<script>
+
+  function ajax_call() {
+    var last_response_len = false;
+    $.ajax('/api/scan',
+      {
+        type: "POST",
+        dataType: "text",
+        xhrFields: {
+            onprogress: function(e)
+            {
+              var this_response, response = e.currentTarget.response;
+              if(last_response_len === false) {
+                  this_response = response;
+                  last_response_len = response.length;
+              }
+              else {
+                  this_response = response.substring(last_response_len);
+                  last_response_len = response.length;
+              }
+              json = JSON.parse(this_response.trim().split('\n').slice(-1)[0])
+              console.log(json['x']);
+            }
+        }
+    })
+    .done(function(data) {
+        // console.log('Complete response = ' + data);
+    })
+    .fail(function(data) {
+        console.log('Error: ', data);
+    });
+  }
+
+  $(document).ready(function() {
+    var isScanning = false
+    $(".scan-now").click(function() {
+      if(isScanning) return;
+
+      isScanning = true;
+      $(".scan-now").hide();
+      $(".scanning").show();
+      ajax_call()
+      return false;
+    });
+  });
+
+  ajax_call();
+  setInterval(function(){ ajax_call(); }, 10000);
+</script>
+    <div class="box-header well">
+        <h2>Scan sensors</h2>
+    </div>
+    <div class="box-content row">
+        <div class="col-lg-7 col-md-12">
+            <a href="/scan-now" class="scan-now">Scan now</a>
+            <span class="scanning" style="display: none">Scanning...</span>
+            <div class="ssids"></div>
+        </div>
+    </div>

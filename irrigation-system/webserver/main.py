@@ -1,8 +1,10 @@
 import sys
 import json
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, Response
 from flask_api import status
-from handlers import index, health, submit
+from handlers import index, scan
+from handlers.api import scan as scanNow, health, submit
+import time
 
 app = Flask(__name__, template_folder="jinja_templates")
 
@@ -13,6 +15,10 @@ app = Flask(__name__, template_folder="jinja_templates")
 def _index():
     return handle(index, "html")
 
+@app.route('/scan', methods=['GET'])
+def _scan():
+    return handle(scan, "html")
+
 @app.route('/api/submit', methods=['POST'])
 def _submit():
     return handle(submit, "json")
@@ -20,6 +26,15 @@ def _submit():
 @app.route('/api/health', methods=['GET'])
 def _health():
     return handle(health, "json")
+
+@app.route('/api/scan', methods=['POST'])
+def _scanNow():
+    print("Scanning...")
+    def generate():
+        for v in [1, 2, 3, 4, 5, 6, 7]:
+            time.sleep(1)
+            yield json.dumps({"x": str(v) }) + '\n'
+    return Response(generate(), content_type='text/event-stream')
 
 
 # Static resources
