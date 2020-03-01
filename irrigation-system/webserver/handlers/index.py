@@ -1,6 +1,6 @@
 import json
 from flask import Flask, request, render_template, jsonify
-
+import time
 from elasticsearch import Elasticsearch
 
 es = Elasticsearch([{'host':'localhost','port':9200}])
@@ -8,6 +8,10 @@ es = Elasticsearch([{'host':'localhost','port':9200}])
 app = Flask(__name__, template_folder="jinja_templates")
 
 def handle():
+    high_timestamp_ms = int(time.time() * 1000)
+    one_day_ms = 86400 * 1000
+    low_timestamp_ms = high_timestamp_ms - 3 * one_day_ms
+
     es_query = {
       "aggs": {
         "moisture_data": {
@@ -65,8 +69,8 @@ def handle():
             {
               "range": {
                 "time": {
-                  "gte": 1582807897603,
-                  "lte": 1582980697603,
+                  "gte": low_timestamp_ms,
+                  "lte": high_timestamp_ms,
                   "format": "epoch_millis"
                 }
               }
@@ -104,7 +108,6 @@ def handle():
             if timestamp not in data:
                 data[timestamp] = {}
             data[timestamp][device_id] = moisture_value
-    # debug(data)
 
     timestamps = list(timestamps_obj.keys())
     timestamps.sort()
@@ -112,9 +115,6 @@ def handle():
     device_ids = list(device_ids_obj.keys())
     device_ids.sort()
 
-
-    debug(timestamps)
-    debug(device_ids)
 
     rows = []
     for timestamp in timestamps:
@@ -125,16 +125,11 @@ def handle():
         for device_id in device_ids:
             if device_id in data[timestamp]:
                 v = data[timestamp][device_id]
-                # row[device_id] = v
                 row.append(v)
             else:
-                # row[device_id] = None
                 row.append(None)
         rows.append(row)
 
-    debug(rows)
-
-    # datapoints = [[1582921800, 10], [1582921860, 100], [1582921920, 30]]
     timeseries = {
         "rows": rows,
         "meta": {
