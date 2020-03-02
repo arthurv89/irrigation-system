@@ -1,0 +1,135 @@
+<script>
+  function ajax_call() {
+    var last_response_len = false;
+    $.ajax('/api/find-ssids',
+      {
+        type: "POST",
+        dataType: "text",
+        xhrFields: {
+            onprogress: function(e)
+            {
+              var this_response, response = e.currentTarget.response;
+              if(last_response_len === false) {
+                  this_response = response;
+                  last_response_len = response.length;
+              }
+              else {
+                  this_response = response.substring(last_response_len);
+                  last_response_len = response.length;
+              }
+              const json = JSON.parse(this_response.trim().split('\n').slice(-1)[0])
+              console.log("json", json)
+              const divs = json['networks'].map(x => ssid_row_contents(x));
+              $(".ssids").html(divs);
+            }
+        }
+    })
+    .done(function(data) {
+        $(".scan-again").show()
+    })
+    .fail(function(data) {
+        console.log('Error: ', data);
+    });
+  }
+
+  function wifi_icon(quality) {
+    const rssi = quality / 2 - 100 // See: https://github.com/kootenpv/access_points/blob/7ca2aaed39b966249a30580fd8b6f13612b4ac04/access_points/__init__.py#L23
+    if(rssi > -50) {
+      return 'wifi';
+    }
+    else if(rssi > -65) {
+      return 'wifi-2';
+    }
+    else {
+      return 'wifi-1';
+    }
+  }
+
+  ssid = "";
+  function ssid_row_contents(network) {
+    const div = $(`
+      <div class='network'>
+        <div class='ssid'>
+          <i class="fad fa-${wifi_icon(network['quality'])}"></i>
+          ${network['ssid']}
+        </div>
+      </div>`)
+
+    div.click(function() {
+      const credentials = $("#credentials")
+      $(this).after(credentials);
+      ssid = network['ssid']
+      credentials.show();
+    })
+    return div;
+  }
+
+  function scan() {
+    if(isScanning) return;
+
+    isScanning = true;
+    $(".scan-again").hide();
+    $(".ssids").html("Scanning...").show();
+    ajax_call()
+    isScanning = false;
+    return false;
+  }
+
+  function save_wifi() {
+    const username = $("#username").val() || ""
+    const password = $("#password").val() || ""
+    console.log(ssid)
+    const post_data = {
+      "ssid": ssid,
+      "username": username,
+      "password": password
+    };
+    $.post('/api/save-wifi', post_data, function(data) {})
+      .done(function() {
+        $("#save-status").html("<p style='color: green'>Saved successfully.</p>")
+      })
+      .fail(function() {
+        $("#save-status").html("Something went wrong while saving.")
+      })
+  }
+
+  var isScanning = false;
+  $(document).ready(function() {
+      scan()
+      $("p.scan-again a").click(function() {
+        scan()
+      });
+
+      $("#submit").click(function() {
+        save_wifi()
+      });
+  });
+</script>
+
+
+<div class="box-header well">
+    <h2>Setup Wifi</h2>
+</div>
+<div class="box-content row">
+    <div class="col-lg-7 col-md-12">
+        In order to access the IRSYS systems, we need to set up WIFI.<br/>
+        Please select your wireless network below.
+
+        <!-- <p class="scan-now"><a href="#">Scan now</a> -->
+        <p class="scan-again" style="display: none"><a href="#">Scan again</a>
+        <div class="ssids" style="border: 1px; solid black; padding: 10px;"></div>
+        <div id="credentials" style="display: none">
+          <p>
+            Username: <input type="text" name="username" id="username" value=""/>
+          </p>
+          <p>
+            Password: <input type="text" name="password" id="password" value=""/>
+          </p>
+          <p>
+            <input id="submit" type="submit" value="Save" />
+            <input id="cancel" type="button" value="Cancel" />
+          </p>
+          <p id="save-status"></p>
+        </div>
+    </div>
+</div>

@@ -2,6 +2,20 @@
   display: none;
 }
 
+/* Setup Wifi */
+div.network {
+  padding: 9px;
+}
+div.network:hover {
+  background-color: #ddf;
+}
+#credentials {
+    margin-left: 30px;
+    padding-top: 10px;
+}
+
+
+/* Setup Mositure sensor */
 .scan-status-error {
   color: red;
 }
