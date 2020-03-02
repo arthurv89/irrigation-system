@@ -19,41 +19,48 @@
                   last_response_len = response.length;
               }
               json = JSON.parse(this_response.trim().split('\n').slice(-1)[0])
-              console.log(json['x']);
+              console.log("json", json)
+              $(".scanning").html("<span class='scan-status-" + json['status'] + "'>" + json['message'] + "</span>");
             }
         }
     })
     .done(function(data) {
-        // console.log('Complete response = ' + data);
+        $(".scan-now").show()
+          .find("a").text("Scan again");
+        addScanClickHandler();
     })
     .fail(function(data) {
         console.log('Error: ', data);
     });
   }
 
-  $(document).ready(function() {
-    var isScanning = false
-    $(".scan-now").click(function() {
+  var isScanning = false;
+  function addScanClickHandler() {
+    $("p.scan-now a").click(function() {
       if(isScanning) return;
 
       isScanning = true;
       $(".scan-now").hide();
-      $(".scanning").show();
+      $(".scanning").html("Scanning...").show();
       ajax_call()
+      isScanning = false;
       return false;
     });
+  }
+
+  $(document).ready(function() {
+    addScanClickHandler();
   });
 
-  ajax_call();
-  setInterval(function(){ ajax_call(); }, 10000);
+  // ajax_call();
+  // setInterval(function(){ ajax_call(); }, 10000);
 </script>
     <div class="box-header well">
         <h2>Scan sensors</h2>
     </div>
     <div class="box-content row">
         <div class="col-lg-7 col-md-12">
-            <a href="/scan-now" class="scan-now">Scan now</a>
-            <span class="scanning" style="display: none">Scanning...</span>
-            <div class="ssids"></div>
+            <p class="scan-now"><a href="#">Scan now</a>
+            <p class="scanning" style="display: none"></p>
         </div>
     </div>

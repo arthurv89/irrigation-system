@@ -2,6 +2,18 @@
   display: none;
 }
 
+.scan-status-error {
+  color: red;
+}
+
+.scan-status-in-progress {
+  color: blue;
+}
+
+.scan-status-done {
+  color: green;
+}
+
 @media(min-width:768px) {
     body {
         margin-top: 50px;

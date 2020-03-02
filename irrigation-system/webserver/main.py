@@ -5,6 +5,7 @@ from flask_api import status
 from handlers import index, scan
 from handlers.api import scan as scanNow, health, submit
 import time
+import poll_new_devices
 
 app = Flask(__name__, template_folder="jinja_templates")
 
@@ -29,12 +30,7 @@ def _health():
 
 @app.route('/api/scan', methods=['POST'])
 def _scanNow():
-    print("Scanning...")
-    def generate():
-        for v in [1, 2, 3, 4, 5, 6, 7]:
-            time.sleep(1)
-            yield json.dumps({"x": str(v) }) + '\n'
-    return Response(generate(), content_type='text/event-stream')
+    return Response(poll_new_devices.run(), content_type='text/event-stream')
 
 
 # Static resources
