@@ -1,1 +1,1 @@
-{"ssid": "CasaBatata", "username": "a", "password": ""}
+{"ssid": "CasaBatata", "password": "nopassword"}

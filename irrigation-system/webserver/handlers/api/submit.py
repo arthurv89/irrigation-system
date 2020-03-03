@@ -10,7 +10,7 @@ def handle():
     store_data(request.get_json())
 
     ret = {}
-    return json.dumps(ret)
+    return ret
 
 def store_data(form):
     timestamp = int(datetime.utcnow().strftime("%s"))

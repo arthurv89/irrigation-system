@@ -31,6 +31,8 @@ const int interval = 3000; // Should be 300000 (5 minutes)
 WiFiServer server(80);
 String header;
 
+// Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
+String settings_url = "http://192.168.1.3:8123/api/get-settings";
 
 void setup() {
   _setup();
@@ -40,6 +42,12 @@ void _setup() {
   Serial.begin(115200);
   EEPROM.begin(512);
 
+  setDeviceId();
+  String deviceId = getDeviceId();
+  Serial.print("Device id: ");
+  Serial.println(deviceId);
+
+  
   buttonPressed = isButtonReset();
   if(buttonPressed) {
     handleReset();
@@ -83,7 +91,8 @@ void run() {
   long long afterMillis = millis();
 
   if(buttonPressed) {
-    wifiManager.autoConnect("IRSYS");
+    String wifiName = getDeviceId();
+    wifiManager.autoConnect(wifiName.c_str());
   } else {
     wifiManager.autoConnect(WiFi.SSID().c_str());
     perform_action();
@@ -107,15 +116,28 @@ void deep_sleep(int interval, long long beforeMillis, long long afterMillis) {
 
 
 void perform_action() {
-  setDeviceId();
-  String deviceId = getDeviceId();
-  Serial.print("Device id: ");
-  Serial.println(deviceId);
-
   Serial.println();
   Serial.println("==========");
 
+  get_settings();
   submit_results();
+}
+
+StaticJsonDocument<200> settings;
+void get_settings() {
+  String response = do_get_request(settings_url);
+  Serial.println(response);
+  
+  settings = deserializeJson(response)["response"];
+  String controller_ip = settings["controller_ip"];
+  Serial.println("controller_ip");
+  Serial.println(controller_ip);
+
+  String payload;
+  serializeJson(settings, payload);
+  Serial.println(payload);
+
+//  settings["controller_ip"] = "192.168.1.3:8123";
 }
 
 
@@ -125,7 +147,8 @@ int get_moisture_value() {
 
 
 void submit_results() {
-  String url = "http://192.168.1.3:8123/api/submit";
+  String ip = settings["controller_ip"];
+  String url = "http://" + ip + "/api/submit";
   String payload;
   StaticJsonDocument<200> doc;
   doc["deviceId"] = getDeviceId();

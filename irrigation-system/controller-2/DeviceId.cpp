@@ -2,7 +2,7 @@
 #include <EEPROM.h>
 
 const int deviceIdLength = 20;
-const char prefix[] = "IRSYS-";
+const char prefix[] = "IRSYS-M-";
 const boolean resetDeviceId = false;
 
 String getDeviceId() {

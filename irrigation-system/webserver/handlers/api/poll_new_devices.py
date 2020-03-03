@@ -107,12 +107,8 @@ def handle_stream():
         is_connected = wire.connect(ssid=ssid,password='')
         return is_connected
 
-    # def get_current_wifi_ssid():
-    #     sta = WLAN(network.STA_IF)
-    #     return sta.config('essid')
-
     def save_credentials(ip, credentials):
-        url = "http://" + ip + "/wifisave?s=" + credentials['username'] + "&p=" + credentials['password']
+        url = "http://" + ip + "/wifisave?s=" + credentials['ssid'] + "&p=" + credentials['password']
         print(url)
         response = requests.get(url)
         html = response.content.decode("utf-8")

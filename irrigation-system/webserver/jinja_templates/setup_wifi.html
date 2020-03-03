@@ -76,12 +76,10 @@
   }
 
   function save_wifi() {
-    const username = $("#username").val() || ""
     const password = $("#password").val() || ""
     console.log(ssid)
     const post_data = {
       "ssid": ssid,
-      "username": username,
       "password": password
     };
     $.post('/api/save-wifi', post_data, function(data) {})
@@ -119,9 +117,6 @@
         <p class="scan-again" style="display: none"><a href="#">Scan again</a>
         <div class="ssids" style="border: 1px; solid black; padding: 10px;"></div>
         <div id="credentials" style="display: none">
-          <p>
-            Username: <input type="text" name="username" id="username" value=""/>
-          </p>
           <p>
             Password: <input type="text" name="password" id="password" value=""/>
           </p>

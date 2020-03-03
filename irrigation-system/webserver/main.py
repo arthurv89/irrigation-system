@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, send_from_directory, Response
 from flask_api import status
 from handlers import index, scan, setup_wifi
-from handlers.api import scan as scanNow, health, submit, find_ssids, poll_new_devices, save_wifi
+from handlers.api import scan as scanNow, health, submit, find_ssids, poll_new_devices, save_wifi, get_settings
 
 import time
 
@@ -29,6 +29,10 @@ def _setup_wifi():
 
 
 # API
+
+@app.route('/api/get-settings', methods=['GET'])
+def _get_settings():
+    return handle(get_settings, "json")
 
 @app.route('/api/submit', methods=['POST'])
 def _submit():
