@@ -11,9 +11,13 @@ import traceback
 import json
 import time
 from Generator import Generator
+from elasticsearch import Elasticsearch
 
+es = Elasticsearch([{'host':'localhost','port':9200}])
 
 wire = Wireless()
+
+prefix = "IRSYS-M-"
 
 def handle_stream():
     def _run():
@@ -54,16 +58,24 @@ def handle_stream():
         obj["status"] = status
         return obj
 
+    def find_ssid():
+        for i in range(0, 5):
+            ssid = scan()
+            if ssid is not None:
+                return ssid
+            print("Couldn't find it yet, trying again in 3 seconds...")
+            sleep(3)
+        return None
+
     def scan_and_connect(credentials):
-        obj = {}
         yield addMessage("Scanning...", "in-progress")
 
-        ssid = scan()
+        ssid = find_ssid()
         if ssid is None:
             yield addMessage("No new sensors found", "error")
-            return False
 
-        yield addMessage("Found IRSYS!", "in-progress")
+
+        yield addMessage("Found sensor with name " + ssid, "in-progress")
         is_connected = connect(ssid)
         if not is_connected:
             yield addMessage("Couldn't connect!", "error")
@@ -81,7 +93,19 @@ def handle_stream():
 
         reconnect_to_original_wifi()
 
+        association_to_es(ssid)
+
         return True
+
+
+    def association_to_es(device_id):
+        # We could have multiple moisture sensors for a valve (or other way around) in the future
+        e1 = {
+          "device_id": device_id,
+          "time": int(time.time() * 1000),
+        }
+        res = es.index(index='irsys-associated_sensors-1', body=e1)
+        print("Written assocation of sensor " + device_id + " to ES")
 
 
 
@@ -95,7 +119,7 @@ def handle_stream():
         arr = wifi_scanner.get_access_points()
 
         for x in arr:
-            if x.ssid.startswith("IRSYS-M-"):
+            if x.ssid.startswith(prefix):
                 return x.ssid
 
         return None
@@ -119,8 +143,12 @@ def handle_stream():
 
     def get_gateway_ip():
         gws = netifaces.gateways()
-        print(gws)
-        return gws[AF_INET][0][0]
+        for i in range(0, 10):
+            if AF_INET in gws:
+                print(gws)
+                return gws[AF_INET][0][0]
+            print("Sleeping...")
+            sleep(1)
 
     obj = {
         "messages": [],
