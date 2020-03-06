@@ -1,10 +1,11 @@
 from elasticsearch import Elasticsearch
 import time
+import json
 
 es = Elasticsearch([{'host':'localhost','port':9200}])
 
 def handle():
-    print("Water the plants")
+    print("[Start] Water the plants")
     high_timestamp_ms = int(time.time() * 1000)
     minute_ms = 60 * 1000
     low_timestamp_ms = high_timestamp_ms - 15 * minute_ms
@@ -79,6 +80,9 @@ def handle():
         }
       }
     }
+    # print(json.dumps(body))
+
+    open_valves = []
 
     res = es.search(index="irsys-moisture-1", body=body)
     agg = res["aggregations"]['moisture_data']
@@ -89,6 +93,9 @@ def handle():
         last_datapoint = date_data[len(date_data)-1]
         moisture = last_datapoint['moisture_value']['value']
 
+        open_valves.append(device_id)
+
+    for device_id in open_valves:
         opening_time = 10
         turn_on_valve(device_id, opening_time)
 
@@ -109,7 +116,8 @@ def write_opening_to_es(device_id, opening_time):
       "time": int(time.time() * 1000),
       "opening-time": opening_time
     }
-    res = es.index(index='irsys-open_valve', doc_type='open_valve', body=e1)
+    res = es.index(index='irsys-open_valve-1', body=e1)
+    print("Written open valve to ES")
 
 
 handle()
