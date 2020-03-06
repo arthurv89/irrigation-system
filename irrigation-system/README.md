@@ -11,12 +11,16 @@ webserver is code that you can run on a mac (or Raspberry Pi) that can receive d
 
 ### Setup Elasticsearch
 
+https://github.com/elastic/homebrew-tap
+
 Elasticsearch: http://localhost:9200/
+(make sure you have version >= 7.x)
+
 Kibana: http://localhost:5601/status#?_g=()
 
 
 
 ### Setup server & client
 
-cd webserver/ && bash run-server.sh
-cd webserver/ && bash run-client.sh
+cd webserver-pi/ && bash run-server.sh
+cd webserver-pi/ && bash run-client.sh

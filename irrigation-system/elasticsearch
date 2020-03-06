@@ -1,0 +1,135 @@
+DELETE /irsys-moisture-1
+
+GET /irsys-moisture-1/_search
+{ "query": { "match_all": {} } }
+
+DELETE _template/irsys-moisture
+
+GET _cat/templates
+
+PUT _template/irsys-moisture
+{
+  "index_patterns": ["irsys-moisture-*"],
+  "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "_source": {
+      "enabled": true
+    },
+    "properties": {
+      "time": {
+        "type": "date",
+        "format": "epoch_millis"
+      },
+      "deviceId": {
+        "type": "text",
+        "fielddata": true,
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "owner": { "type": "text", "index": true },
+      "moisture": { "type": "integer" }
+    }
+  }
+}
+
+
+POST /irsys-moisture/IRSYS-M-072276788952
+{
+  "deviceId": "test",
+  "moisture": 20,
+  "owner": "casabatata",
+  "time": 1583248500000
+}
+
+GET /irsys-moisture-1/_search
+{
+  "query": {
+    "match": {
+        "owner": "casabatata"
+    }
+  },
+  "from" : 0,
+  "size" : 96
+}
+
+
+GET /irsys-moisture-1/_search
+{"aggs": {"moisture_data": {"terms": {"field": "deviceId.keyword", "size": 20, "order": {"_key": "desc"}, "missing": "__missing__"}, "aggs": {"date_buckets": {"date_histogram": {"field": "time", "interval": "1h", "time_zone": "Europe/London", "min_doc_count": 1}, "aggs": {"moisture_value": {"avg": {"field": "moisture"}}}}}}}, "size": 0, "_source": {"excludes": []}, "stored_fields": ["*"], "script_fields": {}, "docvalue_fields": [{"field": "time", "format": "date_time"}], "query": {"bool": {"must": [{"query_string": {"query": "owner: \"casabatata\"", "analyze_wildcard": true, "default_field": "*"}}, {"range": {"time": {"gte": 1583192969341, "lte": 1583279369341, "format": "epoch_millis"}}}], "filter": [], "should": [], "must_not": []}}}
+
+
+GET /irsys-moisture-1/_search
+{
+   "aggs":{
+      "moisture_data":{
+         "terms":{
+            "field":"deviceId.keyword",
+            "size":20,
+            "order":{
+               "_key":"desc"
+            },
+            "missing":"__missing__"
+         },
+         "aggs":{
+            "date_buckets":{
+               "date_histogram":{
+                  "field":"time",
+                  "interval":"1h",
+                  "time_zone":"Europe/London",
+                  "min_doc_count":1
+               },
+               "aggs":{
+                  "moisture_value":{
+                     "avg":{
+                        "field":"moisture"
+                     }
+                  }
+               }
+            }
+         }
+      }
+   },
+   "size":0,
+   "docvalue_fields":[
+      {
+         "field":"time",
+         "format":"date_time"
+      }
+   ],
+   "query":{
+      "bool":{
+         "must":[
+            {
+               "query_string":{
+                  "query":"owner: \"casabatata\"",
+                  "analyze_wildcard":true,
+                  "default_field":"*"
+               }
+            },
+            {
+               "range":{
+                  "time":{
+                     "gte":1583192435000,
+                     "lte":1583278835000,
+                     "format":"epoch_millis"
+                  }
+               }
+            }
+         ]
+      }
+   }
+}
+
+
+POST /irsys-moisture/_delete_by_query
+{
+  "query": {
+      "match_phrase_prefix": {
+            "deviceId": "IRSYS-"
+      }
+  }
+}

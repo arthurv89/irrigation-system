@@ -47,9 +47,9 @@ void _setup() {
   Serial.print("Device id: ");
   Serial.println(deviceId);
 
-  
+
   buttonPressed = isButtonReset();
-  if(buttonPressed) {
+  if (buttonPressed) {
     handleReset();
   } else {
     handleWakeup();
@@ -74,23 +74,23 @@ void handleReset() {
 
 void run() {
   Serial.println("Run");
-//  Serial.println(WiFi.SSID());
-//  Serial.println(WiFi.psk());
+  //  Serial.println(WiFi.SSID());
+  //  Serial.println(WiFi.psk());
   WiFiManager wifiManager;
 
-  if(buttonPressed) { // Wifi reset
-//    blink_count = 5;
+  if (buttonPressed) { // Wifi reset
+    //    blink_count = 5;
     wifiManager.resetSettings();
   } else {
-//    blink_count = 6;
+    //    blink_count = 6;
   }
-//  blink_reverse(LED_BUILTIN, blink_count);
+  //  blink_reverse(LED_BUILTIN, blink_count);
 
   long long beforeMillis = millis();
-//  perform_action();
+  //  perform_action();
   long long afterMillis = millis();
 
-  if(buttonPressed) {
+  if (buttonPressed) {
     String wifiName = getDeviceId();
     wifiManager.autoConnect(wifiName.c_str());
   } else {
@@ -127,7 +127,7 @@ StaticJsonDocument<200> settings;
 void get_settings() {
   String response = do_get_request(settings_url);
   Serial.println(response);
-  
+
   settings = deserializeJson(response)["response"];
   String controller_ip = settings["controller_ip"];
   Serial.println("controller_ip");
@@ -137,12 +137,12 @@ void get_settings() {
   serializeJson(settings, payload);
   Serial.println(payload);
 
-//  settings["controller_ip"] = "192.168.1.3:8123";
+  //  settings["controller_ip"] = "192.168.1.3:8123";
 }
 
 
 int get_moisture_value() {
-    return random(10, 20);
+  return random(10, 20);
 }
 
 

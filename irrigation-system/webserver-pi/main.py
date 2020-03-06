@@ -2,12 +2,13 @@ import sys
 import json
 from flask import Flask, request, send_from_directory, Response
 from flask_api import status
-from handlers import index, scan, setup_wifi
+from handlers.pages import index, scan, setup_wifi
 from handlers.api import scan as scanNow, health, submit, find_ssids, poll_new_devices, save_wifi, get_settings
 
 import time
 
 app = Flask(__name__, template_folder="jinja_templates")
+
 
 
 # Pages
@@ -85,6 +86,7 @@ def send_fonts(path):
 
 def handle_stream(handler):
     return Response(handler.handle_stream(), content_type='text/event-stream')
+
 
 
 def handle(handler, type):

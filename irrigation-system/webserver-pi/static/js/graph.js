@@ -3,7 +3,6 @@ function render(timeseries, id) {
 
   function get_data() {
     data = timeseries['rows']
-    console.log(data)
 
     for(i in data) {
       for(j in data[i]) {
@@ -14,7 +13,7 @@ function render(timeseries, id) {
       }
     }
 
-    console.log(data);
+    console.log("DATA", data);
     return data;
   }
 
@@ -29,13 +28,12 @@ function render(timeseries, id) {
         .attr("cy", function(d) { return y(d[line_index+1]) })
         .attr("r", 3)
 
-      console.log("baabaa")
     circle = svg.selectAll("circle")
-    circle.filter(function(d) {
-        console.log(line_index+1, d[line_index+1], _isDefined(d[line_index+1]))
-        return _isDefined(d[line_index+1]);
-    })
-    .remove();
+    // circle.filter(function(d) {
+    //     // console.log(line_index+1, d[line_index+1], _isDefined(d[line_index+1]))
+    //     return _isDefined(d[line_index+1]);
+    // })
+    // .remove();
 
   }
 
@@ -95,7 +93,15 @@ function render(timeseries, id) {
             "translate(" + margin.left + "," + margin.top + ")");
 
   // Scale the range of the data
-  x.domain(d3.extent(data, function(d) { return d[0]; }));
+  x.domain(d3.extent(data, function(d) {
+    if(d[0] == data[0][0]) {
+      console.log("HIGH")
+      return timeseries['meta']['high_timestamp_ms'];
+    } else {
+      console.log("LOW")
+      return timeseries['meta']['low_timestamp_ms'];
+    }
+  }));
   y.domain([0, d3.max(data, function(d) {
     values = d.slice(1)
     return Math.max(...values); })]);
@@ -112,6 +118,4 @@ function render(timeseries, id) {
   // Add the Y Axis
   svg.append("g")
       .call(d3.axisLeft(y));
-
-  console.log(data)
 }

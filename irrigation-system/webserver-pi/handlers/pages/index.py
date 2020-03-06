@@ -7,17 +7,20 @@ es = Elasticsearch([{'host':'localhost','port':9200}])
 
 app = Flask(__name__, template_folder="jinja_templates")
 
+max_lines = 20
+interval_minutes = 15
+
 def handle():
     high_timestamp_ms = int(time.time() * 1000)
     one_day_ms = 86400 * 1000
-    low_timestamp_ms = high_timestamp_ms - 3 * one_day_ms
+    low_timestamp_ms = high_timestamp_ms - 1 * one_day_ms
 
     es_query = {
       "aggs": {
         "moisture_data": {
           "terms": {
             "field": "deviceId.keyword",
-            "size": 20,
+            "size": 60 / interval_minutes * max_lines,
             "order": {
               "_key": "desc"
             },
@@ -27,7 +30,7 @@ def handle():
             "date_buckets": {
               "date_histogram": {
                 "field": "time",
-                "interval": "1h",
+                "interval": str(interval_minutes) + "m",
                 "time_zone": "Europe/London",
                 "min_doc_count": 1
               },
@@ -82,11 +85,8 @@ def handle():
         }
       }
     }
-    res = es.search(index="irsys", body=es_query)
-    print()
-    print()
-    print()
-    print()
+    res = es.search(index="irsys-moisture-1", body=es_query)
+    print(json.dumps(es_query))
     # print(res)
     # print("Got %d Hits:" % res['hits']['total'])
 
@@ -130,12 +130,21 @@ def handle():
                 row.append(None)
         rows.append(row)
 
+    if len(rows) == 1:
+        cloned_row = rows[0].copy()
+        cloned_row[0] = cloned_row[0]-100
+        rows.append(cloned_row)
+
     timeseries = {
         "rows": rows,
         "meta": {
-            "device_ids": device_ids
+            "device_ids": device_ids,
+            "low_timestamp_ms": low_timestamp_ms,
+            "high_timestamp_ms": high_timestamp_ms
         }
     }
+    print("TIMESERIES")
+    print(timeseries)
     template_context = dict(
         page="index",
         timeseries=json.dumps(timeseries)
