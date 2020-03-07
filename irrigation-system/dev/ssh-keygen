@@ -1,0 +1,9 @@
+ssh-keygen
+
+# Use filename: /Users/arthur/.ssh/pi
+
+# Copy the file into this folder and do an rsync
+ssh-copy-id -i ~/.ssh/pi pi@192.168.1.11
+
+# Add it to Mac keychain so we don't have to enter password anymore:
+ssh-add -K ~/.ssh/pi

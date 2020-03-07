@@ -103,9 +103,10 @@ def handle(handler, type):
             raise Exception("Could not determine type")
         return response, status.HTTP_200_OK
     except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
-        print(message)
+        print(ex)
+        # template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        # message = template.format(type(ex).__name__, ex.args)
+        # print(message)
 
         response = {
             "status": "Failed"

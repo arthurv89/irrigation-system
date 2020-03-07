@@ -11,9 +11,6 @@ import traceback
 import json
 import time
 from Generator import Generator
-from elasticsearch import Elasticsearch
-
-es = Elasticsearch([{'host':'localhost','port':9200}])
 
 wire = Wireless()
 

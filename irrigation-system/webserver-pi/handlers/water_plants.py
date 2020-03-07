@@ -1,8 +1,5 @@
-from elasticsearch import Elasticsearch
 import time
 import json
-
-es = Elasticsearch([{'host':'localhost','port':9200}])
 
 def handle():
     print("[Start] Water the plants")

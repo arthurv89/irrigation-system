@@ -1,10 +1,7 @@
 import json
 from flask import request
 import properties
-from elasticsearch import Elasticsearch
 from datetime import datetime
-
-es = Elasticsearch([{'host':'localhost','port':9200}])
 
 def handle():
     store_data(request.get_json())
