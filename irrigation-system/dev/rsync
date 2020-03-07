@@ -1,4 +1,2 @@
 # Setup password:
-export RSYNC_PASSWORD=apiemug
-
 rsync -a ~/workspace/arduino/irrigation-system pi@192.168.1.11:/home/pi/workspace
