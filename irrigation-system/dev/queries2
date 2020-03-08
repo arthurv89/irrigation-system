@@ -1,0 +1,50 @@
+MySQL [irsys]> SELECT ROUND(time), moisture FROM moisture;
++----------------+
+| ROUND(time)    |
++----------------+
+| 20200308140955 |
+| 20200308142910 |
+| 20200308140430 |
+| 20200308143220 |
+
+MySQL [irsys]> SELECT UNIX_TIMESTAMP(AVG(time)) FROM moisture;
++---------------------------+
+| UNIX_TIMESTAMP(AVG(time)) |
++---------------------------+
+|           1583676453.7549 |
++---------------------------+
+1 row in set (0.001 sec)
+
+MySQL [irsys]> SELECT from_unixtime(UNIX_TIMESTAMP(AVG(time))) FROM moisture;
++------------------------------------------+
+| from_unixtime(UNIX_TIMESTAMP(AVG(time))) |
++------------------------------------------+
+| 2020-03-08 14:07:42.7698                 |
++------------------------------------------+
+1 row in set (0.000 sec)
+
+
+
+MySQL [irsys]> SELECT ROUND(UNIX_TIMESTAMP(time)/300) AS mmm, AVG(moisture) FROM moisture GROUP BY ROUND(UNIX_TIMESTAMP(time)/300) ORDER BY mmm;
++---------------------------------+---------+
+| FROM_UNIXTIME(ROUND(AVG(time))) | MIN     |
++---------------------------------+---------+
+| NULL                            | 5278918 |
+| NULL                            | 5278919 |
+| NULL                            | 5278920 |
+| NULL                            | 5278921 |
+
+
+MySQL [irsys]> SELECT DISTINCT(deviceId) AS deviceId, AVG(moisture) AS avg_moisture, ROUND(UNIX_TIMESTAMP(time)/300) AS time_bucket FROM moisture GROUP BY ROUND(UNIX_TIMESTAMP(time)/300), deviceId;
++----------------------+--------------+-------------+
+| deviceId             | avg_moisture | time_bucket |
++----------------------+--------------+-------------+
+| IRSYS-M-053108201604 |      14.0263 |     5278922 |
+| IRSYS-M-053108201604 |      15.5278 |     5278930 |
+
+
+
+SELECT DISTINCT(deviceId) AS deviceId, AVG(moisture) AS avg_moisture, FLOOR(UNIX_TIMESTAMP(time)/1800) AS time_bucket
+FROM moisture
+WHERE UNIX_TIMESTAMP(time) >= 1583596110 AND UNIX_TIMESTAMP(time) <= 1583682510
+GROUP BY FLOOR(UNIX_TIMESTAMP(time)/1800), deviceId

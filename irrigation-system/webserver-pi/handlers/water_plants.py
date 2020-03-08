@@ -7,83 +7,9 @@ def handle():
     minute_ms = 60 * 1000
     low_timestamp_ms = high_timestamp_ms - 15 * minute_ms
 
-    body = {
-      "aggs": {
-        "moisture_data": {
-          "terms": {
-            "field": "deviceId.keyword",
-            "size": 20,
-            "order": {
-              "_key": "desc"
-            },
-            "missing": "__missing__"
-          },
-          "aggs": {
-            "date_buckets": {
-              "date_histogram": {
-                "field": "time",
-                "interval": "15m",
-                "time_zone": "Europe/London",
-                "min_doc_count": 1
-              },
-              "aggs": {
-                "moisture_value": {
-                  "avg": {
-                    "field": "moisture"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "size": 0,
-      "_source": {
-        "excludes": []
-      },
-      "stored_fields": [
-        "*"
-      ],
-      "script_fields": {},
-      "docvalue_fields": [
-        {
-          "field": "time",
-          "format": "date_time"
-        }
-      ],
-      "query": {
-        "bool": {
-          "must": [
-            {
-              "query_string": {
-                "query": "owner: \"casabatata\"",
-                "analyze_wildcard": True,
-                "default_field": "*"
-              }
-            },
-            {
-              "range": {
-                "time": {
-                  "gte": low_timestamp_ms,
-                  "lte": high_timestamp_ms,
-                  "format": "epoch_millis"
-                }
-              }
-            }
-          ],
-          "filter": [],
-          "should": [],
-          "must_not": []
-        }
-      }
-    }
-    # print(json.dumps(body))
-
     open_valves = []
 
-    res = es.search(index="irsys-moisture-1", body=body)
-    agg = res["aggregations"]['moisture_data']
-    moisture_data_buckets = agg['buckets']
+    res = db.get_moisture_values_per_device_per_hour()
     for _, moisture_data_bucket in enumerate(moisture_data_buckets):
         device_id = moisture_data_bucket["key"]
         date_data = moisture_data_bucket["date_buckets"]['buckets']

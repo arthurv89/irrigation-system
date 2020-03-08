@@ -1,5 +1,4 @@
 import json
-import boto3
 from flask import request
 
 def handle():

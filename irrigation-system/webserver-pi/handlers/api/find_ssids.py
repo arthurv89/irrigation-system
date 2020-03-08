@@ -8,10 +8,15 @@ app = Flask(__name__, template_folder="jinja_templates")
 
 def handle_stream():
     def _run():
+        print("Create scanner")
         wifi_scanner = get_scanner()
+
+        print("Get access points")
         arr = wifi_scanner.get_access_points()
         for x in arr:
+            print("SSID", x)
             yield add_ssid({"ssid": x['ssid'], "quality": x['quality']})
+        print("Done")
 
     def add_ssid(ssid):
         obj['networks'].append(ssid)
@@ -25,4 +30,5 @@ def handle_stream():
     }
 
     for message in Generator(_run()):
+        print(message)
         yield json.dumps(message) + '\n'

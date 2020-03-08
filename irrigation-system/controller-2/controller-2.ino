@@ -6,6 +6,7 @@ using namespace std;
 #include "Request.h"
 #include "Utils.h"
 #include "BlinkTimes.h"
+#include "MoistureSensor.h"
 
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
@@ -139,12 +140,6 @@ void get_settings() {
 
   //  settings["controller_ip"] = "192.168.1.3:8123";
 }
-
-
-int get_moisture_value() {
-  return random(10, 20);
-}
-
 
 void submit_results() {
   String ip = settings["controller_ip"];

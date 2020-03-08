@@ -3,18 +3,24 @@ sudo mysql -u root -p
 
 ```sql
 CREATE DATABASE irsys;
-CREATE USER 'irsys'@'localhost' IDENTIFIED BY 'waterme';
+CREATE USER 'irsys'@'localhost' IDENTIFIED BY 'Waterme1';
 GRANT ALL PRIVILEGES ON irsys.* TO 'irsys'@'localhost';
 
 GRANT ALL PRIVILEGES ON irsys.* TO 'phpmyadmin'@'localhost';
 
 # Create tables
-CREATE TABLE `moisture` (
+CREATE TABLE irsys.`moisture` (
   `id` binary(16) NOT NULL,
   `deviceId` text NOT NULL,
-  `time` datetime NOT NULL,
+  `time` timestamp NOT NULL,
   `owner` varchar(50) NOT NULL,
   `moisture` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE irsys.`sensors` (
+  `id` binary(16) NOT NULL,
+  `deviceId` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

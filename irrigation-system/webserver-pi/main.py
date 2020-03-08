@@ -1,9 +1,9 @@
 import sys
 import json
-from flask import Flask, request, send_from_directory, Response
+from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
-from handlers.pages import index, scan, setup_wifi
-from handlers.api import scan as scanNow, health, submit, find_ssids, poll_new_devices, save_wifi, get_settings
+from handlers.pages import index, scan as scan_page, setup_wifi
+from handlers.api import health, submit, find_ssids, scan_sensors, save_wifi, get_settings
 
 import time
 
@@ -18,8 +18,8 @@ def _index():
     return handle(index, "html")
 
 @app.route('/scan', methods=['GET'])
-def _scan():
-    return handle(scan, "html")
+def _scan_page():
+    return handle(scan_page, "html")
 
 
 @app.route('/setup-wifi', methods=['GET'])
@@ -44,8 +44,8 @@ def _health():
     return handle(health, "json")
 
 @app.route('/api/scan', methods=['POST'])
-def _scanNow():
-    return handle_stream(poll_new_devices)
+def _scan():
+    return handle_stream(scan_sensors)
 
 @app.route('/api/find-ssids', methods=['POST'])
 def _find_ssids():
@@ -54,6 +54,8 @@ def _find_ssids():
 @app.route('/api/save-wifi', methods=['POST'])
 def _save_wifi():
     return handle(save_wifi, "json")
+
+
 
 
 # Static resources
@@ -93,20 +95,24 @@ def handle(handler, type):
     try:
         result = handler.handle()
         if type == "json":
-            response = {
+            response = jsonify({
                 "status": "OK",
                 "response": result
-            }
+            })
         elif type == "html":
             response = result
         else:
             raise Exception("Could not determine type")
         return response, status.HTTP_200_OK
     except Exception as ex:
+        try:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print(message)
+        except Exception as ex2:
+            print(ex2)
+        print("EXCEPTION!!!")
         print(ex)
-        # template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        # message = template.format(type(ex).__name__, ex.args)
-        # print(message)
 
         response = {
             "status": "Failed"

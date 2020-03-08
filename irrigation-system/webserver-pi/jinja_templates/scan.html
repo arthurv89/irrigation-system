@@ -18,8 +18,11 @@
                   last_response_len = response.length;
               }
               json = JSON.parse(this_response.trim().split('\n').slice(-1)[0])
-              console.log("json", json)
-              $(".scanning").html("<span class='scan-status-" + json['status'] + "'>" + json['messages'].join("<br/>") + "</span>");
+              console.log(json)
+              const spans = json['messages'].map(message =>
+                "<p class='scan-status-" + message['status'] + "'>" + message['message'] + "</p>")
+              console.log("spans", spans)
+              $(".output").html(spans);
             }
         }
     })
@@ -39,7 +42,7 @@
 
       isScanning = true;
       $(".scan-now").hide();
-      $(".scanning").html("Scanning...").show();
+      $(".output").html("Scanning...").show();
       ajax_call()
       isScanning = false;
       return false;
@@ -58,6 +61,6 @@
 <div class="box-content row">
     <div class="col-lg-7 col-md-12">
         <p class="scan-now"><a href="#">Scan now</a>
-        <p class="scanning" style="display: none"></p>
+        <p class="output" style="display: none"></p>
     </div>
 </div>

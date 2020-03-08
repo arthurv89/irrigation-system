@@ -1,0 +1,3 @@
+SELECT deviceId, time, owner, moisture
+FROM moisture
+ORDER BY time;
