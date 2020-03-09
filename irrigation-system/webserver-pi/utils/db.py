@@ -1,6 +1,7 @@
 import mysql.connector as mariadb
 from datetime import datetime
 import uuid
+import time
 
 connection = mariadb.connect(user='irsys', password='Waterme1', database='irsys')
 connection.reconnect(attempts=1, delay=0)
@@ -56,6 +57,23 @@ def write_sensor_association(deviceId, time):
     query = ("INSERT INTO sensors "
               "(id, deviceId, time) "
               "VALUES (%(id)s, %(deviceId)s, %(time)s)")
+
+    cursor.execute(query, values)
+    connection.commit()
+
+
+
+def write_opening(valve, opening_time):
+    values = {
+      'id': uuid.uuid4().bytes,
+      'valve': valve,
+      'time': datetime.now() .strftime('%Y-%m-%d %H:%M:%S'),
+      'opening_time': opening_time
+    }
+
+    query = ("INSERT INTO open_times "
+              "(id, valve, time, opening_time) "
+              "VALUES (%(id)s, %(valve)s, %(time)s, %(opening_time)s)")
 
     cursor.execute(query, values)
     connection.commit()

@@ -25,6 +25,15 @@ CREATE TABLE irsys.`sensors` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
+CREATE TABLE irsys.`open_times` (
+  `id` binary(16) NOT NULL,
+  `valve` text NOT NULL,
+  `time` timestamp NOT NULL,
+  `opening_time` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 ```
 
 # Go to URL in browser:

@@ -23,7 +23,7 @@ def handle():
         turn_on_valve(device_id, opening_time)
 
         # This can be batched
-        write_opening_to_es(device_id, opening_time)
+        write_opening(device_id, opening_time)
 
         print(device_id, moisture)
         # print(moisture_data_bucket)
@@ -32,14 +32,9 @@ def turn_on_valve(device_id, opening_time):
     print("Turning on " + device_id + " for " + str(opening_time) + " seconds")
     # TODO: set pins on the PI
 
-def write_opening_to_es(device_id, opening_time):
+def write_opening(device_id, opening_time):
     # We could have multiple moisture sensors for a valve (or other way around) in the future
-    e1 = {
-      "valve": device_id,
-      "time": int(time.time() * 1000),
-      "opening-time": opening_time
-    }
-    res = es.index(index='irsys-open_valve-1', body=e1)
+    db.write_opening(device_id, opening_time)
     print("Written open valve to ES")
 
 
