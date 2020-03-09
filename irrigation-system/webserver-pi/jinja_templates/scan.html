@@ -27,8 +27,8 @@
         }
     })
     .done(function(data) {
-        $(".scan-now").show()
-          .find("a").text("Scan again");
+        $(".scan-now").prop('disabled', false)
+          .text("Scan again");
     })
     .fail(function(data) {
         console.log('Error: ', data);
@@ -37,11 +37,12 @@
 
   var isScanning = false;
   function addScanClickHandler() {
-    $("p.scan-now a").click(function() {
+    $(".scan-now").click(function() {
       if(isScanning) return;
 
       isScanning = true;
-      $(".scan-now").hide();
+      $(".scan-now").prop('disabled', true)
+        .text("Scanning...");
       $(".output").html("Scanning...").show();
       ajax_call()
       isScanning = false;
@@ -60,7 +61,7 @@
 </div>
 <div class="box-content row">
     <div class="col-lg-7 col-md-12">
-        <p class="scan-now"><a href="#">Scan now</a>
+        <p><button class="scan-now btn btn-primary">Scan now</button></p>
         <p class="output" style="display: none"></p>
     </div>
 </div>
