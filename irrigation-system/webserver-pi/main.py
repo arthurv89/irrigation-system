@@ -2,7 +2,7 @@ import sys
 import json
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
-from handlers.pages import index, scan as scan_page, setup_wifi
+from handlers.pages import index, connect_sensors, setup_wifi
 from handlers.api import health, submit, find_ssids, scan_sensors, save_wifi, get_settings
 
 import time
@@ -17,9 +17,9 @@ app = Flask(__name__, template_folder="jinja_templates")
 def _index():
     return handle(index, "html")
 
-@app.route('/scan', methods=['GET'])
-def _scan_page():
-    return handle(scan_page, "html")
+@app.route('/connect-sensors', methods=['GET'])
+def _connect_sensors():
+    return handle(connect_sensors, "html")
 
 
 @app.route('/setup-wifi', methods=['GET'])
@@ -49,7 +49,7 @@ def _scan():
 
 @app.route('/api/find-ssids', methods=['POST'])
 def _find_ssids():
-    return handle_stream(find_ssids)
+    return handle(find_ssids, "json")
 
 @app.route('/api/save-wifi', methods=['POST'])
 def _save_wifi():

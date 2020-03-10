@@ -1,0 +1,94 @@
+<script>
+  function ajax_call() {
+    var last_response_len = false;
+    $.ajax('/api/find-ssids', {
+        type: "POST"
+    })
+    .done(function(json) {
+      handle_json(json['response'])
+      $(".scan-now").prop('disabled', false)
+        .text("Scan again");
+    })
+    .fail(function(data) {
+        console.log('Error: ', data);
+    });
+  }
+
+  function handle_json(json) {
+    const divs = json['networks'].filter(x => x.ssid.startsWith("IRSYS-M-")).map(x => ssid_row_contents(x));
+    $(".ssids").html(divs);
+  }
+
+  var isScanning = false;
+  function addScanClickHandler() {
+    $(".scan-now").click(function() {
+      if(isScanning) return;
+
+      isScanning = true;
+      $(".scan-now").prop('disabled', true)
+        .text("Scanning...");
+      $(".output").html("Scanning...").show();
+      ajax_call()
+      isScanning = false;
+      return false;
+    });
+  }
+
+  function wifi_icon(quality) {
+    const rssi = quality / 2 - 100 // See: https://github.com/kootenpv/access_points/blob/7ca2aaed39b966249a30580fd8b6f13612b4ac04/access_points/__init__.py#L23
+    if(rssi > -50) {
+      return 'wifi';
+    }
+    else if(rssi > -65) {
+      return 'wifi-2';
+    }
+    else {
+      return 'wifi-1';
+    }
+  }
+
+  ssid = "";
+  function ssid_row_contents(network) {
+    const div = $(`
+      <div class='network'>
+        <div class='ssid'>
+          <i class="fad fa-${wifi_icon(network['quality'])}"></i>
+          ${network['ssid']}
+        </div>
+      </div>`)
+
+    div.click(function() {
+      const credentials = $("#credentials")
+      $(this).after(credentials);
+      ssid = network['ssid']
+      credentials.show();
+    })
+    return div;
+  }
+
+  function scan() {
+    if(isScanning) return;
+
+    isScanning = true;
+    $(".scan-again").hide();
+    $(".ssids").html("Scanning...").show();
+    ajax_call()
+    isScanning = false;
+    return false;
+  }
+
+  $(document).ready(function() {
+    addScanClickHandler();
+  });
+</script>
+
+
+<div class="box-header well">
+    <h2>Scan sensors</h2>
+</div>
+<div class="box-content row">
+    <div class="col-lg-7 col-md-12">
+        <p><button class="scan-now btn btn-primary">Scan now</button></p>
+        <div class="ssids" style="border: 1px; solid black; padding: 10px;"></div>
+    </div>
+</div>

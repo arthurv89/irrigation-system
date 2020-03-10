@@ -4,6 +4,6 @@ app = Flask(__name__, template_folder="jinja_templates")
 
 def handle():
     template_context = dict(
-        page="scan"
+        page="connect_sensors"
     )
     return render_template('template.html', **template_context)
