@@ -16,6 +16,10 @@ String getDeviceId() {
   return deviceId;
 }
 
+int getCycle() {
+  return EEPROM.read("IRSYS-66320771887196".length);
+}
+
 String getPrefix(String s) {
   return s.substring(0, strlen(prefix));
 }
@@ -23,30 +27,46 @@ String getPrefix(String s) {
 /**
    Only sets it if we don't have a deviceId yet!
 */
-void setDeviceId() {
+void writeEEPROM() {
   String deviceId = getDeviceId();
   Serial.print("DeviceId: ");
   Serial.println(deviceId);
   if (resetDeviceId || !getPrefix(deviceId).equals(prefix)) {
     Serial.println("Writing back deviceId to EEPROM");
 
-    // Create random deviceId and write it back to EEPROM
-    for (int i = 0; i < strlen(prefix); i++) {
-      EEPROM.write(i, prefix[i]);
-      delay(100);
-    }
-    for (int i = strlen(prefix); i < deviceIdLength; i++) {
-      char x = '0' + random(0, 10);
-      EEPROM.write(i, x);
-      delay(100);
-    }
-    EEPROM.commit();
-    for (int i = 0; i < deviceIdLength; i++) {
-      char y = (char) EEPROM.read(i);
-      Serial.print(y);
-    }
-    Serial.println("");
+    write();
   } else {
     Serial.println("DeviceId already set");
   }
+}
+
+void write() {
+  // Create random deviceId
+  String deviceIdPostfix = "";
+  for (; i < deviceIdLength; i++) {
+    deviceIdPostfix += ('0' + random(0, 10));
+  }
+  
+  int i = 0;
+  i = writeString(prefix, i);
+  i = writeString(deviceIdPostfix, i);
+  i = writeInt(cycle, i);
+  
+  EEPROM.commit();
+}
+
+void writeString(String str, int i) {
+  for (; i < strlen(str); i++) {
+    EEPROM.write(i, str[i]);
+    delay(100);
+  }
+  return i;
+}
+
+void writeInt(int cycle, int i) {
+  EEPROM.write(i, cycle);
+  delay(100);
+
+  i++;
+  return i;
 }

@@ -1,75 +1,73 @@
+#include "EEPROMUtil.h"
+#include "EEPROM.h"
+
 String version = "1.0";
 
 int pin = D2;
 
 int buttonPressed;
 
+int delay_ms = 3000;
+
+String str = "";
+
 void setup() {
   Serial.begin(115200);
-//  digitalWrite(D0, HIGH);
+  EEPROM.begin(512);
 
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
-  Serial.println("Finished Setup");
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
+//  Serial.println("");
+//  Serial.println("==== STARTING DEVICE =====");
+//  Serial.println("");
+  inializeEEPROM(false);
 
   buttonPressed = digitalRead(pin);
-  Serial.println("buttonPressed? ");
-  Serial.println(buttonPressed);
-  
-  digitalWrite(pin, LOW);
-  
-  buttonPressed = digitalRead(pin);
-  Serial.println("buttonPressed? ");
-  Serial.println(buttonPressed);
-  
-  digitalWrite(pin, HIGH);
-  
-  buttonPressed = digitalRead(pin);
-  Serial.println("buttonPressed? ");
-  Serial.println(buttonPressed);
+
+//  Serial.println("");
+//  Serial.println("");
+//  Serial.println("");
+//  Serial.println("======= Finished Setup =======");
+
+  run();
 }
 
 void run() {
-  x(pin);
-//  x(D4);
+  pinMode(pin, INPUT);
+
+  str += version + " " + "PIN " + String(pin) + " = " + buttonPressed + ", cycle=" + getCycle();
+
+  if(buttonPressed == 1) {
+    handle_button_pressed();
+  } else if(getCycle() >= 5) {
+    setCycle(0);
+    do_big_calculation();
+  } else {
+    no_button_press();
+  }
 }
 
-void x(int buttonPin) {
-  pinMode(buttonPin, INPUT);
+void do_big_calculation() {
+  Serial.println("--------------------> Submit data over wifi");
+  sleep(100);
+}
 
-  String str = version + " ";
-  
-  int buttonPressed = digitalRead(buttonPin);
-  str  += "PIN " + String(buttonPin) + " = " + buttonPressed;
+void handle_button_pressed() {
+  // Reboot and handle it once it's rebooted.
+  Serial.println("Setup wifi");
+  sleep(100);
+}
+
+void no_button_press() {
+  // Just wait for the next cycle to see if a button is pressed
+  sleep(delay_ms * 1000);
+}
+
+void sleep(int us) {
   Serial.println(str);
-
-//  if(buttonPressed == 1) {
-//    reboot(str);
-//  } else {
-//    no_button_press(str);
-//  }
+  setCycle(getCycle() + 1);
+  ESP.deepSleep(us, WAKE_RF_DEFAULT);
 }
-
-//void reboot(String str) {
-//  str  += " IF: Rebooting";
-//    Serial.println(str);
-//    delay(3000);
-////    ESP.deepSleep( 1 * 1000, WAKE_RF_DEFAULT);
-//}
-//
-//void no_button_press(String str) {
-//  str += " ELSE";
-//    Serial.println(str);
-////    ESP.deepSleep( 3000 * 1000, WAKE_RF_DEFAULT);
-//  
-//}
 
 void loop() {
-    run();
-    Serial.println("");
-    delay(500);
+//    run();
+//    delay(delay_ms);
 }
