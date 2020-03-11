@@ -7,7 +7,7 @@ int pin = D2;
 
 int buttonPressed;
 
-int delay_ms = 3000;
+int delay_ms = 100;
 
 String str = "";
 
@@ -20,18 +20,18 @@ void setup() {
 //  Serial.println("");
   inializeEEPROM(false);
 
-  buttonPressed = digitalRead(pin);
+  pinMode(pin, INPUT);
+  buttonPressed = 1-digitalRead(pin);
 
-//  Serial.println("");
-//  Serial.println("");
-//  Serial.println("");
-//  Serial.println("======= Finished Setup =======");
+  Serial.println("");
+  Serial.println("");
+  Serial.println("");
+  Serial.println("======= Finished Setup =======");
 
   run();
 }
 
 void run() {
-  pinMode(pin, INPUT);
 
   str += version + " " + "PIN " + String(pin) + " = " + buttonPressed + ", cycle=" + getCycle();
 
