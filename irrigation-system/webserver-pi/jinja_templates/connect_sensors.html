@@ -1,49 +1,76 @@
 <script>
+  var available_networks = {};
+  var connected_networks = {};
+
   function scan_call() {
     $.ajax('/api/find-ssids', {
         type: "POST"
     })
     .done(function(json) {
-      get_connected_sensors_call(json['response']['networks']);
+      handle_new_networks(json['response']);
     })
     .fail(function(data) {
         console.log('Error: ', data);
     });
   }
 
-  function get_connected_sensors_call(all_networks) {
-    const x = {
-      'all_networks' : all_networks
-    }
+  function handle_new_networks(response) {
+    const new_networks = response['networks']
+
+    available_networks = {};
+    Object.values(new_networks).map(network => {
+      ssid = network['ssid'];
+      if (!(ssid in connected_networks) && ssid.startsWith("IRSYS-M-")) {
+        available_networks[ssid] = {
+          'ssid': ssid
+        };
+      }
+    });
+
+
+    const divs = Object.values(available_networks).map(x => new_ssid_row_contents(x));
+    $(".new_ssids").html(divs);
+
+    $(".scan-now").prop('disabled', false)
+      .text("Scan again");
+  }
+
+  function get_connected_sensors_call() {
     $.ajax('/api/get-connected-sensors', {
         type: "POST"
     })
     .done(function(json) {
-      const connected_networks = json['response']['networks']
-
-      const all_networks = x['all_networks'];
-
-      const obj = {};
-      all_networks.map(network => {
-        const ssid = network['ssid'];
-        obj[ssid] = {};
-        obj[ssid]['ssid'] = ssid;
-      });
-      connected_networks.map(network => {
-        ssid = network['ssid'];
-        if (ssid in obj) {
-          obj[ssid]['connected'] = true;
-        }
-      });
-
-      handle_networks(Object.values(obj))
-      // $(".scan-now").prop('disabled', false)
-      //   .text("Scan again");
+      handle_connected_networks(json['response'])
     })
     .fail(function(data) {
         console.log('Error: ', data);
     });
+  }
 
+  function handle_connected_networks(response) {
+    const new_connected_networks = response['networks'];
+
+    connected_networks = {};
+    Object.values(new_connected_networks).map(network => {
+      const ssid = network['ssid'];
+      connected_networks[ssid] = {
+        'ssid': ssid
+      };
+    });
+
+    const divs = Object.values(connected_networks).map(x => connected_network_contents(x));
+    $(".connected_ssids").html(divs);
+
+    console.log(connected_networks);
+  }
+
+  function connected_network_contents(network) {
+      return $(`
+        <div class='network'>
+          <div class='ssid'>
+            ${network['ssid']}
+          </div>
+        </div>`);
   }
 
   function connect_sensor_call(ssid) {
@@ -54,15 +81,11 @@
     .done(function(json) {
       $(".scan-now").prop('disabled', false)
         .text("Scan again");
+      location.reload(true);
     })
     .fail(function(data) {
         console.log('Error: ', data);
     });
-  }
-
-  function handle_networks(networks) {
-    const divs = networks.filter(x => x.ssid.startsWith("IRSYS-M-")).map(x => ssid_row_contents(x));
-    $(".ssids").html(divs);
   }
 
   var isScanning = false;
@@ -94,12 +117,12 @@
   }
 
   ssid = "";
-  function ssid_row_contents(network) {
+  function new_ssid_row_contents(network) {
     const div = $(`
       <div class='network'>
         <div class='ssid'>
           <i class="fad fa-${wifi_icon(network['quality'])}"></i>
-          ${network['ssid']} ${network['connected'] ? " (connected)" : ""}
+          ${network['ssid']}
         </div>
       </div>`)
 
@@ -109,19 +132,20 @@
     return div;
   }
 
-  function scan() {
-    if(isScanning) return;
-
-    isScanning = true;
-    $(".scan-again").hide();
-    $(".ssids").html("Scanning...").show();
-    scan_call()
-    isScanning = false;
-    return false;
-  }
+  // function scan() {
+  //   if(isScanning) return;
+  //
+  //   isScanning = true;
+  //   $(".scan-again").hide();
+  //   $(".new_ssids").html("Scanning...").show();
+  //   scan_call()
+  //   isScanning = false;
+  //   return false;
+  // }
 
   $(document).ready(function() {
     addScanClickHandler();
+    get_connected_sensors_call();
   });
 </script>
 
@@ -132,6 +156,8 @@
 <div class="box-content row">
     <div class="col-lg-7 col-md-12">
         <p><button class="scan-now btn btn-primary">Scan now</button></p>
-        <div class="ssids" style="border: 1px; solid black; padding: 10px;"></div>
+        <div class="new_ssids" style="border: 1px; solid black; padding: 10px;"></div>
+        <p style="font-weight: bold;">Already connected</p>
+        <div class="connected_ssids" style="border: 1px; solid black; padding: 10px;"></div>
     </div>
 </div>
