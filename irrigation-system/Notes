@@ -1,0 +1,23 @@
+echo "Stopping WIFI"
+sudo killall wpa_supplicant
+echo "Stopped WIFI"
+
+echo "Starting WIFI"
+output=$(sudo wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf)
+echo "Output: $output"
+while [[ "$output" == *"Failed to initialize control interface"* ]]
+do
+  echo "Trying again."
+  output=$(sudo wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf)
+  echo "Output: $output"
+done
+echo "Started WIFI"
+
+echo "Waiting to connect to network"
+ssid=$(iwgetid)
+while [ "$ssid" = "" ]
+do
+  ssid=$(iwgetid)
+  sleep 1
+done
+echo "DONE"
