@@ -1,6 +1,6 @@
 using namespace std;
 
-#include "DeviceId.h"
+#include "EEPROMUtil.h"
 #include "HandleInstruction.h"
 #include "Internet.h"
 #include "Request.h"
@@ -24,6 +24,8 @@ boolean buttonPressed;
 long long previousMillis = 0;
 const int interval = 3000; // Should be 300000 (5 minutes)
 
+const int pin = D2;
+const int delay_ms = 3000;
 
 /*********************************************
                      Setup
@@ -43,65 +45,79 @@ void _setup() {
   Serial.begin(115200);
   EEPROM.begin(512);
 
-  setDeviceId();
-  String deviceId = getDeviceId();
-  Serial.print("Device id: ");
-  Serial.println(deviceId);
+  Serial.println("");
+  Serial.println("");
+  Serial.println("");
+  inializeEEPROM(false);
 
-
-  buttonPressed = isButtonReset();
-  if (buttonPressed) {
-    handleReset();
-  } else {
-    handleWakeup();
-  }
-
-  delay(1000);
+  run();
 }
-
-boolean isButtonReset() {
-  return ESP.getResetInfoPtr()->reason == 6;
-}
-
-void handleWakeup() {
-  Serial.println("Wake up!");
-}
-
-void handleReset() {
-  Serial.println("Button pressed");
-}
-
 
 
 void run() {
-  Serial.println("Run");
-  //  Serial.println(WiFi.SSID());
-  //  Serial.println(WiFi.psk());
-  WiFiManager wifiManager;
+  pinMode(pin, INPUT_PULLUP);
 
-  if (buttonPressed) { // Wifi reset
-    //    blink_count = 5;
-    wifiManager.resetSettings();
+  buttonPressed = digitalRead(pin);
+  Serial.println("PIN " + String(pin) + " = " + buttonPressed + ", cycle=" + getCycle());
+
+  int cycle = getCycle();
+  if(buttonPressed == 1) {
+    handle_button_pressed();
+  } else if(cycle >= 5 || cycle < 0) {
+    setCycle(0);
+    do_big_calculation();
   } else {
-    //    blink_count = 6;
+    no_button_press();
   }
-  //  blink_reverse(LED_BUILTIN, blink_count);
+}
+
+void do_big_calculation() {
+  Serial.println("Big Calculation");
 
   long long beforeMillis = millis();
-  //  perform_action();
-  long long afterMillis = millis();
-
-  if (buttonPressed) {
-    String wifiName = getDeviceId();
-    wifiManager.autoConnect(wifiName.c_str());
-  } else {
+  if(WiFi.SSID().length() > 0) {
+    Serial.println("--------------------> Submit data over wifi");
+    WiFiManager wifiManager;
+    Serial.println(WiFi.SSID().c_str());
+    
+    
     wifiManager.autoConnect(WiFi.SSID().c_str());
-    perform_action();
+    
+    Serial.println();
+    Serial.println("==========");
+    
+    get_settings();
+    submit_results();
     digitalWrite(LED_BUILTIN, LOW);
-    deep_sleep(interval, beforeMillis, afterMillis);
+  } else {
+      Serial.println("--------------------> Wifi not setup yet. Not doing anything.");
   }
-  buttonPressed = false;
+  long long afterMillis = millis();
+  deep_sleep(interval, beforeMillis, afterMillis);
 }
+
+void handle_button_pressed() {
+  // Reboot and handle it once it's rebooted.
+  WiFiManager wifiManager;
+  Serial.println("Setup wifi");
+  wifiManager.resetSettings();
+  String wifiName = getWifiName();
+  wifiManager.autoConnect(wifiName.c_str());
+
+  Serial.println("Finished setting up wifi");
+  sleep(100 * 1000);
+}
+
+String getWifiName() {
+  return "IRSYS-M-" + getDeviceId();
+}
+
+void no_button_press() {
+  // Just wait for the next cycle to see if a button is pressed
+  Serial.println("No button press");
+  sleep(delay_ms * 1000);
+}
+
 
 void deep_sleep(int interval, long long beforeMillis, long long afterMillis) {
   long long delay_time_millis = max(1LL, interval - (afterMillis - beforeMillis));
@@ -111,17 +127,12 @@ void deep_sleep(int interval, long long beforeMillis, long long afterMillis) {
   Serial.println(to_str(beforeMillis));
   Serial.println(to_str(afterMillis));
 
-  delay(100);
-  ESP.deepSleep( delay_time_millis * 1000, WAKE_RF_DEFAULT);
+  sleep(delay_time_millis * 1000);
 }
 
-
-void perform_action() {
-  Serial.println();
-  Serial.println("==========");
-
-  get_settings();
-  submit_results();
+void sleep(int us) {
+  setCycle(getCycle() + 1);
+  ESP.deepSleep(us, WAKE_RF_DEFAULT);
 }
 
 StaticJsonDocument<200> settings;
@@ -161,8 +172,4 @@ void submit_results() {
 }
 
 
-void loop() {
-  run();
-
-  delay(300);
-}
+void loop() {}

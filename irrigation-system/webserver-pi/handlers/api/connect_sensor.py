@@ -1,34 +1,29 @@
-# import wificontrol
 from access_points import get_scanner
-from wireless import Wireless
-from socket import AF_INET
-import network
-import netifaces
-import requests
-from time import sleep
+
+from flask import Flask, request, render_template, jsonify
+import json
 import sys
 import traceback
-import json
-import time
-from Generator import Generator
-from wifi import Cell, Scheme
+from wifi import Cell
+from time import sleep, time
+from wireless import Wireless
 import textwrap
+import netifaces
+from socket import AF_INET
+import requests
+from utils import db
 
 wire = Wireless()
 
-prefix = "IRSYS-M-"
+app = Flask(__name__, template_folder="jinja_templates")
 
-def handle_stream():
+def handle():
     def _run():
         print("Run method")
         try:
             with open('wifi.txt', 'r') as fh:
                 credentials = json.loads(fh.readlines()[0])
-                gen = Generator(scan_and_connect(credentials))
-                for messages in gen:
-                    print(messages)
-                    yield messages
-                return gen.value
+                scan_and_connect(credentials)
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** print_tb:")
@@ -52,53 +47,58 @@ def handle_stream():
             print("*** format_tb:")
             print(repr(traceback.format_tb(exc_traceback)))
             print("*** tb_lineno:", exc_traceback.tb_lineno)
-            yield addMessage("Error occurred. Please try again", "error")
+            print("Error occurred. Please try again", "error")
 
     def scan_and_connect(credentials):
-        yield addMessage("Scanning...", "in-progress")
+        print(request.form['ssid'])
+        ssid = request.form['ssid']
+        hasSsid = find_cell(ssid)
 
-        cell = find_cell()
-        if cell is None:
-            yield addMessage("No new sensors found", "error")
+        if not hasSsid:
+            print("Could not find network with SSID " + ssid, "in-progress")
             return False
 
 
-        yield addMessage("Found sensor with name " + cell.ssid, "in-progress")
-        is_connected = connect(cell)
+        print("Found sensor with name " + ssid, "in-progress")
+        is_connected = connect(ssid)
         if not is_connected:
-            yield addMessage("Couldn't connect to sensor", "error")
+            print("Couldn't connect to sensor", "error")
             return False
 
-        yield addMessage("Connected to sensor!", "in-progress")
+        print("Connected to sensor!", "in-progress")
         ip = get_gateway_ip()
+        if ip is None:
+            print("Coulnd't find IP Gateway", "error")
+            return False
+
         saved = save_credentials(ip, credentials)
 
         if not saved:
-            yield addMessage("Could not save the wifi credentials", "error")
+            print("Could not save the wifi credentials", "error")
             return False
 
-        yield addMessage("Sensor has Wifi now. It's added to you list of sensors.", "done")
+        print("Sensor has Wifi now. It's added to you list of sensors.", "done")
 
         reconnect_to_original_wifi()
 
-        association_to_es(ssid)
+        association_to_db(ssid)
 
         return True
 
 
-    def find_cell():
+    def find_cell(ssid):
+        # print("FINDING CELL")
         for i in range(0, 5):
-            cells = scan()
-            cell = filter(cells)
-            if cell is not None:
-                return cell
+            hasSsid = scan(ssid)
+            if hasSsid:
+                return True
             print("Couldn't find it yet, trying again in 3 seconds...")
             sleep(3)
-        return None
+        return False
 
-    def association_to_es(device_id):
+    def association_to_db(device_id):
         # We could have multiple moisture sensors for a valve (or other way around) in the future
-        db.write_sensor_association(device_id, int(time.time()))
+        db.write_sensor_association(device_id, int(time()))
         print("Written assocation of sensor " + device_id + " to the database")
 
 
@@ -108,43 +108,25 @@ def handle_stream():
         wire.power(True)
 
 
-    def scan():
-        print("SCANNNNN")
+    def scan(ssid):
+        # print("SCANNNNN")
         wifi_scanner = get_scanner()
-        print(wifi_scanner)
+        # print(wifi_scanner)
         arr = wifi_scanner.get_access_points()
         print(arr)
+        for x in arr:
+            if x.ssid == ssid:
+                return True
 
-        cells = Cell.all('wlan0')
-        print(list(cells))
-
-        print(next(iter(list(cells) or []), None))
-        wifi_list = [cell for cell in Cell.all('wlan0')]
-        cells = [cell for cell in wifi_list]
-        # wifi_to_connect = [cell for cell in wifi_list if cell.ssid.startswith(prefix)][0]
-        # print(wifi_to_connect)
+        return False
 
 
-        # for x in arr:
-        #     if x.ssid.startswith(prefix):
-        #         return x.ssid
 
-        return cells
-
-    def filter(cells):
-        wifi_to_connect = [cell for cell in cells if cell.ssid.startswith(prefix)]
-        if len(wifi_to_connect) > 0:
-            return wifi_to_connect[0]
-        else:
-            return None
-
-
-    def connect(cell):
-        print("Connecting to " + cell.ssid)
+    def connect(ssid):
+        print("Connecting to " + ssid)
 
         wire.power(True)
 
-        ssid = cell.ssid
         password = ""
 
         wpa_supplicant_contents = textwrap.dedent("""\
@@ -174,6 +156,7 @@ network={{
 
         wire.power(False)
         wire.power(True)
+        is_connected = wire.connect(ssid=ssid,password='')
 
         print("Saved!")
 
@@ -190,7 +173,6 @@ network={{
         #     scheme = Scheme.find('wlan0', 'home')
         # scheme.activate()
 
-        # is_connected = wire.connect(ssid=ssid,password='')
         return True
 
     def save_credentials(ip, credentials):
@@ -204,25 +186,14 @@ network={{
 
 
     def get_gateway_ip():
-        gws = netifaces.gateways()
         for i in range(0, 10):
+            gws = netifaces.gateways()
+            print(gws)
             if AF_INET in gws:
-                print(gws)
                 return gws[AF_INET][0][0]
             print("Sleeping...")
             sleep(1)
+        return None
 
-    def addMessage(message, status):
-        obj["messages"].append({
-            "message": message,
-            "status": status})
-        return obj
-
-    obj = {
-        "messages": []
-    }
-
-    print("Starting...s")
-    for obj in Generator(_run()):
-        print("Ran the generator")
-        yield json.dumps(obj) + '\n'
+    _run()
+    return {}

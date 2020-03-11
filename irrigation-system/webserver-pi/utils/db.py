@@ -48,6 +48,8 @@ def put_moisture_value(deviceId, time, owner, moisture):
 
 
 def write_sensor_association(deviceId, time):
+    print("deviceId", deviceId)
+    print("time", time)
     values = {
       'id': uuid.uuid4().bytes,
       'deviceId': deviceId,
@@ -57,6 +59,7 @@ def write_sensor_association(deviceId, time):
     query = ("INSERT INTO sensors "
               "(id, deviceId, time) "
               "VALUES (%(id)s, %(deviceId)s, %(time)s)")
+    print("query", query, values)
 
     cursor.execute(query, values)
     connection.commit()

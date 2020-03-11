@@ -1,6 +1,5 @@
 <script>
-  function ajax_call() {
-    var last_response_len = false;
+  function scan_call() {
     $.ajax('/api/find-ssids', {
         type: "POST"
     })
@@ -14,8 +13,24 @@
     });
   }
 
+  function connect_call(ssid) {
+    $.ajax('/api/connect-sensor', {
+        type: "POST",
+        data: { "ssid": ssid }
+    })
+    .done(function(json) {
+      $(".scan-now").prop('disabled', false)
+        .text("Scan again");
+    })
+    .fail(function(data) {
+        console.log('Error: ', data);
+    });
+  }
+
   function handle_json(json) {
+    console.log(json);
     const divs = json['networks'].filter(x => x.ssid.startsWith("IRSYS-M-")).map(x => ssid_row_contents(x));
+    console.log(divs);
     $(".ssids").html(divs);
   }
 
@@ -28,7 +43,7 @@
       $(".scan-now").prop('disabled', true)
         .text("Scanning...");
       $(".output").html("Scanning...").show();
-      ajax_call()
+      scan_call()
       isScanning = false;
       return false;
     });
@@ -58,10 +73,7 @@
       </div>`)
 
     div.click(function() {
-      const credentials = $("#credentials")
-      $(this).after(credentials);
-      ssid = network['ssid']
-      credentials.show();
+      connect_call(network['ssid']);
     })
     return div;
   }
@@ -72,7 +84,7 @@
     isScanning = true;
     $(".scan-again").hide();
     $(".ssids").html("Scanning...").show();
-    ajax_call()
+    scan_call()
     isScanning = false;
     return false;
   }

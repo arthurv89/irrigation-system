@@ -21,6 +21,7 @@ CREATE TABLE irsys.`moisture` (
 CREATE TABLE irsys.`sensors` (
   `id` binary(16) NOT NULL,
   `deviceId` text NOT NULL,
+  `time` timestamp NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

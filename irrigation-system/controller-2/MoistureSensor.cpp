@@ -22,4 +22,6 @@ int read_moisture_value(int in_pin, int voltage_pin) {
     digitalWrite(voltage_pin, LOW);
 
     pinMode(voltage_pin, INPUT);
+
+    return value;
 }

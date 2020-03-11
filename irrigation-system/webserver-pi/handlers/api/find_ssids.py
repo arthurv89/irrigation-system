@@ -20,7 +20,6 @@ def handle():
 
     def add_ssid(ssid):
         obj['networks'].append(ssid)
-        obj['networks'] = sorted(obj['networks'], key=lambda k: k['quality'], reverse=True)
         return obj
 
 
@@ -30,4 +29,5 @@ def handle():
     }
 
     _run()
+    obj['networks'] = sorted(obj['networks'], key=lambda k: k['quality'], reverse=True)
     return obj
