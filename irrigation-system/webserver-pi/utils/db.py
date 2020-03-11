@@ -80,3 +80,15 @@ def write_opening(valve, opening_time):
 
     cursor.execute(query, values)
     connection.commit()
+
+
+def get_connected_sensors():
+    query = """
+SELECT deviceId
+FROM sensors"""
+    print(query)
+    res = cursor.execute(query)
+
+    return list(map(lambda row: {
+        "ssid": row[0]
+    }, cursor.fetchall()))

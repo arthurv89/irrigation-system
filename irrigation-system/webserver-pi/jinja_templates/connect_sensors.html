@@ -4,16 +4,49 @@
         type: "POST"
     })
     .done(function(json) {
-      handle_json(json['response'])
-      $(".scan-now").prop('disabled', false)
-        .text("Scan again");
+      get_connected_sensors_call(json['response']['networks']);
     })
     .fail(function(data) {
         console.log('Error: ', data);
     });
   }
 
-  function connect_call(ssid) {
+  function get_connected_sensors_call(all_networks) {
+    const x = {
+      'all_networks' : all_networks
+    }
+    $.ajax('/api/get-connected-sensors', {
+        type: "POST"
+    })
+    .done(function(json) {
+      const connected_networks = json['response']['networks']
+
+      const all_networks = x['all_networks'];
+
+      const obj = {};
+      all_networks.map(network => {
+        const ssid = network['ssid'];
+        obj[ssid] = {};
+        obj[ssid]['ssid'] = ssid;
+      });
+      connected_networks.map(network => {
+        ssid = network['ssid'];
+        if (ssid in obj) {
+          obj[ssid]['connected'] = true;
+        }
+      });
+
+      handle_networks(Object.values(obj))
+      // $(".scan-now").prop('disabled', false)
+      //   .text("Scan again");
+    })
+    .fail(function(data) {
+        console.log('Error: ', data);
+    });
+
+  }
+
+  function connect_sensor_call(ssid) {
     $.ajax('/api/connect-sensor', {
         type: "POST",
         data: { "ssid": ssid }
@@ -27,10 +60,8 @@
     });
   }
 
-  function handle_json(json) {
-    console.log(json);
-    const divs = json['networks'].filter(x => x.ssid.startsWith("IRSYS-M-")).map(x => ssid_row_contents(x));
-    console.log(divs);
+  function handle_networks(networks) {
+    const divs = networks.filter(x => x.ssid.startsWith("IRSYS-M-")).map(x => ssid_row_contents(x));
     $(".ssids").html(divs);
   }
 
@@ -68,12 +99,12 @@
       <div class='network'>
         <div class='ssid'>
           <i class="fad fa-${wifi_icon(network['quality'])}"></i>
-          ${network['ssid']}
+          ${network['ssid']} ${network['connected'] ? " (connected)" : ""}
         </div>
       </div>`)
 
     div.click(function() {
-      connect_call(network['ssid']);
+      connect_sensor_call(network['ssid']);
     })
     return div;
   }

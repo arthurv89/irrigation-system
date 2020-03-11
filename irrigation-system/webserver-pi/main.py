@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
 from handlers.pages import index, connect_sensors, setup_wifi
-from handlers.api import health, submit, find_ssids, save_wifi, get_settings, connect_sensor
+from handlers.api import health, submit, find_ssids, save_wifi, get_settings, connect_sensor, get_connected_sensors
 
 import time
 
@@ -54,6 +54,10 @@ def _save_wifi():
 @app.route('/api/connect-sensor', methods=['POST'])
 def _connect_sensor():
     return handle(connect_sensor, "json")
+
+@app.route('/api/get-connected-sensors', methods=['POST'])
+def _get_connected_sensors():
+    return handle(get_connected_sensors, "json")
 
 
 
