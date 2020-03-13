@@ -6,10 +6,16 @@ from handlers.pages import index, connect_sensors, setup_wifi
 from handlers.api import health, submit, find_ssids, save_wifi, get_settings, connect_sensor, get_connected_sensors
 
 import time
+import os
+import properties
 
 app = Flask(__name__, template_folder="jinja_templates")
 
+properties.os = os.getenv('IRSYS_OS')
+if properties.os not in ["pi", "macosx"]:
+    raise Exception("OS not correct: " + str(properties.os))
 
+properties.working_directory = os.getenv('IRSYS_RUN_DIR') + "/.."
 
 # Pages
 

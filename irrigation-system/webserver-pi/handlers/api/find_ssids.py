@@ -1,7 +1,6 @@
 from access_points import get_scanner
 
 from flask import Flask, request, render_template, jsonify
-from Generator import Generator
 import json
 
 app = Flask(__name__, template_folder="jinja_templates")

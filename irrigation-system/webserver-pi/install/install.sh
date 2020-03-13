@@ -8,6 +8,7 @@ sudo apt install phpmyadmin
 
 
 # In order to connect to a different wifi
-# sudo chmod 777 /etc/wpa_supplicant/wpa_supplicant.conf
+sudo chmod 777 /etc/wpa_supplicant/wpa_supplicant.conf
+sudo chmod +x scripts/reset_wifi_pi.sh
 # sudo chmod 777 /etc/network/interfaces
 # sudo chmod 4755 /sbin/ifconfig

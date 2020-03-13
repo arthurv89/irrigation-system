@@ -4,16 +4,11 @@ from flask import Flask, request, render_template, jsonify
 import json
 import sys
 import traceback
-from wifi import Cell
 from time import sleep, time
-from wireless import Wireless
-import textwrap
 import netifaces
 from socket import AF_INET
 import requests
-from utils import db
-
-wire = Wireless()
+from utils import db, wifiUtil
 
 app = Flask(__name__, template_folder="jinja_templates")
 
@@ -21,9 +16,8 @@ def handle():
     def _run():
         print("Run method")
         try:
-            with open('wifi.txt', 'r') as fh:
-                credentials = json.loads(fh.readlines()[0])
-                scan_and_connect(credentials)
+            credentials = db.get_wifi_credentials()
+            scan_and_connect(credentials)
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** print_tb:")
@@ -49,18 +43,20 @@ def handle():
             print("*** tb_lineno:", exc_traceback.tb_lineno)
             print("Error occurred. Please try again", "error")
 
-    def scan_and_connect(credentials):
+    def scan_and_connect(main_wifi_credentials):
         print(request.form['ssid'])
-        ssid = request.form['ssid']
-        hasSsid = find_cell(ssid)
+        print("main_wifi_credentials", main_wifi_credentials)
+        new_ssid = request.form['ssid']
+        hasSsid = find_cell(new_ssid)
 
         if not hasSsid:
-            print("Could not find network with SSID " + ssid, "in-progress")
+            print("Could not find network with SSID " + new_ssid, "in-progress")
             return False
 
 
-        print("Found sensor with name " + ssid, "in-progress")
-        is_connected = connect(ssid)
+        print("Found sensor with name " + new_ssid, "in-progress")
+        is_connected = wifiUtil.connect_moisture_sensor(main_wifi_credentials, new_ssid)
+        print(is_connected)
         if not is_connected:
             print("Couldn't connect to sensor", "error")
             return False
@@ -71,7 +67,7 @@ def handle():
             print("Coulnd't find IP Gateway", "error")
             return False
 
-        saved = save_credentials(ip, credentials)
+        saved = save_credentials(ip, main_wifi_credentials)
 
         if not saved:
             print("Could not save the wifi credentials", "error")
@@ -79,9 +75,9 @@ def handle():
 
         print("Sensor has Wifi now. It's added to you list of sensors.", "done")
 
-        reconnect_to_original_wifi()
+        wifiUtil.connect_main(main_wifi_credentials['ssid'], main_wifi_credentials['password'])
 
-        association_to_db(ssid)
+        association_to_db(new_ssid)
 
         return True
 
@@ -103,10 +99,6 @@ def handle():
 
 
 
-    def reconnect_to_original_wifi():
-        wire.power(False)
-        wire.power(True)
-
 
     def scan(ssid):
         # print("SCANNNNN")
@@ -121,62 +113,8 @@ def handle():
         return False
 
 
-
-    def connect(ssid):
-        print("Connecting to " + ssid)
-
-        wire.power(True)
-
-        password = ""
-
-        wpa_supplicant_contents = textwrap.dedent("""\
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-country=PT
-
-network={{
-    ssid="CasaBatata"
-    psk="nopassword"
-    priority=1
-    id_str="Main wifi"
-}}
-
-network={{
-    ssid="{ssid}"
-    key_mgmt=NONE
-    priority=2
-    id_str="Moisture sensor"
-}}
-""").format(ssid=ssid)
-
-
-        print("Saving WPA supplicant")
-        with open('/etc/wpa_supplicant/wpa_supplicant.conf', 'w') as file:
-            file.write(wpa_supplicant_contents)
-
-        wire.power(False)
-        wire.power(True)
-        is_connected = wire.connect(ssid=ssid,password='')
-
-        print("Saved!")
-
-        # Reboot after returning the request response
-        # os.system('sudo shutdown -r now')
-
-
-
-        # cell = Cell.all('wlan0')[0]
-        # try:
-        #     scheme = Scheme.for_cell('wlan0', 'home', cell, "")
-        #     scheme.save()
-        # except Exception as e:
-        #     scheme = Scheme.find('wlan0', 'home')
-        # scheme.activate()
-
-        return True
-
-    def save_credentials(ip, credentials):
-        url = "http://" + ip + "/wifisave?s=" + credentials['ssid'] + "&p=" + credentials['password']
+    def save_credentials(ip, main_wifi_credentials):
+        url = "http://" + ip + "/wifisave?s=" + main_wifi_credentials['ssid'] + "&p=" + main_wifi_credentials['password']
         print(url)
         response = requests.get(url)
         html = response.content.decode("utf-8")

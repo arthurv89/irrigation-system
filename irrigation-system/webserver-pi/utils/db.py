@@ -20,7 +20,7 @@ GROUP BY FLOOR(UNIX_TIMESTAMP(time)/1800), deviceId
 """.format(time_bucket_size=time_bucket_size,
            low_timestamp=low_timestamp,
            high_timestamp=high_timestamp)
-    print(query)
+    # print(query)
     res = cursor.execute(query)
 
     return list(map(lambda row: {
@@ -28,6 +28,38 @@ GROUP BY FLOOR(UNIX_TIMESTAMP(time)/1800), deviceId
         "moisture": float(row[1]),
         "timestamp_bucket": row[2] * time_bucket_size
     }, cursor.fetchall()))
+
+
+def get_wifi_credentials():
+    query = """
+SELECT ssid, password
+FROM wifi"""
+    # print(query)
+    res = cursor.execute(query)
+
+    row = cursor.fetchone()
+    return {
+        "ssid": row[0],
+        "password": row[1]
+    }
+
+
+
+def put_wifi_credentials(ssid, password):
+    values = {
+        "ssid": ssid,
+        "password": password
+    }
+
+    query = ("INSERT INTO wifi "
+              "(ssid, password) "
+              "VALUES (%(ssid)s, %(password)s) "
+              "ON DUPLICATE KEY UPDATE "
+              "  password = %(password)s")
+    print(query)
+    res = cursor.execute(query, values)
+    connection.commit()
+
 
 
 def put_moisture_value(deviceId, time, owner, moisture):
@@ -48,8 +80,8 @@ def put_moisture_value(deviceId, time, owner, moisture):
 
 
 def write_sensor_association(deviceId, time):
-    print("deviceId", deviceId)
-    print("time", time)
+    # print("deviceId", deviceId)
+    # print("time", time)
     values = {
       'id': uuid.uuid4().bytes,
       'deviceId': deviceId,
@@ -59,7 +91,7 @@ def write_sensor_association(deviceId, time):
     query = ("INSERT INTO sensors "
               "(id, deviceId, time) "
               "VALUES (%(id)s, %(deviceId)s, %(time)s)")
-    print("query", query, values)
+    # print("query", query, values)
 
     cursor.execute(query, values)
     connection.commit()
@@ -86,7 +118,7 @@ def get_connected_sensors():
     query = """
 SELECT deviceId
 FROM sensors"""
-    print(query)
+    # print(query)
     res = cursor.execute(query)
 
     return list(map(lambda row: {

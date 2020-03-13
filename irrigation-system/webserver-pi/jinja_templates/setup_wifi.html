@@ -3,29 +3,14 @@
     var last_response_len = false;
     $.ajax('/api/find-ssids',
       {
-        type: "POST",
-        dataType: "text",
-        xhrFields: {
-            onprogress: function(e)
-            {
-              var this_response, response = e.currentTarget.response;
-              if(last_response_len === false) {
-                  this_response = response;
-                  last_response_len = response.length;
-              }
-              else {
-                  this_response = response.substring(last_response_len);
-                  last_response_len = response.length;
-              }
-              const json = JSON.parse(this_response.trim().split('\n').slice(-1)[0])
-              console.log("json", json)
-              const divs = json['networks'].map(x => ssid_row_contents(x));
-              $(".ssids").html(divs);
-            }
-        }
+        type: "POST"
     })
-    .done(function(data) {
-        $(".scan-again").show()
+    .done(function(json) {
+      console.log("json", json)
+      const divs = json['response']['networks'].map(x => ssid_row_contents(x));
+      $(".ssids").html(divs);
+
+      $(".scan-again").show()
     })
     .fail(function(data) {
         console.log('Error: ', data);

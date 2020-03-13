@@ -35,6 +35,13 @@ CREATE TABLE irsys.`open_times` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
+CREATE TABLE irsys.`wifi` (
+  `ssid` varchar(60) NOT NULL,
+  `password` varchar(60) NOT NULL,
+  PRIMARY KEY (`ssid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 ```
 
 # Go to URL in browser:
