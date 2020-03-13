@@ -7,14 +7,15 @@ from utils import db
 app = Flask(__name__, template_folder="jinja_templates")
 
 max_lines = 20
-interval_minutes = 15
+interval_minutes = 5
 one_day = 86400 # seconds
+time_bucket_size = 300
 
 def handle():
     high_timestamp = int(time.time())
     low_timestamp = high_timestamp - 1 * one_day
 
-    res = db.get_moisture_values_per_device_per_hour(low_timestamp, high_timestamp)
+    res = db.get_moisture_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)
 
     data = {}
     device_ids_obj = {}
@@ -22,7 +23,7 @@ def handle():
     for _, row in enumerate(res):
         device_id = row['deviceId']
         timestamp = row['timestamp_bucket'] * 1000
-        moisture = 1024 - row['moisture']
+        moisture = (1024 - row['moisture']) / 1024*100
 
         timestamps_obj[timestamp] = {}
         device_ids_obj[device_id] = {}

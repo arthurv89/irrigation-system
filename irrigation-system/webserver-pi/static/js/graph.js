@@ -9,6 +9,8 @@ function render(timeseries, id) {
         v = data[i][j]
         if(!_isDefined(v)) {
           data[i][j] = null
+        } else {
+          data[i][j] = data[i][j]
         }
       }
     }
@@ -102,9 +104,11 @@ function render(timeseries, id) {
       return timeseries['meta']['low_timestamp_ms'];
     }
   }));
-  y.domain([0, d3.max(data, function(d) {
-    values = d.slice(1)
-    return Math.max(...values); })]);
+  y.domain([0, 100])
+
+  // y.domain([0, d3.max(data, function(d) {
+  //   values = d.slice(1)
+  //   return Math.max(...values); })]);
 
   create_lines(line_count)
 

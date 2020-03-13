@@ -1,6 +1,10 @@
 import time
 import json
 
+high_timestamp = int(time.time())
+low_timestamp = high_timestamp - 1 * one_day
+time_bucket_size = 300
+
 def handle():
     print("[Start] Water the plants")
     high_timestamp_ms = int(time.time() * 1000)
@@ -9,7 +13,7 @@ def handle():
 
     open_valves = []
 
-    res = db.get_moisture_values_per_device_per_hour()
+    res = db.get_moisture_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)
     for _, moisture_data_bucket in enumerate(moisture_data_buckets):
         device_id = moisture_data_bucket["key"]
         date_data = moisture_data_bucket["date_buckets"]['buckets']

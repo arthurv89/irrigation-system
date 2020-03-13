@@ -1,4 +1,4 @@
-MySQL [irsys]> SELECT ROUND(time), moisture FROM moisture;
+MySQL [irsys]> SELECT time, moisture FROM moisture ORDER BY time;
 +----------------+
 | ROUND(time)    |
 +----------------+

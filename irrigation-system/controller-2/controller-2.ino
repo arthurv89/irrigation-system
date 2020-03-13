@@ -35,7 +35,7 @@ WiFiServer server(80);
 String header;
 
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
-String settings_url = "http://192.168.1.3:8123/api/get-settings";
+String settings_url = "http://192.168.1.251:8123/api/get-settings";
 
 void setup() {
   _setup();
@@ -57,7 +57,7 @@ void _setup() {
 void run() {
   pinMode(pin, INPUT_PULLUP);
 
-  buttonPressed = digitalRead(pin);
+  buttonPressed = 1-digitalRead(pin);
   Serial.println("PIN " + String(pin) + " = " + buttonPressed + ", cycle=" + getCycle());
 
   int cycle = getCycle();
@@ -148,8 +148,6 @@ void get_settings() {
   String payload;
   serializeJson(settings, payload);
   Serial.println(payload);
-
-  //  settings["controller_ip"] = "192.168.1.3:8123";
 }
 
 void submit_results() {
