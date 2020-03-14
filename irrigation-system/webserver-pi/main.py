@@ -1,5 +1,6 @@
 import sys
 import json
+import logging
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
 from handlers.pages import index, connect_sensors, setup_wifi
@@ -10,6 +11,11 @@ import os
 import properties
 
 app = Flask(__name__, template_folder="jinja_templates")
+
+logging.basicConfig(
+    filename='/tmp/irsys.log',
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s]: %(message)s')
 
 properties.os = os.getenv('IRSYS_OS')
 if properties.os not in ["pi", "macosx"]:
@@ -118,11 +124,11 @@ def handle(handler, type):
         try:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
-            print(message)
+            logging.debug(message)
         except Exception as ex2:
-            print(ex2)
-        print("EXCEPTION!!!")
-        print(ex)
+            logging.debug(ex2)
+        logging.debug("EXCEPTION!!!")
+        logging.debug(ex)
 
         response = {
             "status": "Failed"

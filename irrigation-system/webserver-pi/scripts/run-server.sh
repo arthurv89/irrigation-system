@@ -1,7 +1,4 @@
-export LC_ALL=C.UTF-8;
-export LANG=C.UTF-8;
-
-# IRSYS_OS=macosx
-# IRSYS_OS=pi
-
-IRSYS_RUN_DIR=$(pwd) PYTHONDONTWRITEBYTECODE=1 FLASK_DEBUG=1 FLASK_APP=../main.py FLASK_ENV=development flask run --port 8123 --host=0.0.0.0
+sudo chmod +x ~/workspace/irrigation-system/webserver-pi/scripts/reset_wifi_pi.sh && \
+sudo chmod 777 /etc/wpa_supplicant/wpa_supplicant.conf && \
+cd /home/pi/workspace/irrigation-system/webserver-pi/scripts/ && \
+nohup bash run-server-fg.sh > /dev/null 2>&1 & disown

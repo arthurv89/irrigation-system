@@ -1,4 +1,5 @@
 from access_points import get_scanner
+import logging
 
 from flask import Flask, request, render_template, jsonify
 import json
@@ -7,15 +8,15 @@ app = Flask(__name__, template_folder="jinja_templates")
 
 def handle():
     def _run():
-        print("Create scanner")
+        logging.debug("Create scanner")
         wifi_scanner = get_scanner()
 
-        print("Get access points")
+        logging.debug("Get access points")
         arr = wifi_scanner.get_access_points()
         for x in arr:
-            print("SSID", x)
+            logging.debug("SSID", x)
             add_ssid({"ssid": x['ssid'], "quality": x['quality']})
-        print("Done")
+        logging.debug("Done")
 
     def add_ssid(ssid):
         obj['networks'].append(ssid)

@@ -1,3 +1,4 @@
+import logging
 import mysql.connector as mariadb
 from datetime import datetime
 import uuid
@@ -17,7 +18,7 @@ GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}), deviceId
 """.format(time_bucket_size=time_bucket_size,
            low_timestamp=low_timestamp,
            high_timestamp=high_timestamp)
-    print(query)
+    logging.debug(query)
     res = cursor.execute(query)
 
     return list(map(lambda row: {
@@ -31,7 +32,7 @@ def get_wifi_credentials():
     query = """
 SELECT ssid, password
 FROM wifi"""
-    # print(query)
+    # logging.debug(query)
     res = cursor.execute(query)
 
     row = cursor.fetchone()
@@ -53,7 +54,7 @@ def put_wifi_credentials(ssid, password):
               "VALUES (%(ssid)s, %(password)s) "
               "ON DUPLICATE KEY UPDATE "
               "  password = %(password)s")
-    print(query)
+    logging.debug(query)
     res = cursor.execute(query, values)
     connection.commit()
 
@@ -77,8 +78,8 @@ def put_moisture_value(deviceId, time, owner, moisture):
 
 
 def write_sensor_association(deviceId, time):
-    # print("deviceId", deviceId)
-    # print("time", time)
+    # logging.debug("deviceId", deviceId)
+    # logging.debug("time", time)
     values = {
       'id': uuid.uuid4().bytes,
       'deviceId': deviceId,
@@ -88,7 +89,7 @@ def write_sensor_association(deviceId, time):
     query = ("INSERT INTO sensors "
               "(id, deviceId, time) "
               "VALUES (%(id)s, %(deviceId)s, %(time)s)")
-    # print("query", query, values)
+    # logging.debug("query", query, values)
 
     cursor.execute(query, values)
     connection.commit()
@@ -115,7 +116,7 @@ def get_connected_sensors():
     query = """
 SELECT deviceId
 FROM sensors"""
-    # print(query)
+    # logging.debug(query)
     res = cursor.execute(query)
 
     return list(map(lambda row: {

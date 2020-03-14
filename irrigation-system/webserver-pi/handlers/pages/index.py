@@ -1,3 +1,4 @@
+import logging
 import json
 from flask import Flask, request, render_template, jsonify
 import time
@@ -36,7 +37,7 @@ def handle():
 
         data[timestamp][device_id] = moisture
 
-    print("DATA", data)
+    logging.debug("DATA", data)
 
 
     timestamps = list(timestamps_obj.keys())
@@ -70,8 +71,8 @@ def handle():
             "high_timestamp_ms": high_timestamp * 1000
         }
     }
-    print("TIMESERIES")
-    print(timeseries)
+    logging.debug("TIMESERIES")
+    logging.debug(timeseries)
     template_context = dict(
         page="index",
         timeseries=json.dumps(timeseries)
@@ -85,5 +86,5 @@ def handle():
     return render_template('template.html', **template_context)
 
 # def debug(v):
-#     print("-------------> ")
-#     print(json.dumps(v))
+#     logging.debug("-------------> ")
+#     logging.debug(json.dumps(v))

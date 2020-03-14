@@ -1,4 +1,5 @@
-using namespace std;
+#include "Midget.h"
+#include "IRunner.cpp"
 
 #include "EEPROMUtil.h"
 #include "HandleInstruction.h"
@@ -6,7 +7,6 @@ using namespace std;
 #include "Request.h"
 #include "Utils.h"
 #include "BlinkTimes.h"
-#include "MoistureSensor.h"
 
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
@@ -24,7 +24,6 @@ boolean buttonPressed;
 long long previousMillis = 0;
 const int interval = 3000; // Should be 300000 (5 minutes)
 
-const int pin = D2;
 const int delay_ms = 3000;
 
 /*********************************************
@@ -37,55 +36,53 @@ String header;
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
 String settings_url = "http://192.168.1.251:8123/api/get-settings";
 
-void setup() {
-  _setup();
+IRunner iRunner;
+
+void _setup(IRunner _iRunner) {
+    iRunner = _iRunner;
+    Serial.begin(115200);
+    EEPROM.begin(512);
+
+    Serial.println("");
+    Serial.println("");
+    Serial.println("");
+    inializeEEPROM(false);
 }
 
-void _setup() {
-  Serial.begin(115200);
-  EEPROM.begin(512);
+void _run() {
+    Serial.println(ESP.getFreeHeap());
+    pinMode(iRunner.getPin(), INPUT_PULLUP);
 
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
-  inializeEEPROM(false);
+    buttonPressed = 1-digitalRead(iRunner.getPin());
+    Serial.println("PIN " + String(iRunner.getPin()) + " = " + buttonPressed + ", cycle=" + getCycle());
 
-  run();
-}
-
-
-void run() {
-  pinMode(pin, INPUT_PULLUP);
-
-  buttonPressed = 1-digitalRead(pin);
-  Serial.println("PIN " + String(pin) + " = " + buttonPressed + ", cycle=" + getCycle());
-
-  int cycle = getCycle();
-  if(buttonPressed == 1) {
-    handle_button_pressed();
-  } else if(cycle >= 5 || cycle < 0) {
-    setCycle(0);
-    do_big_calculation();
-  } else {
-    no_button_press();
-  }
+    int cycle = getCycle();
+    if(buttonPressed == 1) {
+      handle_button_pressed();
+    } else if(cycle >= 5 || cycle < 0) {
+      setCycle(0);
+      do_big_calculation();
+    } else {
+      no_button_press();
+    }
 }
 
 void do_big_calculation() {
   Serial.println("Big Calculation");
+  digitalWrite(LED_BUILTIN, HIGH);
 
   long long beforeMillis = millis();
   if(WiFi.SSID().length() > 0) {
     Serial.println("--------------------> Submit data over wifi");
     WiFiManager wifiManager;
     Serial.println(WiFi.SSID().c_str());
-    
-    
+
+
     wifiManager.autoConnect(WiFi.SSID().c_str());
-    
+
     Serial.println();
     Serial.println("==========");
-    
+
     get_settings();
     submit_results();
     digitalWrite(LED_BUILTIN, LOW);
@@ -94,22 +91,6 @@ void do_big_calculation() {
   }
   long long afterMillis = millis();
   deep_sleep(interval, beforeMillis, afterMillis);
-}
-
-void handle_button_pressed() {
-  // Reboot and handle it once it's rebooted.
-  WiFiManager wifiManager;
-  Serial.println("Setup wifi");
-  wifiManager.resetSettings();
-  String wifiName = getWifiName();
-  wifiManager.autoConnect(wifiName.c_str());
-
-  Serial.println("Finished setting up wifi");
-  sleep(100 * 1000);
-}
-
-String getWifiName() {
-  return "IRSYS-M-" + getDeviceId();
 }
 
 void no_button_press() {
@@ -154,9 +135,9 @@ void submit_results() {
   String ip = settings["controller_ip"];
   String url = "http://" + ip + "/api/submit";
   String payload;
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<200> doc = get_doc();
   doc["deviceId"] = getDeviceId();
-  doc["moisture"] = get_moisture_value();
+  doc["moisture"] = iRunner.getValue();
   serializeJson(doc, payload);
 
   Serial.println("Payload");
@@ -169,5 +150,14 @@ void submit_results() {
   Serial.println(get_response);
 }
 
+void handle_button_pressed() {
+  // Reboot and handle it once it's rebooted.
+  WiFiManager wifiManager;
+  Serial.println("Setup wifi");
+  wifiManager.resetSettings();
+  String wifiName = iRunner.getWifiName();
+  wifiManager.autoConnect(wifiName.c_str());
 
-void loop() {}
+  Serial.println("Finished setting up wifi");
+  sleep(100 * 1000);
+}

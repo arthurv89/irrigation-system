@@ -1,3 +1,4 @@
+import logging
 import time
 import json
 
@@ -6,7 +7,7 @@ low_timestamp = high_timestamp - 1 * one_day
 time_bucket_size = 300
 
 def handle():
-    print("[Start] Water the plants")
+    logging.debug("[Start] Water the plants")
     high_timestamp_ms = int(time.time() * 1000)
     minute_ms = 60 * 1000
     low_timestamp_ms = high_timestamp_ms - 15 * minute_ms
@@ -29,17 +30,17 @@ def handle():
         # This can be batched
         write_opening(device_id, opening_time)
 
-        print(device_id, moisture)
-        # print(moisture_data_bucket)
+        logging.debug(device_id, moisture)
+        # logging.debug(moisture_data_bucket)
 
 def turn_on_valve(device_id, opening_time):
-    print("Turning on " + device_id + " for " + str(opening_time) + " seconds")
+    logging.debug("Turning on " + device_id + " for " + str(opening_time) + " seconds")
     # TODO: set pins on the PI
 
 def write_opening(device_id, opening_time):
     # We could have multiple moisture sensors for a valve (or other way around) in the future
     db.write_opening(device_id, opening_time)
-    print("Written open valve to ES")
+    logging.debug("Written open valve to ES")
 
 
 handle()
