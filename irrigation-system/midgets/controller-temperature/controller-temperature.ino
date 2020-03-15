@@ -5,6 +5,12 @@ using namespace std;
 #include "IRunner.h"
 #include "TemperatureSensor.h"
 #include"DHTLib.h"
+#include <DHT.h>
+
+#define DHTPIN 5     // Digital pin connected to the DHT sensor
+#define DHTTYPE    DHT11     // DHT 11
+
+DHT dht(DHTPIN, DHTTYPE);
 
 class Runner: public IRunner
 {
@@ -23,7 +29,7 @@ public:
   }
 
   float getValue() {
-    return get_temperature_value(D1);
+    return get_temperature_value(dht);
   }
 };
 
@@ -31,7 +37,7 @@ public:
 void setup() {
   IRunner* runner = new Runner;
   setupMidget(runner);
-  dhtlib_init();
+  dht.begin();
 }
 
 

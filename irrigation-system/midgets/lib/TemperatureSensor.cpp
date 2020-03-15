@@ -22,9 +22,7 @@
 // const int temperature_sensor_in = A0;
 
 #define DHTTYPE    DHT11     // DHT 11
-int get_temperature_value(int pin) {
-  DHT dht(pin, DHTTYPE);
-
+int get_temperature_value(DHT dht) {
   float temperature = dht.readTemperature();
 
   if (isnan(temperature)) {
