@@ -15,7 +15,7 @@ CREATE TABLE irsys.`sensor_values` (
   `time` timestamp NOT NULL,
   `owner` varchar(50) NOT NULL,
   `type` varchar(50) NOT NULL,
-  `value` DECIMAL(4, 2) NOT NULL,
+  `value` DECIMAL(6, 2) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

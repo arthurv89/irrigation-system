@@ -17,8 +17,12 @@ public:
     return "IRSYS-M-" + deviceId;
   }
 
+  String getKey() {
+    return "moisture";
+  }
+
   float getValue() {
-    return get_moisture_value() + "";
+    return get_moisture_value();
   }
 };
 
@@ -29,4 +33,6 @@ void setup() {
 }
 
 
-void loop() {}
+void loop() {
+    loopMidget();
+}

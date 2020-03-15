@@ -4,10 +4,20 @@ from datetime import datetime
 import uuid
 import time
 
-connection = mariadb.connect(user='irsys', password='Waterme1', database='irsys')
-connection.reconnect(attempts=1, delay=0)
+def connect():
+    connection = mariadb.connect(user='irsys', password='Waterme1', database='irsys')
+    connection.reconnect(attempts=1, delay=0)
+    return connection
 
-cursor = connection.cursor(buffered=True)
+def execute(sql, values=None):
+    try:
+      cursor = connection.cursor(buffered=True)
+      cursor.execute(sql, values)
+    except (AttributeError, MySQLdb.OperationalError):
+      connect()
+      cursor = connection.cursor(buffered=True)
+      cursor.execute(sql, values)
+    return cursor
 
 def get_moisture_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size):
     return get_sensor_data("moisture", low_timestamp, high_timestamp, time_bucket_size)
@@ -37,7 +47,7 @@ GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}), deviceId
            high_timestamp=high_timestamp,
            field=field)
     logging.debug(query)
-    cursor.execute(query)
+    cursor = execute(query)
     return cursor.fetchall()
 
 
@@ -46,7 +56,7 @@ def get_wifi_credentials():
 SELECT ssid, password
 FROM wifi"""
     # logging.debug(query)
-    res = cursor.execute(query)
+    cursor = execute(query)
 
     row = cursor.fetchone()
     return {
@@ -68,7 +78,7 @@ def put_wifi_credentials(ssid, password):
               "ON DUPLICATE KEY UPDATE "
               "  password = %(password)s")
     logging.debug(query)
-    res = cursor.execute(query, values)
+    execute(query, values)
     connection.commit()
 
 
@@ -87,7 +97,7 @@ def put_sensor_value(deviceId, time, owner, type, value):
               "(id, deviceId, time, owner, type, value) "
               "VALUES (%(id)s, %(deviceId)s, %(time)s, %(owner)s, %(type)s, %(value)s)")
 
-    cursor.execute(query, values)
+    execute(query, values)
     connection.commit()
 
 
@@ -105,7 +115,7 @@ def write_sensor_association(deviceId, time):
               "VALUES (%(id)s, %(deviceId)s, %(time)s)")
     # logging.debug("query", query, values)
 
-    cursor.execute(query, values)
+    execute(query, values)
     connection.commit()
 
 
@@ -122,7 +132,7 @@ def write_opening(valve, opening_time):
               "(id, valve, time, opening_time) "
               "VALUES (%(id)s, %(valve)s, %(time)s, %(opening_time)s)")
 
-    cursor.execute(query, values)
+    execute(query, values)
     connection.commit()
 
 
@@ -131,8 +141,10 @@ def get_connected_sensors():
 SELECT deviceId
 FROM sensors"""
     # logging.debug(query)
-    res = cursor.execute(query)
+    cursor = execute(query)
 
     return list(map(lambda row: {
         "ssid": row[0]
     }, cursor.fetchall()))
+
+connection = connect()
