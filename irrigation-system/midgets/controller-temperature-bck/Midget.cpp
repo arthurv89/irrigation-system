@@ -32,7 +32,7 @@ const int delay_ms = 3000;
 WiFiServer server(80);
 String header;
 
-IRunner* iRunner;
+ IRunner* iRunner;
 
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
 String settings_url = "http://192.168.1.3:8123/api/get-settings";
@@ -49,7 +49,7 @@ void setupMidget(IRunner* _iRunner) {
     initializeEEPROM(false);
 }
 
-void _run() {
+void loopMidget() {
     Serial.println(ESP.getFreeHeap());
     pinMode(iRunner->getButtonPin(), INPUT_PULLUP);
 

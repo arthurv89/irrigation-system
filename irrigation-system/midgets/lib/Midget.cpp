@@ -35,7 +35,7 @@ String header;
  IRunner* iRunner;
 
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
-String settings_url = "http://192.168.1.251:8123/api/get-settings";
+String settings_url = "http://192.168.1.3:8123/api/get-settings";
 
 
 void setupMidget(IRunner* _iRunner) {
@@ -49,12 +49,12 @@ void setupMidget(IRunner* _iRunner) {
     initializeEEPROM(false);
 }
 
-void _run() {
+void loopMidget() {
     Serial.println(ESP.getFreeHeap());
-    pinMode(iRunner->getPin(), INPUT_PULLUP);
+    pinMode(iRunner->getButtonPin(), INPUT_PULLUP);
 
-    buttonPressed = 1-digitalRead(iRunner->getPin());
-    Serial.println("PIN " + String(iRunner->getPin()) + " = " + buttonPressed + ", cycle=" + getCycle());
+    buttonPressed = 1-digitalRead(iRunner->getButtonPin());
+    Serial.println("PIN " + String(iRunner->getButtonPin()) + " = " + buttonPressed + ", cycle=" + getCycle());
 
     int cycle = getCycle();
     if(buttonPressed == 1) {
@@ -137,7 +137,7 @@ void submit_results() {
   String payload;
   StaticJsonDocument<200> doc;
   doc["deviceId"] = getDeviceId();
-  doc["moisture"] = iRunner->getValue();
+  doc[iRunner->getKey()] = iRunner->getValue();
   serializeJson(doc, payload);
 
   Serial.println("Payload");

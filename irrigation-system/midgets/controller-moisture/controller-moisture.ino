@@ -8,7 +8,7 @@ using namespace std;
 class Runner: public IRunner
 {
 public:
-  int getPin()
+  int getButtonPin()
   {
     return D2;
   }
@@ -17,7 +17,7 @@ public:
     return "IRSYS-M-" + deviceId;
   }
 
-  String getValue() {
+  float getValue() {
     return get_moisture_value() + "";
   }
 };

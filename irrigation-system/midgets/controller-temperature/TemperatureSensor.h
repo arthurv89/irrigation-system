@@ -1,1 +1,1 @@
-int get_temperature_value();
+../lib/TemperatureSensor.h

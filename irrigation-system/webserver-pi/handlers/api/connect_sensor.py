@@ -41,39 +41,39 @@ def handle():
             logging.debug("*** format_tb:")
             logging.debug(repr(traceback.format_tb(exc_traceback)))
             logging.debug("*** tb_lineno:", exc_traceback.tb_lineno)
-            logging.debug("Error occurred. Please try again", "error")
+            logging.debug("Error occurred. Please try again")
 
     def scan_and_connect(main_wifi_credentials):
         logging.debug(request.form['ssid'])
-        logging.debug("main_wifi_credentials", main_wifi_credentials)
+        logging.debug("main_wifi_credentials: " + json.dumps(main_wifi_credentials))
         new_ssid = request.form['ssid']
         hasSsid = find_cell(new_ssid)
 
         if not hasSsid:
-            logging.debug("Could not find network with SSID " + new_ssid, "in-progress")
+            logging.debug("Could not find network with SSID " + new_ssid)
             return False
 
 
-        logging.debug("Found sensor with name " + new_ssid, "in-progress")
+        logging.debug("Found sensor with name " + new_ssid)
         is_connected = wifiUtil.connect_moisture_sensor(main_wifi_credentials, new_ssid)
         logging.debug(is_connected)
         if not is_connected:
-            logging.debug("Couldn't connect to sensor", "error")
+            logging.debug("Couldn't connect to sensor")
             return False
 
-        logging.debug("Connected to sensor!", "in-progress")
+        logging.debug("Connected to sensor!")
         ip = get_gateway_ip()
         if ip is None:
-            logging.debug("Coulnd't find IP Gateway", "error")
+            logging.debug("Coulnd't find IP Gateway")
             return False
 
         saved = save_credentials(ip, main_wifi_credentials)
 
         if not saved:
-            logging.debug("Could not save the wifi credentials", "error")
+            logging.debug("Could not save the wifi credentials")
             return False
 
-        logging.debug("Sensor has Wifi now. It's added to you list of sensors.", "done")
+        logging.debug("Sensor has Wifi now. It's added to you list of sensors.")
 
         wifiUtil.connect_main(main_wifi_credentials['ssid'], main_wifi_credentials['password'])
 

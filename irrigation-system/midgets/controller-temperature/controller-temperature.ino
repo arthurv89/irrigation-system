@@ -9,7 +9,7 @@ using namespace std;
 class Runner: public IRunner
 {
 public:
-  int getPin()
+  int getButtonPin()
   {
     return D2;
   }
@@ -18,18 +18,23 @@ public:
     return "IRSYS-T-" + deviceId;
   }
 
-  String getValue() {
-    return get_temperature_value() + "";
+  String getKey() {
+    return "temperature";
+  }
+
+  float getValue() {
+    return get_temperature_value(D1);
   }
 };
 
 
 void setup() {
-  dhtlib_init ()
-
   IRunner* runner = new Runner;
   setupMidget(runner);
+  dhtlib_init();
 }
 
 
-void loop() {}
+void loop() {
+    loopMidget();
+}

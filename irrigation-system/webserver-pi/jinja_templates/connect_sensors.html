@@ -20,7 +20,7 @@
     available_networks = {};
     Object.values(new_networks).map(network => {
       ssid = network['ssid'];
-      if (!(ssid in connected_networks) && ssid.startsWith("IRSYS-M-")) {
+      if (!(ssid in connected_networks) && (ssid.startsWith("IRSYS-M-") || ssid.startsWith("IRSYS-T-"))) {
         available_networks[ssid] = {
           'ssid': ssid
         };

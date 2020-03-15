@@ -2009,7 +2009,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
     target: window
   }
 
-  Affix.prototype.getPinnedOffset = function () {
+  Affix.prototype.getButtonPinnedOffset = function () {
     if (this.pinnedOffset) return this.pinnedOffset
     this.$element.removeClass(Affix.RESET).addClass('affix')
     var scrollTop = this.$target.scrollTop()
@@ -2050,7 +2050,7 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
     if (e.isDefaultPrevented()) return
 
     this.affixed = affix
-    this.unpin = affix == 'bottom' ? this.getPinnedOffset() : null
+    this.unpin = affix == 'bottom' ? this.getButtonPinnedOffset() : null
 
     this.$element
       .removeClass(Affix.RESET)
