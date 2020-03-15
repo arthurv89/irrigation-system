@@ -1,20 +1,19 @@
-/*
- * 16
- * 5
- * 4
- * 0
- * 2
- * 14
- * 12
- * 13
- * 15
- * 3
- *
+/**
+ * How to install:
+ * Assuming relay is with the blue side on top, and you're facing the pins.
+ * 
+ * [XXX, Common, +]
+ * [__________]
+ * |          | 
+ * | BLUE BOX |
+ * [__________]
+ *  |    |   |
+ * [D1, 3V, GND]:
+ * 
  */
 
-//const int ledPins[3] = {5, 4, 0};
-//const int ledPins[3] = {14, 12, 13};
-const int ledPins[] = {D1};
+const int pins = 2;
+const int pinNos[pins] = {D1, D2};
 
 const int builtin_on_value = LOW;
 const int builtin_off_value = HIGH;
@@ -25,17 +24,22 @@ const int times = 1;
 
 void setup() {
  Serial.begin(115200);
+ 
+  for(int p=0; p<pins; p++) {
+    int pin = pinNos[p];
+    pinMode(pin, OUTPUT);
+  }
 }
 
 void loop() {
+  
   handle();
   delay(interval);
 }
 
 void handle() {
-  for(int p=0; p<sizeof(ledPins); p++) {
-    int pin = ledPins[p];
-    pinMode(pin, OUTPUT);
+  for(int p=0; p<pins; p++) {
+    int pin = pinNos[p];
     Serial.print(pin);
     for(int i=0; i<times; i++) {
       setPin(pin, HIGH);
@@ -47,7 +51,6 @@ void handle() {
       delay(blink_period);
     }
     Serial.println();
-    pinMode(pin, INPUT);
   }
 }
 

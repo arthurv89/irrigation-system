@@ -14,7 +14,7 @@ def handle():
         logging.debug("Get access points")
         arr = wifi_scanner.get_access_points()
         for x in arr:
-            logging.debug("SSID", x)
+            logging.debug("SSID: " + json.dumps(x))
             add_ssid({"ssid": x['ssid'], "quality": x['quality']})
         logging.debug("Done")
 

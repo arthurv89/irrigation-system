@@ -11,9 +11,21 @@ def handle():
 def store_data(form):
     timestamp = int(datetime.utcnow().strftime("%s"))
     id = form["deviceId"] + " @ " + str(timestamp)
-    db.put_moisture_value(
-        deviceId=form["deviceId"],
-        time=timestamp,
-        owner=properties.owner,
-        moisture=form["moisture"]
-    )
+
+    if "moisture" in form:
+        db.put_sensor_value(
+            deviceId=form["deviceId"],
+            time=timestamp,
+            owner=properties.owner,
+            type="moisture",
+            value=form["moisture"]
+        )
+
+    if "temperature" in form:
+        db.put_sensor_value(
+            deviceId=form["deviceId"],
+            time=timestamp,
+            owner=properties.owner,
+            type="temperature",
+            value=form["temperature"]
+        )

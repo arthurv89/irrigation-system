@@ -9,12 +9,13 @@ GRANT ALL PRIVILEGES ON irsys.* TO 'irsys'@'localhost';
 GRANT ALL PRIVILEGES ON irsys.* TO 'phpmyadmin'@'localhost';
 
 # Create tables
-CREATE TABLE irsys.`moisture` (
+CREATE TABLE irsys.`sensor_values` (
   `id` binary(16) NOT NULL,
-  `deviceId` text NOT NULL,
+  `deviceId` varchar(50) NOT NULL,
   `time` timestamp NOT NULL,
   `owner` varchar(50) NOT NULL,
-  `moisture` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `value` DECIMAL(4, 2) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -28,7 +29,7 @@ CREATE TABLE irsys.`sensors` (
 
 CREATE TABLE irsys.`open_times` (
   `id` binary(16) NOT NULL,
-  `valve` text NOT NULL,
+  `valve` varchar(50) NOT NULL,
   `time` timestamp NOT NULL,
   `opening_time` int(11) NOT NULL,
   PRIMARY KEY (`id`)

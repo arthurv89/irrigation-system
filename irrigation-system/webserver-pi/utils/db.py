@@ -10,22 +10,35 @@ connection.reconnect(attempts=1, delay=0)
 cursor = connection.cursor(buffered=True)
 
 def get_moisture_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size):
-    query = """
-SELECT DISTINCT(deviceId) AS deviceId, AVG(moisture) AS avg_moisture, FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}) AS time_bucket
-FROM moisture
-WHERE UNIX_TIMESTAMP(time) >= {low_timestamp} AND UNIX_TIMESTAMP(time) <= {high_timestamp}
-GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}), deviceId
-""".format(time_bucket_size=time_bucket_size,
-           low_timestamp=low_timestamp,
-           high_timestamp=high_timestamp)
-    logging.debug(query)
-    res = cursor.execute(query)
+    return get_sensor_data("moisture", low_timestamp, high_timestamp, time_bucket_size)
+
+def get_temperature_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size):
+    return get_sensor_data("temperature", low_timestamp, high_timestamp, time_bucket_size)
+
+def get_sensor_data(field, low_timestamp, high_timestamp, time_bucket_size):
+    data = get_sensor_data_from_db(field, low_timestamp, high_timestamp, time_bucket_size)
 
     return list(map(lambda row: {
         "deviceId": row[0],
-        "moisture": float(row[1]),
+        field: float(row[1]),
         "timestamp_bucket": row[2] * time_bucket_size
-    }, cursor.fetchall()))
+    }, data))
+
+
+def get_sensor_data_from_db(field, low_timestamp, high_timestamp, time_bucket_size):
+    query = """
+SELECT DISTINCT(deviceId) AS deviceId, AVG(value) AS avg_{field}, FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}) AS time_bucket
+FROM sensor_values
+WHERE UNIX_TIMESTAMP(time) >= {low_timestamp} AND UNIX_TIMESTAMP(time) <= {high_timestamp}
+  AND `type` = "{field}"
+GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}), deviceId
+""".format(time_bucket_size=time_bucket_size,
+           low_timestamp=low_timestamp,
+           high_timestamp=high_timestamp,
+           field=field)
+    logging.debug(query)
+    cursor.execute(query)
+    return cursor.fetchall()
 
 
 def get_wifi_credentials():
@@ -60,18 +73,19 @@ def put_wifi_credentials(ssid, password):
 
 
 
-def put_moisture_value(deviceId, time, owner, moisture):
+def put_sensor_value(deviceId, time, owner, type, value):
     values = {
       'id': uuid.uuid4().bytes,
       'deviceId': deviceId,
       'time': datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
       'owner': owner,
-      'moisture': moisture
+      'type': type,
+      'value': value
     }
 
-    query = ("INSERT INTO moisture "
-              "(id, deviceId, time, owner, moisture) "
-              "VALUES (%(id)s, %(deviceId)s, %(time)s, %(owner)s, %(moisture)s)")
+    query = ("INSERT INTO sensor_values "
+              "(id, deviceId, time, owner, type, value) "
+              "VALUES (%(id)s, %(deviceId)s, %(time)s, %(owner)s, %(type)s, %(value)s)")
 
     cursor.execute(query, values)
     connection.commit()

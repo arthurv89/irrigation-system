@@ -16,7 +16,7 @@ def handle():
     high_timestamp = int(time.time())
     low_timestamp = high_timestamp - 1 * one_day
 
-    res = db.get_moisture_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)
+    res = db.get_temperature_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)
 
     data = {}
     device_ids_obj = {}
@@ -24,7 +24,8 @@ def handle():
     for _, row in enumerate(res):
         device_id = row['deviceId']
         timestamp = row['timestamp_bucket'] * 1000
-        moisture = (1024 - row['moisture']) / 1024*100
+        # moisture = (1024 - row['moisture']) / 1024*100
+        value = row['temperature']
 
         timestamps_obj[timestamp] = {}
         device_ids_obj[device_id] = {}
@@ -35,9 +36,9 @@ def handle():
         if device_id not in data[timestamp]:
             data[timestamp][device_id] = {}
 
-        data[timestamp][device_id] = moisture
+        data[timestamp][device_id] = value
 
-    logging.debug("DATA", data)
+    logging.debug("DATA: " + json.dumps(data))
 
 
     timestamps = list(timestamps_obj.keys())
@@ -66,6 +67,7 @@ def handle():
     timeseries = {
         "rows": rows,
         "meta": {
+            "max_y": 50,
             "device_ids": device_ids,
             "low_timestamp_ms": low_timestamp * 1000,
             "high_timestamp_ms": high_timestamp * 1000

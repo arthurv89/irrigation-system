@@ -1,5 +1,6 @@
 function render(timeseries, id) {
   colors = ["black", "red", "lime", "blue", "purple"]
+  meta = timeseries['meta']
 
   function get_data() {
     data = timeseries['rows']
@@ -98,13 +99,13 @@ function render(timeseries, id) {
   x.domain(d3.extent(data, function(d) {
     if(d[0] == data[0][0]) {
       console.log("HIGH")
-      return timeseries['meta']['high_timestamp_ms'];
+      return meta['high_timestamp_ms'];
     } else {
       console.log("LOW")
-      return timeseries['meta']['low_timestamp_ms'];
+      return meta['low_timestamp_ms'];
     }
   }));
-  y.domain([0, 100])
+  y.domain([0, meta['max_y']])
 
   // y.domain([0, d3.max(data, function(d) {
   //   values = d.slice(1)
