@@ -13,10 +13,29 @@ one_day = 86400 # seconds
 time_bucket_size = 300
 
 def handle():
+    timeseries_arr = [
+        timeseries("moisture", db.get_moisture_values_per_device_per_timebucket, lambda row: 100 - (row['moisture'] / 1024 * 100), 100),
+        timeseries("temperature", db.get_temperature_values_per_device_per_timebucket, lambda row: row['temperature'], 50)
+    ]
+    print(timeseries_arr)
+    template_context = dict(
+        page="index",
+        timeseries_moisture=json.dumps(timeseries_arr[0]),
+        timeseries_temperature=json.dumps(timeseries_arr[1])
+    )
+
+
+    # template_context = dict(
+    #     page="index",
+    #     timeseries=json.dumps([])
+    # )
+    return render_template('template.html', **template_context)
+
+def timeseries(key, func, transform_value_func, max_y):
     high_timestamp = int(time.time())
     low_timestamp = high_timestamp - 1 * one_day
 
-    res = db.get_moisture_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)
+    res = func(low_timestamp, high_timestamp, time_bucket_size)
     # res = db.get_temperature_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)
 
     data = {}
@@ -25,7 +44,8 @@ def handle():
     for _, row in enumerate(res):
         device_id = row['deviceId']
         timestamp = row['timestamp_bucket'] * 1000
-        value = (1024 - row['moisture']) / 1024*100
+        value = transform_value_func(row)
+        # value = (1024 - row['moisture']) / 1024*100
         # value = row['temperature']
 
         timestamps_obj[timestamp] = {}
@@ -39,7 +59,7 @@ def handle():
 
         data[timestamp][device_id] = value
 
-    logging.debug("DATA: " + json.dumps(data))
+    # logging.debug("DATA: " + json.dumps(data))
 
 
     timestamps = list(timestamps_obj.keys())
@@ -69,25 +89,17 @@ def handle():
         "rows": rows,
         "meta": {
             # "max_y": 50,
-            "max_y": 100,
+            # "max_y": 100,
+            "max_y": max_y,
             "device_ids": device_ids,
             "low_timestamp_ms": low_timestamp * 1000,
             "high_timestamp_ms": high_timestamp * 1000
         }
     }
-    logging.debug("TIMESERIES")
-    logging.debug(timeseries)
-    template_context = dict(
-        page="index",
-        timeseries=json.dumps(timeseries)
-    )
 
-
-    # template_context = dict(
-    #     page="index",
-    #     timeseries=json.dumps([])
-    # )
-    return render_template('template.html', **template_context)
+    return timeseries
+    # logging.debug("TIMESERIES")
+    # logging.debug(timeseries)
 
 # def debug(v):
 #     logging.debug("-------------> ")

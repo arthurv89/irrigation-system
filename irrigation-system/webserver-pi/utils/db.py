@@ -13,7 +13,7 @@ def execute(sql, values=None):
     try:
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)
-    except (AttributeError, MySQLdb.OperationalError):
+    except mariadb.Error as error:
       connect()
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)

@@ -122,6 +122,10 @@ def handle(handler, type):
         return response, status.HTTP_200_OK
     except Exception as ex:
         try:
+            logging.debug(type(ex))
+            logging.debug(type(ex).__name__)
+            logging.debug(type(ex).args)
+
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             logging.debug(message)

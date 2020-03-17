@@ -5,18 +5,38 @@
     <div class="box-content row">
         <div class="col-lg-7 col-md-12">
             <h1>IRSYS</h1>
-            <div id="my_dataviz">
-              <svg :view-box.camel="svgViewBox" preserveAspectRatio="xMidYMid meet">
-                <g :style="stageTransform">
-                  <g class="axis x" ref="xAxis"></g>
-                  <g class="axis y" ref="yAxis"></g>
-                  <path class="area" ref="area"></path>
-                  <path class="line" ref="line"></path>
-                  <g class="points" ref="points"></g>
-                </g>
-              </svg>
+
+            <div>
+              Moisture
+              <div id="moisture_viz">
+                <svg :view-box.camel="svgViewBox" preserveAspectRatio="xMidYMid meet">
+                  <g :style="stageTransform">
+                    <g class="axis x" ref="xAxis"></g>
+                    <g class="axis y" ref="yAxis"></g>
+                    <path class="area" ref="area"></path>
+                    <path class="line" ref="line"></path>
+                    <g class="points" ref="points"></g>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div>
+              Temperature
+              <div id="temperature_viz">
+                <svg :view-box.camel="svgViewBox" preserveAspectRatio="xMidYMid meet">
+                  <g :style="stageTransform">
+                    <g class="axis x" ref="xAxis"></g>
+                    <g class="axis y" ref="yAxis"></g>
+                    <path class="area" ref="area"></path>
+                    <path class="line" ref="line"></path>
+                    <g class="points" ref="points"></g>
+                  </g>
+                </svg>
+              </div>
             </div>
         </div>
     </div>
     <script src="js/graph.js"></script>
-    <script>render({{timeseries | safe}}, "my_dataviz")</script>
+    <script>render({{timeseries_moisture | safe}}, "moisture_viz")</script>
+    <script>render({{timeseries_temperature | safe}}, "temperature_viz")</script>
