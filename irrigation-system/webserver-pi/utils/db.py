@@ -3,6 +3,7 @@ import mysql.connector as mariadb
 from datetime import datetime
 import uuid
 import time
+import os
 
 def connect():
     connection = mariadb.connect(user='irsys', password='Waterme1', database='irsys')
@@ -15,6 +16,7 @@ def execute(sql, values=None):
       cursor.execute(sql, values)
     except mariadb.Error as error:
       connect()
+      os.system('play -n synth %s sin %s' % (2000/1000, 1000))
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)
     return cursor

@@ -12,8 +12,8 @@
  * 
  */
 
-const int pins = 2;
-const int pinNos[pins] = {D1, D2};
+const int pins = 3;
+const int pinNos[pins] = {D1, D2, D3};
 
 const int builtin_on_value = LOW;
 const int builtin_off_value = HIGH;
@@ -23,7 +23,8 @@ const long blink_period = 5000;
 const int times = 1;
 
 void setup() {
- Serial.begin(115200);
+  Serial.begin(115200);
+  Serial.println();
  
   for(int p=0; p<pins; p++) {
     int pin = pinNos[p];
