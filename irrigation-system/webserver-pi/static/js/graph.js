@@ -73,7 +73,10 @@ function render(timeseries, id) {
 
   data = get_data()
 
-  line_count = data[0].length - 1
+  line_count = 0;
+  if(data.length > 0) {
+    line_count = data[0].length - 1
+  }
 
   // set the dimensions and margins of the graph
   var margin = {top: 20, right: 20, bottom: 30, left: 50},

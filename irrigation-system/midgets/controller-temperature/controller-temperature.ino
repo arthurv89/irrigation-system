@@ -1,16 +1,19 @@
 using namespace std;
 
 #include "Arduino.h"
+#include <ArduinoJson.h>
 #include "Midget.h"
 #include "IRunner.h"
 #include "TemperatureSensor.h"
 #include"DHTLib.h"
 #include <DHT.h>
 
-#define DHTPIN 5     // Digital pin connected to the DHT sensor
-#define DHTTYPE    DHT11     // DHT 11
+#define DHTPIN 5
+#define DHTTYPE    DHT11
 
 DHT dht(DHTPIN, DHTTYPE);
+
+int light_sensor_pin = A0;    // select the input pin for the potentiometer
 
 class Runner: public IRunner
 {
@@ -24,12 +27,9 @@ public:
     return "IRSYS-T-" + deviceId;
   }
 
-  String getKey() {
-    return "temperature";
-  }
-
-  float getValue() {
-    return get_temperature_value(dht);
+  void add_sensor_values(StaticJsonDocument<200> &doc) {
+    doc["temperature"] = get_temperature_value(dht);
+    doc["light"] = analogRead(light_sensor_pin);
   }
 };
 

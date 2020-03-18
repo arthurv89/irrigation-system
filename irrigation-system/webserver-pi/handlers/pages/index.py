@@ -14,14 +14,17 @@ time_bucket_size = 300
 
 def handle():
     timeseries_arr = [
-        timeseries("moisture", db.get_moisture_values_per_device_per_timebucket, lambda row: 100 - (row['moisture'] / 1024 * 100), 100),
-        timeseries("temperature", db.get_temperature_values_per_device_per_timebucket, lambda row: row['temperature'], 50)
+        timeseries("moisture", lambda row: 100 - (row['moisture'] / 1024 * 100), 100),
+        timeseries("temperature", lambda row: row['temperature'], 50),
+        timeseries("light", lambda row: row['light'], 1024)
     ]
-    print(timeseries_arr)
+    # print(timeseries_arr)
     template_context = dict(
         page="index",
         timeseries_moisture=json.dumps(timeseries_arr[0]),
-        timeseries_temperature=json.dumps(timeseries_arr[1])
+        timeseries_temperature=json.dumps(timeseries_arr[1]),
+        timeseries_light=json.dumps(timeseries_arr[2]),
+
     )
 
 
@@ -31,11 +34,11 @@ def handle():
     # )
     return render_template('template.html', **template_context)
 
-def timeseries(key, func, transform_value_func, max_y):
+def timeseries(key, transform_value_func, max_y):
     high_timestamp = int(time.time())
     low_timestamp = high_timestamp - 1 * one_day
 
-    res = func(low_timestamp, high_timestamp, time_bucket_size)
+    res = db.get_sensor_data(key, low_timestamp, high_timestamp, time_bucket_size)
     # res = db.get_temperature_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)
 
     data = {}

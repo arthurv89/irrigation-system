@@ -21,12 +21,6 @@ def execute(sql, values=None):
       cursor.execute(sql, values)
     return cursor
 
-def get_moisture_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size):
-    return get_sensor_data("moisture", low_timestamp, high_timestamp, time_bucket_size)
-
-def get_temperature_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size):
-    return get_sensor_data("temperature", low_timestamp, high_timestamp, time_bucket_size)
-
 def get_sensor_data(field, low_timestamp, high_timestamp, time_bucket_size):
     data = get_sensor_data_from_db(field, low_timestamp, high_timestamp, time_bucket_size)
 
@@ -48,7 +42,7 @@ GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}), deviceId
            low_timestamp=low_timestamp,
            high_timestamp=high_timestamp,
            field=field)
-    logging.debug(query)
+    # logging.debug(query)
     cursor = execute(query)
     return cursor.fetchall()
 
@@ -79,7 +73,7 @@ def put_wifi_credentials(ssid, password):
               "VALUES (%(ssid)s, %(password)s) "
               "ON DUPLICATE KEY UPDATE "
               "  password = %(password)s")
-    logging.debug(query)
+    # logging.debug(query)
     execute(query, values)
     connection.commit()
 
