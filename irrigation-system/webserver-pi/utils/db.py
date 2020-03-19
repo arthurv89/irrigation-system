@@ -21,27 +21,29 @@ def execute(sql, values=None):
       cursor.execute(sql, values)
     return cursor
 
-def get_sensor_data(field, low_timestamp, high_timestamp, time_bucket_size):
-    data = get_sensor_data_from_db(field, low_timestamp, high_timestamp, time_bucket_size)
+def get_sensor_data(field, low_timestamp_seconds, high_timestamp_seconds, time_bucket_size_seconds):
+    data = get_sensor_data_from_db(field, low_timestamp_seconds, high_timestamp_seconds, time_bucket_size_seconds)
 
     return list(map(lambda row: {
         "deviceId": row[0],
         field: float(row[1]),
-        "timestamp_bucket": row[2] * time_bucket_size
+        "timestamp_bucket": row[2] * time_bucket_size_seconds
     }, data))
 
 
-def get_sensor_data_from_db(field, low_timestamp, high_timestamp, time_bucket_size):
+def get_sensor_data_from_db(field, low_timestamp_seconds, high_timestamp_seconds, time_bucket_size_seconds):
     query = """
-SELECT DISTINCT(deviceId) AS deviceId, AVG(value) AS avg_{field}, FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}) AS time_bucket
+SELECT DISTINCT(deviceId) AS deviceId, AVG(value) AS avg_{field}, FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size_seconds}) AS time_bucket
 FROM sensor_values
-WHERE UNIX_TIMESTAMP(time) >= {low_timestamp} AND UNIX_TIMESTAMP(time) <= {high_timestamp}
+WHERE UNIX_TIMESTAMP(time) >= {low_timestamp_seconds} AND UNIX_TIMESTAMP(time) <= {high_timestamp_seconds}
   AND `type` = "{field}"
-GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size}), deviceId
-""".format(time_bucket_size=time_bucket_size,
-           low_timestamp=low_timestamp,
-           high_timestamp=high_timestamp,
+GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size_seconds}), deviceId
+ORDER BY time
+""".format(time_bucket_size_seconds=time_bucket_size_seconds,
+           low_timestamp_seconds=low_timestamp_seconds,
+           high_timestamp_seconds=high_timestamp_seconds,
            field=field)
+    # print(query)
     # logging.debug(query)
     cursor = execute(query)
     return cursor.fetchall()

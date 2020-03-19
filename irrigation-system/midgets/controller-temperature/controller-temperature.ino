@@ -27,7 +27,7 @@ public:
     return "IRSYS-T-" + deviceId;
   }
 
-  void add_sensor_values(StaticJsonDocument<200> &doc) {
+  void add_sensor_values(JsonObject &doc) {
     doc["temperature"] = get_temperature_value(dht);
     doc["light"] = analogRead(light_sensor_pin);
   }

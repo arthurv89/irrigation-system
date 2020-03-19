@@ -9,6 +9,6 @@ class IRunner {
   public:
     virtual int getButtonPin() = 0;
     virtual String getWifiName(String deviceId) = 0;
-    virtual void add_sensor_values(StaticJsonDocument<200>& doc);
+    virtual void add_sensor_values(JsonObject& doc);
 };
 #endif

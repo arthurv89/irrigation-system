@@ -73,7 +73,11 @@ void do_big_calculation() {
 
   long long beforeMillis = millis();
   if(WiFi.SSID().length() > 0) {
+    String payload = create_payload();
+
     Serial.println("--------------------> Submit data over wifi");
+    Serial.println("Data: " + payload);
+    
     WiFiManager wifiManager;
     Serial.println(WiFi.SSID().c_str());
 
@@ -84,13 +88,28 @@ void do_big_calculation() {
     Serial.println("==========");
 
     get_settings();
-    submit_results();
+    submit_results(payload);
     digitalWrite(LED_BUILTIN, LOW);
   } else {
       Serial.println("--------------------> Wifi not setup yet. Not doing anything.");
   }
   long long afterMillis = millis();
   deep_sleep(interval, beforeMillis, afterMillis);
+}
+
+String create_payload() {
+  StaticJsonDocument<200> doc;
+  
+  JsonObject meta  = doc.createNestedObject("meta");
+  meta["heapFreeMem"] = ESP.getFreeHeap();
+  
+  JsonObject params  = doc.createNestedObject("params");
+  iRunner->add_sensor_values(params);
+  params["deviceId"] = getDeviceId();
+
+  String payload;
+  serializeJson(doc, payload);
+  return payload;
 }
 
 void no_button_press() {
@@ -131,17 +150,9 @@ void get_settings() {
   Serial.println(payload);
 }
 
-void submit_results() {
+void submit_results(String payload) {
   String ip = settings["controller_ip"];
   String url = "http://" + ip + "/api/submit";
-  String payload;
-  StaticJsonDocument<200> doc;
-  iRunner->add_sensor_values(doc);
-  doc["deviceId"] = getDeviceId();
-  serializeJson(doc, payload);
-
-  Serial.println("Payload");
-  Serial.println(payload);
 
   String get_response = do_post_request(url, payload);
 

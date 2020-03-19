@@ -1,27 +1,40 @@
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
 import logging
 import time
 import json
+from utils import db
 
-high_timestamp = int(time.time())
-low_timestamp = high_timestamp - 1 * one_day
-time_bucket_size = 300
+minute = 60
+period = 15 * minute
+
+moisture_threshold = 100
 
 def handle():
     logging.debug("[Start] Water the plants")
-    high_timestamp_ms = int(time.time() * 1000)
-    minute_ms = 60 * 1000
-    low_timestamp_ms = high_timestamp_ms - 15 * minute_ms
+    high_timestamp = int(time.time())
+    low_timestamp = high_timestamp - 2 * period
 
     open_valves = []
 
-    res = db.get_moisture_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)
-    for _, moisture_data_bucket in enumerate(moisture_data_buckets):
-        device_id = moisture_data_bucket["key"]
-        date_data = moisture_data_bucket["date_buckets"]['buckets']
-        last_datapoint = date_data[len(date_data)-1]
-        moisture = last_datapoint['moisture_value']['value']
+    moisture_values = db.get_sensor_data("moisture", low_timestamp, high_timestamp, period)
+    print(moisture_values)
 
-        open_valves.append(device_id)
+    devices = {}
+    for _, row in enumerate(moisture_values):
+        device_id = row["deviceId"]
+        if not device_id in devices:
+            devices[device_id] = []
+        devices[device_id].append(row)
+
+    for device_id in devices.keys():
+        interesting_row = devices[device_id][1]
+        device_id = interesting_row["deviceId"]
+        date_data = interesting_row["timestamp_bucket"]
+        moisture = interesting_row["moisture"]
+
+        if moisture > moisture_threshold:
+            open_valves.append(device_id)
 
     for device_id in open_valves:
         opening_time = 10
@@ -29,9 +42,6 @@ def handle():
 
         # This can be batched
         write_opening(device_id, opening_time)
-
-        logging.debug(device_id, moisture)
-        # logging.debug(moisture_data_bucket)
 
 def turn_on_valve(device_id, opening_time):
     logging.debug("Turning on " + device_id + " for " + str(opening_time) + " seconds")
@@ -41,6 +51,9 @@ def write_opening(device_id, opening_time):
     # We could have multiple moisture sensors for a valve (or other way around) in the future
     db.write_opening(device_id, opening_time)
     logging.debug("Written open valve to ES")
+
+    # print(device_id)
+    # logging.debug(device_id)
 
 
 handle()
