@@ -20,12 +20,8 @@ public:
     return "IRSYS-M-" + deviceId;
   }
 
-  String getKey() {
-    return "moisture";
-  }
-
-  float getValue() {
-    return get_moisture_value();
+  void add_sensor_values(JsonObject &doc) {
+    doc["moisture"] = get_moisture_value();
   }
 };
 
