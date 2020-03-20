@@ -4,7 +4,7 @@ import logging
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
 from handlers.pages import index, connect_sensors, setup_wifi
-from handlers.api import health, submit, find_ssids, save_wifi, get_settings, connect_sensor, get_connected_sensors
+from handlers.api import health, submit, find_ssids, save_wifi, get_settings, get_settings_v2, connect_sensor, get_connected_sensors
 
 import time
 import os
@@ -42,6 +42,10 @@ def _setup_wifi():
 
 
 # API
+
+@app.route('/api/v2/get-settings', methods=['GET'])
+def _get_settings_v2():
+    return handle(get_settings_v2, "json")
 
 @app.route('/api/get-settings', methods=['GET'])
 def _get_settings():

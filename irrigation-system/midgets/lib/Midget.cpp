@@ -15,6 +15,7 @@
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         // https://github.com/tzapu/WiFiManager
+#include "ESP8266httpUpdate.h"
 
 
 boolean buttonPressed;
@@ -35,7 +36,8 @@ String header;
 IRunner* iRunner;
 
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
-String settings_url = "http://192.168.1.3:8123/api/get-settings";
+String settings_url = "http://192.168.1.3:8123/api/v2/get-settings";
+StaticJsonDocument<200> settings;
 
 
 void setupMidget(IRunner* _iRunner) {
@@ -99,7 +101,10 @@ void do_big_calculation() {
 }
 
 void update_code() {
-  int update_res = ESPhttpUpdate.update(settings["controller_addr"]["ip"], settings["controller_addr"]["port"], "/bin");
+  ESPhttpUpdate.rebootOnUpdate(false);
+  String ip = settings["controller_addr"]["ip"];
+  int port = settings["controller_addr"]["port"];
+  int update_res = ESPhttpUpdate.update(ip, port, "/bin/" + iRunner->getType());
   Serial.println(update_res);
 
   switch(update_res) {
@@ -156,7 +161,6 @@ void sleep(int us) {
   ESP.deepSleep(us, WAKE_RF_DEFAULT);
 }
 
-StaticJsonDocument<200> settings;
 void get_settings() {
   String response = do_get_request(settings_url);
   Serial.println(response);
@@ -169,7 +173,9 @@ void get_settings() {
 }
 
 void submit_results(String payload) {
-  String controller_addr = settings["controller_addr"]["ip"] + ":" + settings["controller_addr"]["port"];
+  String ip = settings["controller_addr"]["ip"];
+  int port = settings["controller_addr"]["port"];
+  String controller_addr = ip + ":" + port;
   String url = "http://" + controller_addr + "/api/submit";
 
   String get_response = do_post_request(url, payload);

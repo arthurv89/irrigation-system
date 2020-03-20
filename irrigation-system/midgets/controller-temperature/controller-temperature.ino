@@ -18,8 +18,11 @@ int light_sensor_pin = A0;    // select the input pin for the potentiometer
 class Runner: public IRunner
 {
 public:
-  int getButtonPin()
-  {
+  String getType() {
+    return "TemperatureHumiditySensor";
+  }
+
+  int getButtonPin() {
     return D2;
   }
 

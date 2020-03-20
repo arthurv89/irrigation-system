@@ -8,8 +8,11 @@ using namespace std;
 class Runner: public IRunner
 {
 public:
-  int getButtonPin()
-  {
+  String getType() {
+    return "MoistureSensor";
+  }
+
+  int getButtonPin() {
     return D2;
   }
 
