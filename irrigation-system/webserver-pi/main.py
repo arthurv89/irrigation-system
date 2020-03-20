@@ -47,6 +47,10 @@ def _setup_wifi():
 def _get_settings():
     return handle(get_settings, "json")
 
+@app.route('/bin', methods=['GET'])
+def _get_bin():
+    return send_from_directory('bin', 'arduino.bin')
+
 @app.route('/api/submit', methods=['POST'])
 def _submit():
     return handle(submit, "json")
