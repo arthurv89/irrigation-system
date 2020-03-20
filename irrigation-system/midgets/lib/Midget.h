@@ -18,3 +18,5 @@ void get_settings();
 void submit_results(String payload);
 
 void handle_button_pressed();
+
+void update_code();

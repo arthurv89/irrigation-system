@@ -77,7 +77,7 @@ void do_big_calculation() {
 
     Serial.println("--------------------> Submit data over wifi");
     Serial.println("Data: " + payload);
-    
+
     WiFiManager wifiManager;
     Serial.println(WiFi.SSID().c_str());
 
@@ -90,6 +90,7 @@ void do_big_calculation() {
     get_settings();
     submit_results(payload);
     digitalWrite(LED_BUILTIN, LOW);
+    update_code();
   } else {
       Serial.println("--------------------> Wifi not setup yet. Not doing anything.");
   }
@@ -97,12 +98,32 @@ void do_big_calculation() {
   deep_sleep(interval, beforeMillis, afterMillis);
 }
 
+void update_code() {
+  int update_res = ESPhttpUpdate.update(settings["controller_addr"]["ip"], settings["controller_addr"]["port"], "/bin");
+  Serial.println(update_res);
+
+  switch(update_res) {
+      case HTTP_UPDATE_FAILED:
+          Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+//          Serial.println(binFile);
+          break;
+
+      case HTTP_UPDATE_NO_UPDATES:
+          Serial.println("HTTP_UPDATE_NO_UPDATES");
+          break;
+
+      case HTTP_UPDATE_OK:
+          Serial.println("HTTP_UPDATE_OK");
+          break;
+  }
+}
+
 String create_payload() {
   StaticJsonDocument<200> doc;
-  
+
   JsonObject meta  = doc.createNestedObject("meta");
   meta["heapFreeMem"] = ESP.getFreeHeap();
-  
+
   JsonObject params  = doc.createNestedObject("params");
   iRunner->add_sensor_values(params);
   params["deviceId"] = getDeviceId();
@@ -141,9 +162,6 @@ void get_settings() {
   Serial.println(response);
 
   settings = deserializeJson(response)["response"];
-  String controller_ip = settings["controller_ip"];
-  Serial.println("controller_ip");
-  Serial.println(controller_ip);
 
   String payload;
   serializeJson(settings, payload);
@@ -151,8 +169,8 @@ void get_settings() {
 }
 
 void submit_results(String payload) {
-  String ip = settings["controller_ip"];
-  String url = "http://" + ip + "/api/submit";
+  String controller_addr = settings["controller_addr"]["ip"] + ":" + settings["controller_addr"]["port"];
+  String url = "http://" + controller_addr + "/api/submit";
 
   String get_response = do_post_request(url, payload);
 

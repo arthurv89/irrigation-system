@@ -10,12 +10,6 @@
 #include <EthernetClient.h>
 
 
-// AWS endpoint
-//const String host = "http://192.168.1.3";
-//const int port = 8000;
-//const String owner = "casabatata";
-
-
 String do_get_request(String url) {
   WiFiClient client;
 
