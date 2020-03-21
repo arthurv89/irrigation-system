@@ -15,7 +15,7 @@
 const char* ssid = "CasaBatata"; //your WiFi Name
 const char* password = "nopassword";  //Your Wifi Password
 
-bool fast = false;
+bool fast = true;
 
 int speed = -1;
 String speed_str = "";
@@ -27,7 +27,7 @@ void loop() {
   Serial.begin(115200);
 
   if(fast) {
-    speed = 100;
+    speed = 200;
     speed_str = "fast";
   } else {
     speed = 1000;
