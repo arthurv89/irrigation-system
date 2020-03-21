@@ -83,16 +83,13 @@ def _get_blink_bin():
     speed = request.args.get('speed')
     return send_from_directory('bin/blink', speed + '.bin')
 
-
-
-
-@app.route('/bin/TemperatureHumiditySensor', methods=['GET'])
+@app.route('/bin/temperature', methods=['GET'])
 def _get_temperature_bin():
-    return send_from_directory('bin', 'temperature.bin')
+    return send_from_directory('bin/sensor', 'temperature.bin')
 
-@app.route('/bin/MoistureSensor', methods=['GET'])
+@app.route('/bin/moisture', methods=['GET'])
 def _get_moisture_bin():
-    return send_from_directory('bin', 'moisture.bin')
+    return send_from_directory('bin/sensor', 'moisture.bin')
 
 
 

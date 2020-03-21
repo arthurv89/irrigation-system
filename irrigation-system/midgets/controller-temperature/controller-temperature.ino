@@ -19,7 +19,7 @@ class Runner: public IRunner
 {
 public:
   String getType() {
-    return "TemperatureHumiditySensor";
+    return "temperature";
   }
 
   int getButtonPin() {

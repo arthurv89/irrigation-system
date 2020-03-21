@@ -9,7 +9,7 @@ class Runner: public IRunner
 {
 public:
   String getType() {
-    return "MoistureSensor";
+    return "moisture";
   }
 
   int getButtonPin() {
