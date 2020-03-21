@@ -15,7 +15,7 @@
 const char* ssid = "CasaBatata"; //your WiFi Name
 const char* password = "nopassword";  //Your Wifi Password
 
-bool fast = true;
+bool fast = false;
 
 int speed = -1;
 String speed_str = "";
@@ -41,11 +41,11 @@ void loop() {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.println("");
 
-  connect();
-  update();
-  
   Serial.println("Connecting...");
   connect();
+
+  Serial.println("Updating code...");
+  update();
 
   Serial.println("Blinking...");
   blink();
@@ -54,10 +54,7 @@ void loop() {
   blink();
   blink();
 
-  Serial.println("Updating code...");
-  update();
-
-  Serial.println("Sleep");
+  Serial.println("Restart");
 
   ESP.restart();
 }
