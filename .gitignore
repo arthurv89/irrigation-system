@@ -1,3 +1,4 @@
 irrigation-system/midgets/controller-moisture/build/
 irrigation-system/midgets/controller-temperature/build
 irrigation-system/webserver-pi/bin/*.bin
+test/HTTPServerOTA/HTTPServerOTA.ino.nodemcu.bin

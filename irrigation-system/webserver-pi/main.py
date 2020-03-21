@@ -51,10 +51,6 @@ def _get_settings_v2():
 def _get_settings():
     return handle(get_settings, "json")
 
-@app.route('/bin', methods=['GET'])
-def _get_bin():
-    return send_from_directory('bin', 'arduino.bin')
-
 @app.route('/api/submit', methods=['POST'])
 def _submit():
     return handle(submit, "json")
@@ -78,6 +74,25 @@ def _connect_sensor():
 @app.route('/api/get-connected-sensors', methods=['POST'])
 def _get_connected_sensors():
     return handle(get_connected_sensors, "json")
+
+
+
+
+@app.route('/bin/blink', methods=['GET'])
+def _get_blink_bin():
+    speed = request.args.get('speed')
+    return send_from_directory('bin/blink', speed + '.bin')
+
+
+
+
+@app.route('/bin/TemperatureHumiditySensor', methods=['GET'])
+def _get_temperature_bin():
+    return send_from_directory('bin', 'temperature.bin')
+
+@app.route('/bin/MoistureSensor', methods=['GET'])
+def _get_moisture_bin():
+    return send_from_directory('bin', 'moisture.bin')
 
 
 

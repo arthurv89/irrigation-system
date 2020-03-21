@@ -7,7 +7,7 @@ if [ -d "build" ]; then
 fi
 mkdir build
 arduino-cli compile  -b esp8266:esp8266:nodemcu --output build/
-mv build/build.bin ~/workspace/arduino/irrigation-system/webserver-pi/bin/moisture.bin
+# mv build/build.elf ~/workspace/arduino/irrigation-system/webserver-pi/bin/real/moisture.bin
 
 cd ~/workspace/arduino/irrigation-system/midgets/controller-temperature
 if [ -d "build" ]; then
@@ -15,7 +15,7 @@ if [ -d "build" ]; then
 fi
 mkdir build
 arduino-cli compile  -b esp8266:esp8266:nodemcu --output build/
-mv build/build.bin ~/workspace/arduino/irrigation-system/webserver-pi/bin/temperature.bin
+# mv build/build.elf ~/workspace/arduino/irrigation-system/webserver-pi/bin/real/temperature.bin
 
 
 echo ""

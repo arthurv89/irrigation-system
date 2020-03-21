@@ -15,21 +15,35 @@
 const char* ssid = "CasaBatata"; //your WiFi Name
 const char* password = "nopassword";  //Your Wifi Password
 
-int speed = 100;
+bool fast = true;
+
+int speed = -1;
+String speed_str = "";
 
 void setup() {
+}
+
+void loop() {
   Serial.begin(115200);
+
+  if(fast) {
+    speed = 100;
+    speed_str = "fast";
+  } else {
+    speed = 1000;
+    speed_str = "slow";
+  }
+  
+  Serial.println();
+  Serial.println("Start loop");
+  Serial.println("Speed = " + String(speed));
+
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.println("");
 
   connect();
   update();
-}
-
-void loop() {
-  Serial.println();
-  Serial.println("Start loop");
-
+  
   Serial.println("Connecting...");
   connect();
 
@@ -44,6 +58,8 @@ void loop() {
   update();
 
   Serial.println("Sleep");
+
+  ESP.restart();
 }
 
 void blink() {
@@ -67,7 +83,8 @@ void connect() {
 }
 
 void update() {
-  int update_res = ESPhttpUpdate.update("192.168.1.3", 8123, "/bin");
+  ESPhttpUpdate.rebootOnUpdate(false);
+  int update_res = ESPhttpUpdate.update("192.168.1.3", 8123, "/bin/blink?speed=" + speed_str);
   Serial.println(update_res);
 
   switch(update_res) {
