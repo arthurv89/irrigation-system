@@ -1,15 +1,15 @@
 /**
  * How to install:
  * Assuming relay is with the blue side on top, and you're facing the pins.
- * 
+ *
  * [XXX, Common, +]
  * [__________]
- * |          | 
+ * |          |
  * | BLUE BOX |
  * [__________]
  *  |    |   |
  * [D1, 3V, GND]:
- * 
+ *
  */
 
 const int pins = 3;
@@ -25,7 +25,7 @@ const int times = 1;
 void setup() {
   Serial.begin(115200);
   Serial.println();
- 
+
   for(int p=0; p<pins; p++) {
     int pin = pinNos[p];
     pinMode(pin, OUTPUT);
@@ -33,15 +33,17 @@ void setup() {
 }
 
 void loop() {
-  
+
   handle();
   delay(interval);
 }
 
 void handle() {
   for(int p=0; p<pins; p++) {
+    Serial.println();
     int pin = pinNos[p];
-    Serial.print(pin);
+    Serial.print("Index " + String(p));
+    Serial.print(" Pin " + String(pin));
     for(int i=0; i<times; i++) {
       setPin(pin, HIGH);
       Serial.print(" On");
@@ -51,7 +53,6 @@ void handle() {
       Serial.print(" Off");
       delay(blink_period);
     }
-    Serial.println();
   }
 }
 
