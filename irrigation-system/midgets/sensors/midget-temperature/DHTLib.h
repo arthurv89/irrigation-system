@@ -1,1 +1,1 @@
-../lib/temp-sensor/DHTLib.h
+../../lib/temperature-sensor/DHTLib.h

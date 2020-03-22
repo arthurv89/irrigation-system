@@ -1,1 +1,1 @@
-../lib/Properties.cpp
+../../lib/Properties.cpp

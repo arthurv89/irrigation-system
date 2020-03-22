@@ -1,1 +1,1 @@
-../lib/Midget.cpp
+../../lib/Midget.cpp

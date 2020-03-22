@@ -1,1 +1,1 @@
-../lib/temp-sensor/DHTLib.cpp
+../../lib/temperature-sensor/DHTLib.cpp

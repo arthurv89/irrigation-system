@@ -1,1 +1,1 @@
-../lib/TemperatureSensor.cpp
+../../lib/temperature-sensor/TemperatureSensor.cpp

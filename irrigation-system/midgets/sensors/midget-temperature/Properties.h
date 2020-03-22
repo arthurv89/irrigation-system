@@ -1,1 +1,1 @@
-../lib/Properties.h
+../../lib/Properties.h

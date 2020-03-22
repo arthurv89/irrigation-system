@@ -1,1 +1,1 @@
-../lib/temp-sensor/DHTLibPort.h
+../../lib/temperature-sensor/DHTLibPort.h

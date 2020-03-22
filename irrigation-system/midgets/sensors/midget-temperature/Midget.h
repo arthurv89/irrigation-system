@@ -1,1 +1,1 @@
-../lib/Midget.h
+../../lib/Midget.h

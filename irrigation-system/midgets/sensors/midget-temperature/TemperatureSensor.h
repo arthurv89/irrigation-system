@@ -1,1 +1,1 @@
-../lib/TemperatureSensor.h
+../../lib/temperature-sensor/TemperatureSensor.h
