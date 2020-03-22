@@ -5,17 +5,15 @@ using namespace std;
 #include "IRunner.h"
 #include "MoistureSensor.h"
 
-boolean setup_wifi = false;
-
 class Runner: public IRunner
 {
 public:
   int getValvePin(int i) {
     return -1;
   }
-  
+
   boolean setup_wifi() {
-    return setup_wifi;
+    return false;
   }
 
   String getType() {

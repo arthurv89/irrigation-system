@@ -5,6 +5,4 @@ irrigation-system/midgets/controller-valve/build/
 irrigation-system/midgets/sensor/midget-moisture/build/
 irrigation-system/midgets/sensor/midget-temperature/build
 
-irrigation-system/webserver-pi/bin/sensor/*.bin
-irrigation-system/webserver-pi/bin/blink/real/*.bin
-irrigation-system/webserver-pi/bin/valve/real/valve.bin
+irrigation-system/webserver-pi/bin/*/real/*.bin

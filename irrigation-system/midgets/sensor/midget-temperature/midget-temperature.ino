@@ -22,6 +22,10 @@ public:
     return -1;
   }
 
+  boolean setup_wifi() {
+    return false;
+  }
+
   String getType() {
     return "temperature";
   }
