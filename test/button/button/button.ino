@@ -1,3 +1,7 @@
+/**
+ * Instructions:
+ * See image int his folder to understand how to put the pins.
+ */
 #include "EEPROMUtil.h"
 #include "EEPROM.h"
 
@@ -21,7 +25,7 @@ void setup() {
   inializeEEPROM(false);
 
   pinMode(pin, INPUT);
-  buttonPressed = 1-digitalRead(pin);
+  buttonPressed = digitalRead(pin);
 
   Serial.println("");
   Serial.println("");

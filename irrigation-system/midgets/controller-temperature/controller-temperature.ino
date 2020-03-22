@@ -8,7 +8,7 @@ using namespace std;
 #include"DHTLib.h"
 #include <DHT.h>
 
-#define DHTPIN 5
+#define DHTPIN D1
 #define DHTTYPE    DHT11
 
 DHT dht(DHTPIN, DHTTYPE);

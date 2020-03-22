@@ -1,12 +1,12 @@
 import json
-from flask import request
+from utils import request
 import properties
 from datetime import datetime
 from utils import db
 import logging
 
 def handle():
-    store_data(request.get_json())
+    store_data(request.get_params())
     return {}
 
 def store_data(form):
@@ -18,6 +18,7 @@ def store_data(form):
 def put_value(key, form):
     timestamp = int(datetime.utcnow().strftime("%s"))
     if key in form:
+        logging.debug("Processing " + key + "!")
         db.put_sensor_value(
             deviceId=form["deviceId"],
             time=timestamp,
