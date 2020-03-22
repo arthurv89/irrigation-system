@@ -7,10 +7,8 @@ from utils import db
 
 app = Flask(__name__, template_folder="jinja_templates")
 
-max_lines = 20
-interval_minutes = 5
 one_day = 86400 # seconds
-time_bucket_size = 300
+time_bucket_size = 5 * 60 # seconds
 
 def handle():
     timeseries_arr = [
