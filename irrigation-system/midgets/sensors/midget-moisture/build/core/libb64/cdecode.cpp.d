@@ -1,0 +1,27 @@
+/Users/arthur/workspace/arduino/irrigation-system/midgets/controller-moisture/build/core/libb64/cdecode.cpp.o: \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/cores/esp8266/libb64/cdecode.cpp \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/cores/esp8266/pgmspace.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/pgmspace.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/stdint.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/machine/_default_types.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/features.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/_intsup.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/include/ets_sys.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/include/c_types.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/cdefs.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/include/eagle_soc.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/include/osapi.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/string.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/_ansi.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/newlib.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/config.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/machine/ieeefp.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/xtensa/config/core-isa.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/reent.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/_ansi.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/_types.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/machine/_types.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/lock.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/tools/sdk/libc/xtensa-lx106-elf/include/sys/string.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/cores/esp8266/user_config.h \
+ /Users/arthur/Library/Arduino15/packages/esp8266/hardware/esp8266/2.6.3/cores/esp8266/libb64/cdecode.h

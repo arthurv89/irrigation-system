@@ -1,15 +1,15 @@
 set -x
 set -e
 
-cd ~/workspace/arduino/irrigation-system/midgets/controller-moisture
+cd ~/workspace/arduino/irrigation-system/midgets/sensor/midget-moisture
 rm -rf build
 "/Users/arthur/Downloads/Arduino 2.app/Contents/MacOS/Arduino" --pref build.path=build --verbose --board esp8266:esp8266:nodemcu --verify *.ino
-mv build/controller-moisture.ino.bin ~/workspace/arduino/irrigation-system/webserver-pi/bin/sensor/real/moisture.bin
+mv build/sensor/midget-moisture.ino.bin ~/workspace/arduino/irrigation-system/webserver-pi/bin/sensor/real/moisture.bin
 
-cd ~/workspace/arduino/irrigation-system/midgets/controller-temperature
+cd ~/workspace/arduino/irrigation-system/midgets/sensor/midget-temperature
 rm -rf build
 "/Users/arthur/Downloads/Arduino 2.app/Contents/MacOS/Arduino" --pref build.path=build --verbose --board esp8266:esp8266:nodemcu --verify *.ino
-mv build/controller-temperature.ino.bin ~/workspace/arduino/irrigation-system/webserver-pi/bin/sensor/real/temperature.bin
+mv build/sensor/midget-temperature.ino.bin ~/workspace/arduino/irrigation-system/webserver-pi/bin/sensor/real/temperature.bin
 
 
 echo ""
