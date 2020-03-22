@@ -13,10 +13,12 @@ void deep_sleep(int interval, long long beforeMillis, long long afterMillis);
 
 void sleep(int us);
 
-void get_settings();
+void fetch_settings();
 
 void submit_results(String payload);
 
 void handle_button_pressed();
 
 void update_code();
+
+StaticJsonDocument<200> get_settings();

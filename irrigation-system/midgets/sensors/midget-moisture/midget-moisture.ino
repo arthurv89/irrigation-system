@@ -5,9 +5,15 @@ using namespace std;
 #include "IRunner.h"
 #include "MoistureSensor.h"
 
+boolean setup_wifi = false;
+
 class Runner: public IRunner
 {
 public:
+  boolean setup_wifi() {
+    return setup_wifi;
+  }
+
   String getType() {
     return "moisture";
   }

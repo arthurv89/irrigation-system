@@ -4,7 +4,7 @@ import logging
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
 from handlers.pages import index, connect_sensors, setup_wifi
-from handlers.api import health, submit, find_ssids, save_wifi, get_settings, get_settings_v2, connect_sensor, get_connected_sensors
+from handlers.api import health, submit, find_ssids, save_wifi, get_settings, get_settings_v2, connect_sensor, get_connected_sensors, get_valve_instructions
 
 import time
 import os
@@ -74,6 +74,10 @@ def _connect_sensor():
 @app.route('/api/get-connected-sensors', methods=['POST'])
 def _get_connected_sensors():
     return handle(get_connected_sensors, "json")
+
+@app.route('/api/valveInstructions', methods=['GET'])
+def _get_valve_instructions():
+    return handle(get_valve_instructions, "json")
 
 
 

@@ -15,6 +15,7 @@ String do_get_request(String url) {
 
   HTTPClient http;
 
+  Serial.print("[HTTP] Fetching " + url + "...\n");
   Serial.print("[HTTP] begin...\n");
   String response = "";
   if (http.begin(client, url)) {  // HTTP

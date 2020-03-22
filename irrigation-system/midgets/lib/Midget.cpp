@@ -59,7 +59,7 @@ void loopMidget() {
     Serial.println("PIN " + String(iRunner->getButtonPin()) + " = " + buttonPressed + ", cycle=" + getCycle());
 
     int cycle = getCycle();
-    if(buttonPressed == 1) {
+    if(buttonPressed == 1 && iRunner->setup_wifi()) {
       handle_button_pressed();
     } else if(cycle >= 5 || cycle < 0) {
       setCycle(0);
@@ -89,7 +89,7 @@ void do_big_calculation() {
     Serial.println();
     Serial.println("==========");
 
-    get_settings();
+    fetch_settings();
     submit_results(payload);
     digitalWrite(LED_BUILTIN, LOW);
     update_code();
@@ -161,7 +161,7 @@ void sleep(int us) {
   ESP.deepSleep(us, WAKE_RF_DEFAULT);
 }
 
-void get_settings() {
+void fetch_settings() {
   String response = do_get_request(settings_url);
   Serial.println(response);
 
@@ -195,4 +195,8 @@ void handle_button_pressed() {
 
   Serial.println("Finished setting up wifi");
   sleep(100 * 1000);
+}
+
+StaticJsonDocument<200> get_settings() {
+  return settings;
 }

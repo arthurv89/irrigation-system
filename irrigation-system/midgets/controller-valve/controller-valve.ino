@@ -12,58 +12,55 @@
  *
  */
 
+using namespace std;
+
+#include "Midget.h"
+#include "IRunner.h"
+#include "Valve.h"
+
 const int pins = 3;
-const int pinNos[pins] = {D1, D2, D3};
+const int valvePins[pins] = {D1, D2, D3};
 
-const int builtin_on_value = LOW;
-const int builtin_off_value = HIGH;
 
-const long interval = 0;
-const long blink_period = 5000;
-const int times = 1;
+class Runner: public IRunner
+{
+public:
+  boolean setup_wifi() {
+    return false;
+  }
+
+  String getType() {
+    return "valve";
+  }
+
+  int getButtonPin() {
+    return D8;
+  }
+
+  String getWifiName(String deviceId) {
+    return "IRSYS-V-" + deviceId;
+  }
+
+  void add_sensor_values(JsonObject &doc) {
+    handle(this);
+  }
+
+  int getValvePin(int valve) {
+    return valvePins[valve];
+  }
+};
+
 
 void setup() {
-  Serial.begin(115200);
-  Serial.println();
+  IRunner* runner = new Runner;
+  setupMidget(runner);
 
   for(int p=0; p<pins; p++) {
-    int pin = pinNos[p];
+    int pin = valvePins[p];
     pinMode(pin, OUTPUT);
   }
 }
 
 void loop() {
-
-  handle();
-  delay(interval);
-}
-
-void handle() {
-  for(int p=0; p<pins; p++) {
-    Serial.println();
-    int pin = pinNos[p];
-    Serial.print("Index " + String(p));
-    Serial.print(" Pin " + String(pin));
-    for(int i=0; i<times; i++) {
-      setPin(pin, HIGH);
-      Serial.print(" On");
-      delay(blink_period);
-
-      setPin(pin, LOW);
-      Serial.print(" Off");
-      delay(blink_period);
-    }
-  }
-}
-
-void setPin(int pin, int value) {
-  digitalWrite(pin, value);
-
-  int builtin_value = -1;
-  if(value == HIGH) {
-    builtin_value = builtin_on_value;
-  } else {
-    builtin_value = builtin_off_value;
-  }
-  digitalWrite(LED_BUILTIN, builtin_value);
+    loopMidget();
 }
