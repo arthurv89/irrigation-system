@@ -95,6 +95,10 @@ def _get_temperature_bin():
 def _get_moisture_bin():
     return send_from_directory('bin/sensor', 'moisture.bin')
 
+@app.route('/bin/valve', methods=['GET'])
+def _get_valve_bin():
+    return send_from_directory('bin/valve', 'valve.bin')
+
 
 
 
