@@ -1,97 +1,53 @@
 #include <Arduino.h>
 #include "EEPROM.h"
 #include "EEPROMUtil.h"
+#include "Utils.h"
 
-const char EEPROMPrefix[] = "IRSYS-EEPROM-PREFIX";
-
-const int cycleStartIdx = strlen(EEPROMPrefix) + 1;
-
-const bool isDebug = false;
-
-void EEPROMUtil::initializeStorage(bool resetEEPROM) {
-  if (resetEEPROM || !getPrefixFromStorage().equals(EEPROMPrefix)) {
-    printLine("Force initialization of EEPROM");
-    writeString("                                                            ", 0);
-
-    writeString(EEPROMPrefix, 0);
-    printLine(readStr(0, 50));
-    printLine();
-
-    writeInt(0, cycleStartIdx);
-    printLine(readStr(0, 50));
-  } else {
-    printLine("EEPROM was already initialised");
-  }
+void EEPROMUtil::initializeEEPROMStorage(bool resetStorage) {
+  EEPROM.begin(512);
 }
 
-int EEPROMUtil::getCycle() {
-  return readInt(cycleStartIdx);
-}
 
-void EEPROMUtil::setCycle(int cycle) {
-  writeInt(cycle, cycleStartIdx);
-}
+void EEPROMUtil::write_json(StaticJsonDocument<200> doc) {
+  String str = _serializeJson(doc);
 
-String EEPROMUtil::getPrefixFromStorage() {
-  return readStr(0, strlen(EEPROMPrefix));
-}
+  writeInt(0, str.length());
 
-void EEPROMUtil::writeString(String str, int startpos) {
-  printString("WRITING ON POSITION ");
-  printString(startpos);
-  printString(" [len=");
-  printString(str.length());
-  printString("]: ");
+  int startPos = 2;
   for (int i=0; i < str.length(); i++) {
-    EEPROM.write(i + startpos, str[i]);
+    EEPROM.write(i + startPos, str[i]);
   }
   EEPROM.commit();
-  printLine(str);
 }
 
-String readStr(int startIndex, int len) {
+String EEPROMUtil::read_json() {
+  int len = readInt(0);
+
+  int startPos = 2;
+
   char chars[len+1];
   memset(chars, 0, sizeof chars);
   for (int i = 0; i < len; i++) {
-    chars[i] = EEPROM.read(startIndex + i);
+    chars[i] = EEPROM.read(startPos + i);
   }
 
   chars[len] = '\0';
   return chars;
 }
 
-void EEPROMUtil::writeInt(int value, int startpos) {
-  printString("WRITING ON POSITION ");
-  printString(startpos);
-  printString(": ");
-  printString(value + '0');
-  printLine();
-  EEPROM.write(startpos, value + '0');
-  EEPROM.commit();
-}
 
-int EEPROMUtil::readInt(int startpos) {
-  return EEPROM.read(startpos) - '0';
-}
+void EEPROMUtil::writeInt(int p_address, int p_value) {
+   byte lowByte = ((p_value >> 0) & 0xFF);
+   byte highByte = ((p_value >> 8) & 0xFF);
 
-void EEPROMUtil::printLine(String str) {
-  if(isDebug) {
-    Serial.println(str);
-  }
-}
+   EEPROM.write(p_address, lowByte);
+   EEPROM.write(p_address + 1, highByte);
+ }
 
-void EEPROMUtil::printString(String str) {
-  if(isDebug) {
-    Serial.print(str);
-  }
-}
+//This function will read a 2 byte integer from the eeprom at the specified address and address + 1
+int EEPROMUtil::readInt(int p_address) {
+  byte lowByte = EEPROM.read(p_address);
+  byte highByte = EEPROM.read(p_address + 1);
 
-void EEPROMUtil::printString(int i) {
-  if(isDebug) {
-    Serial.print(i);
-  }
-}
-
-void EEPROMUtil::printLine() {
-  printLine("");
+  return ((lowByte << 0) & 0xFF) + ((highByte << 8) & 0xFF00);
 }

@@ -25,7 +25,7 @@ const int valvePins[pins] = {D1, D2, D3};
 class Runner: public IRunner
 {
 public:
-  boolean setup_wifi() {
+  bool setup_wifi() {
     return false;
   }
 

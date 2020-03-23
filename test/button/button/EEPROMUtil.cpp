@@ -23,7 +23,7 @@ void EEPROMUtil::inializeStorage(bool resetPermStorage) {
     printLine(readStr(0, 50));
     printLine();
 
-    writeInt(0, cycleStartIdx);
+    writeDigit(0, cycleStartIdx);
     printLine(readStr(0, 50));
   } else {
     printLine("PermStorage was already initialised");
@@ -39,7 +39,7 @@ int EEPROMUtil::getCycle() {
 }
 
 void EEPROMUtil::setCycle(int cycle) {
-  writeInt(cycle, cycleStartIdx);
+  writeDigit(cycle, cycleStartIdx);
 }
 
 String EEPROMUtil::getPrefixFromPermStorage() {
@@ -69,18 +69,18 @@ void EEPROMUtil::writeString(String str, int startpos) {
   printLine(str);
 }
 
-String EEPROMUtil::readStr(int startIndex, int len) {
+String EEPROMUtil::readStr(int startPos, int len) {
   char chars[len+1];
   memset(chars, 0, sizeof chars);
   for (int i = 0; i < len; i++) {
-    chars[i] = EEPROM.read(startIndex + i);
+    chars[i] = EEPROM.read(startPos + i);
   }
 
   chars[len] = '\0';
   return chars;
 }
 
-void EEPROMUtil::writeInt(int value, int startpos) {
+void EEPROMUtil::writeDigit(int value, int startpos) {
   printString("WRITING ON POSITION ");
   printString(startpos);
   printString(": ");

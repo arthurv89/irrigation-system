@@ -17,7 +17,7 @@
 #include "ESP8266httpUpdate.h"
 
 
-boolean buttonPressed;
+bool buttonPressed;
 
 // Loop variables
 long long previousMillis = 0;
@@ -50,14 +50,13 @@ void setupMidget(IRunner* _iRunner) {
 }
 
 void loopMidget() {
-    Serial.println(ESP.getFreeHeap());
     pinMode(iRunner->getButtonPin(), INPUT_PULLUP);
 
-    buttonPressed = 1-digitalRead(iRunner->getButtonPin());
-    Serial.println("PIN " + String(iRunner->getButtonPin()) + " = " + buttonPressed + ", cycle=" + getCycle());
+    buttonPressed = digitalRead(iRunner->getButtonPin()) == 0;
+    Serial.println("PIN " + String(iRunner->getButtonPin()) + " = " + String(buttonPressed) + ", cycle=" + getCycle());
 
     int cycle = getCycle();
-    if(buttonPressed == 1 && iRunner->setup_wifi()) {
+    if(buttonPressed) {
       handle_button_pressed();
     } else if(cycle >= 5 || cycle < 0) {
       setCycle(0);
@@ -74,6 +73,11 @@ void do_big_calculation() {
   long long beforeMillis = millis();
   String ssid = getWifiSsid();
   String psk = getWifiPsk();
+
+  Serial.println("WIFI credentials");
+  Serial.println(ssid);
+  Serial.println(psk);
+
   if(ssid.length() > 0) {
     String payload = create_payload();
 
@@ -188,9 +192,10 @@ void submit_results(String payload) {
 void handle_button_pressed() {
   // Reboot and handle it once it's rebooted.
   WiFiManager wifiManager;
-  Serial.println("Setup wifi");
   wifiManager.resetSettings();
   String wifiName = iRunner->getWifiName(getDeviceId());
+
+  Serial.println("Setup wifi. WifiName: " + wifiName);
   wifiManager.startConfigPortal(wifiName.c_str());
   // wifiManager.autoConnect(wifiName.c_str());
 

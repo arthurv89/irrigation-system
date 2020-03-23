@@ -12,7 +12,7 @@ public:
     return -1;
   }
 
-  boolean setup_wifi() {
+  bool setup_wifi() {
     return false;
   }
 
