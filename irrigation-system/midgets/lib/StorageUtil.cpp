@@ -30,3 +30,21 @@ void setCycle(int _cycle) {
   cycle = _cycle;
   eepromUtil->setCycle(_cycle);
 }
+
+String ssid;
+String psk;
+void setWifiCredentials(String _ssid, String _psk) {
+  if(_ssid != ssid || _psk != psk) {
+    ssid = _ssid;
+    psk = _psk;
+    permStorageUtil->setWifiCredentials(_ssid, _psk);
+  }
+}
+
+String getWifiSsid() {
+  return ssid;
+}
+
+String getWifiPsk() {
+  return psk;
+}

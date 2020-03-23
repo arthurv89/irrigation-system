@@ -72,17 +72,19 @@ void do_big_calculation() {
   digitalWrite(LED_BUILTIN, HIGH);
 
   long long beforeMillis = millis();
-  if(WiFi.SSID().length() > 0) {
+  String ssid = getWifiSsid();
+  String psk = getWifiPsk();
+  if(ssid.length() > 0) {
     String payload = create_payload();
 
     Serial.println("--------------------> Submit data over wifi");
     Serial.println("Data: " + payload);
 
     WiFiManager wifiManager;
-    Serial.println(WiFi.SSID().c_str());
+    Serial.println(ssid.c_str());
 
 
-    wifiManager.autoConnect(WiFi.SSID().c_str());
+    wifiManager.autoConnect(ssid.c_str(), psk.c_str());
 
     Serial.println();
     Serial.println("==========");
@@ -92,7 +94,8 @@ void do_big_calculation() {
     digitalWrite(LED_BUILTIN, LOW);
     update_code();
   } else {
-      Serial.println("--------------------> Wifi not setup yet. Not doing anything.");
+      Serial.println("--------------------> Wifi not setup yet. Setup wifi to configure it now.");
+      handle_button_pressed();
   }
   long long afterMillis = millis();
   deep_sleep(interval, beforeMillis, afterMillis);
@@ -188,9 +191,11 @@ void handle_button_pressed() {
   Serial.println("Setup wifi");
   wifiManager.resetSettings();
   String wifiName = iRunner->getWifiName(getDeviceId());
-  wifiManager.autoConnect(wifiName.c_str());
+  wifiManager.startConfigPortal(wifiName.c_str());
+  // wifiManager.autoConnect(wifiName.c_str());
 
-  Serial.println("Finished setting up wifi");
+  Serial.println("Finished setting up wifi. Storing in Perm storage");
+  setWifiCredentials(WiFi.SSID(), WiFi.psk());
   sleep(100 * 1000);
 }
 

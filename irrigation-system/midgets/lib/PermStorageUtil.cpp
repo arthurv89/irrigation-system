@@ -16,7 +16,7 @@ void PermStorageUtil::initializeStorage(bool resetPermStorage) {
   if (resetPermStorage) {
     StaticJsonDocument<200> doc;
     doc["deviceId"] = createDeviceId();
-    json = doc;
+    write_json(doc);
   }
 }
 
@@ -32,17 +32,33 @@ StaticJsonDocument<200> PermStorageUtil::read_json() {
   return _deserializeJson(contents);
 }
 
-void write_json(StaticJsonDocument<200> doc) {
+void PermStorageUtil::write_json(StaticJsonDocument<200> doc) {
   String contents = _serializeJson(doc);
 
   File f = SPIFFS.open(path, "w");
   f.print(contents);
   f.close();
+  json = doc;
 }
 
 String PermStorageUtil::getDeviceId() {
   return json["deviceId"];
 }
+
+String PermStorageUtil::getWifiSsid() {
+  return json["wifi-ssid"];
+}
+
+String PermStorageUtil::getWifiPsk() {
+  return json["wifi-psk"];
+}
+
+void PermStorageUtil::setWifiCredentials(String ssid, String psk) {
+  json["wifi-ssid"] = ssid;
+  json["wifi-psk"] = psk;
+  write_json(json);
+}
+
 
 String PermStorageUtil::createDeviceId() {
   // Create random deviceId

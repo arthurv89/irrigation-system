@@ -8,6 +8,10 @@ class PermStorageUtil {
   public:
     virtual void initializeStorage(bool resetPermStorage);
     virtual String getDeviceId() = 0;
+    virtual String getWifiSsid() = 0;
+    virtual String getWifiPsk() = 0;
+    virtual void setWifiCredentials(String ssid, String psk);
+
 
   private:
     virtual String createDeviceId() = 0;

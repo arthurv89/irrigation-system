@@ -14,8 +14,6 @@ const long blink_period = 5000;
 
 
 void handle(IRunner* iRunner) {
-  connect_wifi("CasaBatata", "nopassword");
-
   fetch_settings();
   StaticJsonDocument<200> settings = get_settings();
   String ip = settings["controller_addr"]["ip"];
