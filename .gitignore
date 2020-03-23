@@ -6,3 +6,5 @@ irrigation-system/midgets/sensor/midget-moisture/build/
 irrigation-system/midgets/sensor/midget-temperature/build
 
 irrigation-system/webserver-pi/bin/*/real/*.bin
+
+.DS_Store
