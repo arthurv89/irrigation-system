@@ -1,29 +1,19 @@
 #include <Arduino.h>
-#include "EEPROMUtil.h"
 #include "EEPROM.h"
+#include "EEPROMUtil.h"
 
-const int deviceIdLength = 20;
-const char eepromPrefix[] = "IRSYS-EEPROM-PREFIX";
+const char EEPROMPrefix[] = "IRSYS-EEPROM-PREFIX";
 
-const int deviceIdStartIdx = strlen(eepromPrefix) + 1;
-const int cycleStartIdx = strlen(eepromPrefix) + 1 + deviceIdLength + 1;
+const int cycleStartIdx = strlen(EEPROMPrefix) + 1;
 
 const bool isDebug = false;
 
-void initializeEEPROM(bool resetEEPROM) {
-  if (resetEEPROM || !getPrefixFromEEPROM().equals(eepromPrefix)) {
+void EEPROMUtil::initializeStorage(bool resetEEPROM) {
+  if (resetEEPROM || !getPrefixFromStorage().equals(EEPROMPrefix)) {
     printLine("Force initialization of EEPROM");
     writeString("                                                            ", 0);
 
-    String deviceId = createDeviceId();
-    printLine("deviceId: " + deviceId);
-    printLine();
-
-    writeString(eepromPrefix, 0);
-    printLine(readStr(0, 50));
-    printLine();
-
-    writeString(deviceId, deviceIdStartIdx);
+    writeString(EEPROMPrefix, 0);
     printLine(readStr(0, 50));
     printLine();
 
@@ -34,33 +24,19 @@ void initializeEEPROM(bool resetEEPROM) {
   }
 }
 
-String getDeviceId() {
-  return readStr(deviceIdStartIdx, deviceIdLength);
-}
-
-int getCycle() {
+int EEPROMUtil::getCycle() {
   return readInt(cycleStartIdx);
 }
 
-void setCycle(int cycle) {
+void EEPROMUtil::setCycle(int cycle) {
   writeInt(cycle, cycleStartIdx);
 }
 
-String getPrefixFromEEPROM() {
-  return readStr(0, strlen(eepromPrefix));
+String EEPROMUtil::getPrefixFromStorage() {
+  return readStr(0, strlen(EEPROMPrefix));
 }
 
-String createDeviceId() {
-  // Create random deviceId
-  String deviceIdPostfix = "";
-  for (int i=0; i < deviceIdLength; i++) {
-    deviceIdPostfix += char(('0' + random(0, 10)));
-    printLine(deviceIdPostfix);
-  }
-  return deviceIdPostfix;
-}
-
-void writeString(String str, int startpos) {
+void EEPROMUtil::writeString(String str, int startpos) {
   printString("WRITING ON POSITION ");
   printString(startpos);
   printString(" [len=");
@@ -84,7 +60,7 @@ String readStr(int startIndex, int len) {
   return chars;
 }
 
-void writeInt(int value, int startpos) {
+void EEPROMUtil::writeInt(int value, int startpos) {
   printString("WRITING ON POSITION ");
   printString(startpos);
   printString(": ");
@@ -94,28 +70,28 @@ void writeInt(int value, int startpos) {
   EEPROM.commit();
 }
 
-int readInt(int startpos) {
+int EEPROMUtil::readInt(int startpos) {
   return EEPROM.read(startpos) - '0';
 }
 
-void printLine(String str) {
+void EEPROMUtil::printLine(String str) {
   if(isDebug) {
     Serial.println(str);
   }
 }
 
-void printString(String str) {
+void EEPROMUtil::printString(String str) {
   if(isDebug) {
     Serial.print(str);
   }
 }
 
-void printString(int i) {
+void EEPROMUtil::printString(int i) {
   if(isDebug) {
     Serial.print(i);
   }
 }
 
-void printLine() {
+void EEPROMUtil::printLine() {
   printLine("");
 }

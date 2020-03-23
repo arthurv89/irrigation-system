@@ -2,7 +2,7 @@
 #include "IRunner.h"
 
 #include "Internet.h"
-#include "EEPROMUtil.h"
+#include "StorageUtil.h"
 #include "Request.h"
 #include "Utils.h"
 #include "BlinkTimes.h"
@@ -10,7 +10,6 @@
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <EEPROM.h>
 
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
@@ -43,12 +42,11 @@ StaticJsonDocument<200> settings;
 void setupMidget(IRunner* _iRunner) {
     iRunner = _iRunner;
     Serial.begin(115200);
-    EEPROM.begin(512);
 
     Serial.println("");
     Serial.println("");
     Serial.println("");
-    initializeEEPROM(false);
+    initializeStorage(false);
 }
 
 void loopMidget() {
@@ -133,8 +131,7 @@ String create_payload() {
   iRunner->add_sensor_values(params);
   params["deviceId"] = getDeviceId();
 
-  String payload;
-  serializeJson(doc, payload);
+  String payload = _serializeJson(doc);
   return payload;
 }
 
@@ -165,7 +162,7 @@ void fetch_settings() {
   String response = do_get_request(settings_url);
   Serial.println(response);
 
-  settings = deserializeJson(response)["response"];
+  settings = _deserializeJson(response)["response"];
 
   String payload;
   serializeJson(settings, payload);

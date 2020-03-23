@@ -7,7 +7,7 @@ String to_str(long l) {
 }
 
 
-DynamicJsonDocument deserializeJson(String json) {
+DynamicJsonDocument _deserializeJson(String json) {
   DynamicJsonDocument doc(1024);
   DeserializationError error = deserializeJson(doc, json);
   if (error) {
@@ -32,4 +32,10 @@ DynamicJsonDocument deserializeJson(String json) {
   }
 
   return doc;
+}
+
+String _serializeJson(StaticJsonDocument<200> doc) {
+  String str;
+  serializeJson(doc, str);
+  return str;
 }

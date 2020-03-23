@@ -3,23 +3,19 @@
 #include "EEPROM.h"
 
 const int deviceIdLength = 20;
-const char eepromPrefix[] = "IRSYS-EEPROM-PREFIX";
+const char PermStoragePrefix[] = "IRSYS-PermStorage-PREFIX";
 
-const int deviceIdStartIdx = strlen(eepromPrefix) + 1;
-const int cycleStartIdx = strlen(eepromPrefix) + 1 + deviceIdLength + 1;
+const int deviceIdStartIdx = strlen(PermStoragePrefix) + 1;
+const int cycleStartIdx = strlen(PermStoragePrefix) + 1 + deviceIdLength + 1;
 
 const bool isDebug = false;
 
-void inializeEEPROM(bool resetEEPROM) {
-  if (resetEEPROM || !getPrefixFromEEPROM().equals(eepromPrefix)) {
-    printLine("Force initialization of EEPROM");
+void EEPROMUtil::inializeStorage(bool resetPermStorage) {
+  if (resetPermStorage || !getPrefixFromPermStorage().equals(PermStoragePrefix)) {
+    printLine("Force initialization of PermStorage");
     writeString("                                                            ", 0);
 
-    String deviceId = createDeviceId();
-    printLine("deviceId: " + deviceId);
-    printLine();
-
-    writeString(eepromPrefix, 0);
+    writeString(PermStoragePrefix, 0);
     printLine(readStr(0, 50));
     printLine();
 
@@ -27,30 +23,30 @@ void inializeEEPROM(bool resetEEPROM) {
     printLine(readStr(0, 50));
     printLine();
 
-    writeInt(0, cycleStartIdx);  
+    writeInt(0, cycleStartIdx);
     printLine(readStr(0, 50));
   } else {
-    printLine("EEPROM was already initialised");
+    printLine("PermStorage was already initialised");
   }
 }
 
-String getDeviceId() {
+String EEPROMUtil::getDeviceId() {
   return readStr(deviceIdStartIdx, deviceIdLength);
 }
 
-int getCycle() {
+int EEPROMUtil::getCycle() {
   return readInt(cycleStartIdx);
 }
 
-void setCycle(int cycle) {
+void EEPROMUtil::setCycle(int cycle) {
   writeInt(cycle, cycleStartIdx);
 }
 
-String getPrefixFromEEPROM() {
-  return readStr(0, strlen(eepromPrefix));
+String EEPROMUtil::getPrefixFromPermStorage() {
+  return readStr(0, strlen(PermStoragePrefix));
 }
 
-String createDeviceId() {
+String EEPROMUtil::createDeviceId() {
   // Create random deviceId
   String deviceIdPostfix = "";
   for (int i=0; i < deviceIdLength; i++) {
@@ -60,7 +56,7 @@ String createDeviceId() {
   return deviceIdPostfix;
 }
 
-void writeString(String str, int startpos) {
+void EEPROMUtil::writeString(String str, int startpos) {
   printString("WRITING ON POSITION ");
   printString(startpos);
   printString(" [len=");
@@ -73,18 +69,18 @@ void writeString(String str, int startpos) {
   printLine(str);
 }
 
-String readStr(int startIndex, int len) {
+String EEPROMUtil::readStr(int startIndex, int len) {
   char chars[len+1];
   memset(chars, 0, sizeof chars);
   for (int i = 0; i < len; i++) {
     chars[i] = EEPROM.read(startIndex + i);
   }
-  
+
   chars[len] = '\0';
   return chars;
 }
 
-void writeInt(int value, int startpos) {
+void EEPROMUtil::writeInt(int value, int startpos) {
   printString("WRITING ON POSITION ");
   printString(startpos);
   printString(": ");
@@ -94,28 +90,28 @@ void writeInt(int value, int startpos) {
   EEPROM.commit();
 }
 
-int readInt(int startpos) {
+int EEPROMUtil::readInt(int startpos) {
   return EEPROM.read(startpos) - '0';
 }
 
-void printLine(String str) {
+void EEPROMUtil::printLine(String str) {
   if(isDebug) {
     Serial.println(str);
   }
 }
 
-void printString(String str) {
+void EEPROMUtil::printString(String str) {
   if(isDebug) {
     Serial.print(str);
   }
 }
 
-void printString(int i) {
+void EEPROMUtil::printString(int i) {
   if(isDebug) {
     Serial.print(i);
   }
 }
 
-void printLine() {
+void EEPROMUtil::printLine() {
   printLine("");
 }

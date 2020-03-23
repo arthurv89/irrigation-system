@@ -25,7 +25,7 @@ void handle(IRunner* iRunner) {
 
   String valveInstructionsJson = do_get_request(url);
 
-  StaticJsonDocument<200> instructions = deserializeJson(valveInstructionsJson)["response"];
+  StaticJsonDocument<200> instructions = _deserializeJson(valveInstructionsJson)["response"];
 
   String str;
   serializeJson(instructions, str);

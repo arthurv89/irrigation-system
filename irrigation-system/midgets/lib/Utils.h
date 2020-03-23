@@ -1,8 +1,8 @@
 #include "Arduino.h"
-
 #include <ArduinoJson.h>
 
 String to_str(long l);
 
 
-DynamicJsonDocument deserializeJson(String json);
+DynamicJsonDocument _deserializeJson(String json);
+String _serializeJson(StaticJsonDocument<200> doc);

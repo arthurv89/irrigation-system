@@ -1,7 +1,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
-#include <EEPROM.h>
+#include <PermStorage.h>
 #include <sstream>
 
 // Loop variables
@@ -39,7 +39,7 @@ const int deviceIdLength = 20;
 
 void setup() {
   Serial.begin(115200);
-  EEPROM.begin(512);
+  PermStorage.begin(512);
 
   long long beforeMillis = millis();
   Serial.println();
@@ -66,7 +66,7 @@ String getDeviceId() {
   char deviceId[deviceIdLength+1];
   memset(deviceId, 0, sizeof deviceId);
   for (int i = 0; i < deviceIdLength; i++) {
-    deviceId[i] = EEPROM.read(i);
+    deviceId[i] = PermStorage.read(i);
   }
   deviceId[deviceIdLength] = '\0';
 //  String deviceId = "IRSYS-66320771887196";
@@ -85,21 +85,21 @@ void setDeviceId() {
   Serial.print("DeviceId: ");
   Serial.println(deviceId);
   if (resetDeviceId || !getPrefix(deviceId).equals(prefix)) {
-    Serial.println("Writing back deviceId to EEPROM");
+    Serial.println("Writing back deviceId to PermStorage");
 
-    // Create random deviceId and write it back to EEPROM
+    // Create random deviceId and write it back to PermStorage
     for (int i = 0; i < strlen(prefix); i++) {
-      EEPROM.write(i, prefix[i]);
+      PermStorage.write(i, prefix[i]);
       delay(100);
     }
     for (int i = strlen(prefix); i < deviceIdLength; i++) {
       char x = '0' + random(0, 10);
-      EEPROM.write(i, x);
+      PermStorage.write(i, x);
       delay(100);
     }
-    EEPROM.commit();
+    PermStorage.commit();
     for (int i = 0; i < deviceIdLength; i++) {
-      char y = (char) EEPROM.read(i);
+      char y = (char) PermStorage.read(i);
       Serial.print(y);
     }
     Serial.println("");
@@ -225,7 +225,7 @@ String read_response(WiFiClientSecure& client, int response_length) {
 
 DynamicJsonDocument deserialize(String& json) {
   DynamicJsonDocument doc(1024);
-  DeserializationError error = deserializeJson(doc, json);
+  DeserializationError error = _deserializeJson(doc, json);
   if (error) {
     Serial.println();
     Serial.println();

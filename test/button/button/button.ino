@@ -2,8 +2,8 @@
  * Instructions:
  * See image int his folder to understand how to put the pins.
  */
-#include "EEPROMUtil.h"
-#include "EEPROM.h"
+#include "PermStorageUtil.h"
+#include "PermStorage.h"
 
 String version = "1.0";
 
@@ -17,12 +17,12 @@ String str = "";
 
 void setup() {
   Serial.begin(115200);
-  EEPROM.begin(512);
+  PermStorage.begin(512);
 
 //  Serial.println("");
 //  Serial.println("==== STARTING DEVICE =====");
 //  Serial.println("");
-  inializeEEPROM(false);
+  inializePermStorage(false);
 
   pinMode(pin, INPUT);
   buttonPressed = digitalRead(pin);
