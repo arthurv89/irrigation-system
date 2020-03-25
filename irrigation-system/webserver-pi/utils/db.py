@@ -12,6 +12,7 @@ def connect():
 
 def execute(sql, values=None):
     try:
+      logging.debug(sql)
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)
     except mariadb.Error as error:
@@ -38,13 +39,12 @@ FROM sensor_values
 WHERE UNIX_TIMESTAMP(time) >= {low_timestamp_seconds} AND UNIX_TIMESTAMP(time) <= {high_timestamp_seconds}
   AND `type` = "{field}"
 GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size_seconds}), deviceId
-ORDER BY time
+ORDER BY time_bucket
 """.format(time_bucket_size_seconds=time_bucket_size_seconds,
            low_timestamp_seconds=low_timestamp_seconds,
            high_timestamp_seconds=high_timestamp_seconds,
            field=field)
-    # print(query)
-    # logging.debug(query)
+    print(query)
     cursor = execute(query)
     return cursor.fetchall()
 
@@ -53,7 +53,6 @@ def get_wifi_credentials():
     query = """
 SELECT ssid, password
 FROM wifi"""
-    # logging.debug(query)
     cursor = execute(query)
 
     row = cursor.fetchone()
@@ -75,7 +74,6 @@ def put_wifi_credentials(ssid, password):
               "VALUES (%(ssid)s, %(password)s) "
               "ON DUPLICATE KEY UPDATE "
               "  password = %(password)s")
-    # logging.debug(query)
     execute(query, values)
     connection.commit()
 
@@ -111,8 +109,6 @@ def write_sensor_association(deviceId, time):
     query = ("INSERT INTO sensors "
               "(id, deviceId, time) "
               "VALUES (%(id)s, %(deviceId)s, %(time)s)")
-    # logging.debug("query", query, values)
-
     execute(query, values)
     connection.commit()
 
@@ -138,7 +134,6 @@ def get_connected_sensors():
     query = """
 SELECT deviceId
 FROM sensors"""
-    # logging.debug(query)
     cursor = execute(query)
 
     return list(map(lambda row: {

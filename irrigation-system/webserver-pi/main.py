@@ -150,6 +150,10 @@ def handle(handler, type):
         return response, status.HTTP_200_OK
     except Exception as ex:
         try:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logging.error(exc_type, fname, exc_tb.tb_lineno)
+
             logging.debug(type(ex))
             logging.debug(type(ex).__name__)
             logging.debug(type(ex).args)

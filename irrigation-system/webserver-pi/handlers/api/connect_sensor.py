@@ -19,6 +19,10 @@ def handle():
             credentials = db.get_wifi_credentials()
             scan_and_connect(credentials)
         except:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logging.error(exc_type, fname, exc_tb.tb_lineno)
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             logging.debug("*** print_tb:")
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
