@@ -3,16 +3,19 @@
 #include "EEPROMUtil.h"
 #include "Utils.h"
 
-void EEPROMUtil::initializeEEPROMStorage(bool resetStorage) {
+void EEPROMUtil::initializeEEPROMStorage() {
   EEPROM.begin(512);
 }
 
 
 void EEPROMUtil::write_json(StaticJsonDocument<200> doc) {
   String str = _serializeJson(doc);
+  Serial.println("Writing EEPROM");
 
+  Serial.println("Length: " + String(str.length()));
   writeInt(0, str.length());
 
+  Serial.println("Contents: " + str);
   int startPos = 2;
   for (int i=0; i < str.length(); i++) {
     EEPROM.write(i + startPos, str[i]);
@@ -21,7 +24,9 @@ void EEPROMUtil::write_json(StaticJsonDocument<200> doc) {
 }
 
 String EEPROMUtil::read_json() {
+  Serial.println("Reading EEPROM");
   int len = readInt(0);
+  Serial.println("Length: " + String(len));
 
   int startPos = 2;
 
@@ -32,6 +37,7 @@ String EEPROMUtil::read_json() {
   }
 
   chars[len] = '\0';
+  Serial.println("Contents: " + String(chars));
   return chars;
 }
 
@@ -42,6 +48,7 @@ void EEPROMUtil::writeInt(int p_address, int p_value) {
 
    EEPROM.write(p_address, lowByte);
    EEPROM.write(p_address + 1, highByte);
+   EEPROM.commit();
  }
 
 //This function will read a 2 byte integer from the eeprom at the specified address and address + 1

@@ -6,7 +6,7 @@ using namespace std;
 #define EEPROM_UTIL_H
 class EEPROMUtil {
   public:
-    void initializeEEPROMStorage(bool resetStorage);
+    void initializeEEPROMStorage();
     void write_json(StaticJsonDocument<200> doc);
     String read_json();
 

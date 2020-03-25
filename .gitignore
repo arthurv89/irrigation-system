@@ -1,5 +1,6 @@
 test/HTTPServerOTA/HTTPServerOTA.ino.nodemcu.bin
 test/HTTPServerOTA/build/
+test/spiffs/build/
 
 irrigation-system/midgets/controller-valve/build/
 irrigation-system/midgets/sensor/midget-moisture/build/

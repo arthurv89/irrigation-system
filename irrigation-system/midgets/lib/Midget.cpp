@@ -56,21 +56,23 @@ void loopMidget() {
     Serial.println("PIN " + String(iRunner->getButtonPin()) + " = " + String(buttonPressed) + ", cycle=" + getCycle());
 
     int cycle = getCycle();
-    if(buttonPressed) {
-      handle_button_pressed();
-    } else if(cycle >= 5 || cycle < 0) {
-      setCycle(0);
-      do_big_calculation();
+    if(!is_wifi_setup()) {
+      Serial.println("Wifi not yet set up");
+      setup_wifi();
     } else {
-      no_button_press();
+      Serial.println("Wifi already set up");
+      if(buttonPressed) {
+        setup_wifi();
+      } else if(cycle >= 5 || cycle < 0) {
+        setCycle(0);
+        do_big_calculation();
+      } else {
+        no_button_press();
+      }
     }
 }
 
-void do_big_calculation() {
-  Serial.println("Big Calculation");
-  digitalWrite(LED_BUILTIN, HIGH);
-
-  long long beforeMillis = millis();
+boolean is_wifi_setup() {
   String ssid = getWifiSsid();
   String psk = getWifiPsk();
 
@@ -78,34 +80,43 @@ void do_big_calculation() {
   Serial.println(ssid);
   Serial.println(psk);
 
-  if(ssid.length() > 0) {
-    String payload = create_payload();
+  Serial.println(ssid);
+  Serial.println(ssid == NULL);
+  Serial.println(ssid);
+  Serial.println(ssid.length());
 
-    Serial.println("--------------------> Submit data over wifi");
-    Serial.println("Data: " + payload);
+  return !(ssid == NULL) && ssid && ssid.length() > 0;
+}
 
-    WiFiManager wifiManager;
-    Serial.println(ssid.c_str());
+void do_big_calculation() {
+  Serial.println("Big Calculation");
+  digitalWrite(LED_BUILTIN, HIGH);
 
+  long long beforeMillis = millis();
 
-    wifiManager.autoConnect(ssid.c_str(), psk.c_str());
+  String ssid = getWifiSsid();
+  String psk = getWifiPsk();
 
-    Serial.println();
-    Serial.println("==========");
+  String payload = create_payload();
 
-    fetch_settings();
-    submit_results(payload);
-    digitalWrite(LED_BUILTIN, LOW);
-    update_code();
-  } else {
-      Serial.println("--------------------> Wifi not setup yet. Setup wifi to configure it now.");
-      handle_button_pressed();
-  }
+  Serial.println("--------------------> Submit data over wifi");
+  Serial.println("Data: " + payload);
+
+  connect_wifi(ssid.c_str(), psk.c_str());
+
+  Serial.println();
+  Serial.println("==========");
+
+  fetch_settings();
+  submit_results(payload);
+  digitalWrite(LED_BUILTIN, LOW);
+  update_code();
   long long afterMillis = millis();
   deep_sleep(interval, beforeMillis, afterMillis);
 }
 
 void update_code() {
+  Serial.println("Updating our code.");
   ESPhttpUpdate.rebootOnUpdate(false);
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
@@ -189,7 +200,7 @@ void submit_results(String payload) {
   Serial.println(get_response);
 }
 
-void handle_button_pressed() {
+void setup_wifi() {
   // Reboot and handle it once it's rebooted.
   WiFiManager wifiManager;
   wifiManager.resetSettings();

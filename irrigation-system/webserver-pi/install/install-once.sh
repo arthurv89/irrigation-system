@@ -6,7 +6,7 @@ CREATE DATABASE irsys;
 CREATE USER 'irsys'@'localhost' IDENTIFIED BY 'Waterme1';
 GRANT ALL PRIVILEGES ON irsys.* TO 'irsys'@'localhost';
 
-GRANT ALL PRIVILEGES ON irsys.* TO 'phpmyadmin'@'localhost';
+# GRANT ALL PRIVILEGES ON irsys.* TO 'phpmyadmin'@'localhost';
 
 # Create tables
 CREATE TABLE irsys.`sensor_values` (

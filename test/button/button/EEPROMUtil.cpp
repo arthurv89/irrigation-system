@@ -10,7 +10,7 @@ const int cycleStartIdx = strlen(PermStoragePrefix) + 1 + deviceIdLength + 1;
 
 const bool isDebug = false;
 
-void EEPROMUtil::inializeStorage(bool resetPermStorage) {
+void EEPROMUtil::initializeStorage(bool resetPermStorage) {
   if (resetPermStorage || !getPrefixFromPermStorage().equals(PermStoragePrefix)) {
     printLine("Force initialization of PermStorage");
     writeString("                                                            ", 0);
@@ -92,26 +92,4 @@ void EEPROMUtil::writeDigit(int value, int startpos) {
 
 int EEPROMUtil::readInt(int startpos) {
   return EEPROM.read(startpos) - '0';
-}
-
-void EEPROMUtil::printLine(String str) {
-  if(isDebug) {
-    Serial.println(str);
-  }
-}
-
-void EEPROMUtil::printString(String str) {
-  if(isDebug) {
-    Serial.print(str);
-  }
-}
-
-void EEPROMUtil::printString(int i) {
-  if(isDebug) {
-    Serial.print(i);
-  }
-}
-
-void EEPROMUtil::printLine() {
-  printLine("");
 }

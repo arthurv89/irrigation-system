@@ -17,8 +17,10 @@ void fetch_settings();
 
 void submit_results(String payload);
 
-void handle_button_pressed();
-
 void update_code();
 
 StaticJsonDocument<200> get_settings();
+
+boolean is_wifi_setup();
+
+void setup_wifi();

@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#include <ArduinoJson.h>
+
 void initializeStorage(bool resetStorage);
 String getDeviceId();
 int getCycle();
@@ -7,6 +10,7 @@ String getWifiSsid();
 String getWifiPsk();
 
 // Private
+void copy_value(String key, StaticJsonDocument<200>& from_json, StaticJsonDocument<200>& to_json);
 void readEEPROMValues();
 void readPermStorageValues();
 String createDeviceId();

@@ -3,12 +3,11 @@
 #include "FS.h"
 #include "Utils.h"
 
-const bool isDebug = false;
+const bool isDebug = true;
 
 const String path = "/data.txt";
-const int deviceIdLength = 20;
 
-void PermStorageUtil::initializePermStorage(bool resetPermStorage) {
+void PermStorageUtil::initializePermStorage() {
   SPIFFS.begin();
 }
 
@@ -33,6 +32,7 @@ String PermStorageUtil::read_json() {
 }
 
 void PermStorageUtil::write_json(StaticJsonDocument<200> doc) {
+  Serial.println("Serialising...");
   String contents = _serializeJson(doc);
 
   Serial.println("Writing JSON file");

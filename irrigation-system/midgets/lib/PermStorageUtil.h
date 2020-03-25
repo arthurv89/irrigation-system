@@ -6,7 +6,7 @@ using namespace std;
 #define PERM_STORAGE_UTIL_H
 class PermStorageUtil {
   public:
-    void initializePermStorage(bool resetPermStorage);
+    void initializePermStorage();
     String read_json();
     void write_json(StaticJsonDocument<200> doc);
 };

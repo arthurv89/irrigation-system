@@ -12,8 +12,15 @@ int deviceIdLength = 20;
 StaticJsonDocument<200> data;
 
 void initializeStorage(bool resetStorage) {
-  eepromUtil.initializeEEPROMStorage(resetStorage);
-  permStorageUtil.initializePermStorage(resetStorage);
+  eepromUtil.initializeEEPROMStorage();
+  permStorageUtil.initializePermStorage();
+
+  if(resetStorage) {
+    StaticJsonDocument<200> doc;
+    data = doc;
+    updateEEPROM();
+    updatePerm();
+  }
 
   readEEPROMValues();
   if(!data["deviceId"]) {
@@ -31,13 +38,19 @@ void initializeStorage(bool resetStorage) {
   }
 }
 
+void copy_value(String key, StaticJsonDocument<200>& from_json, StaticJsonDocument<200>& to_json) {
+  if(from_json.containsKey(key)) {
+    to_json[key] = from_json[key];
+  }
+}
+
 void readPermStorageValues() {
   StaticJsonDocument<200> doc;
   DeserializationError error = deserializeJson(doc, permStorageUtil.read_json());
   if(!error) {
-    data["deviceId"] = doc["deviceId"];
-    data["wifi_ssid"] = doc["wifi_ssid"];
-    data["wifi_psk"] = doc["wifi_psk"];
+    copy_value("deviceId", doc, data);
+    copy_value("wifi_ssid", doc, data);
+    copy_value("wifi_psk", doc, data);
   }
 }
 
@@ -45,30 +58,32 @@ void readEEPROMValues() {
   StaticJsonDocument<200> doc;
   DeserializationError error = deserializeJson(doc, eepromUtil.read_json());
   if(!error) {
-    data["deviceId"] = doc["deviceId"];
-    data["cycle"] = doc["cycle"];
-    data["wifi_ssid"] = doc["wifi_ssid"];
-    data["wifi_psk"] = doc["wifi_psk"];
+    copy_value("deviceId", doc, data);
+    copy_value("cycle", doc, data);
+    copy_value("wifi_ssid", doc, data);
+    copy_value("wifi_psk", doc, data);
   }
   Serial.println(_serializeJson(data));
 }
 
 void updateEEPROM() {
   StaticJsonDocument<200> doc;
-  doc["deviceId"] = data["deviceId"];
-  doc["cycle"] = data["cycle"];
-  doc["wifi_ssid"] = data["wifi_ssid"];
-  doc["wifi_psk"] = data["wifi_psk"];
+  copy_value("deviceId", data, doc);
+  copy_value("cycle", data, doc);
+  copy_value("wifi_ssid", data, doc);
+  copy_value("wifi_psk", data, doc);
 
   eepromUtil.write_json(doc);
 }
 
 void updatePerm() {
+  Serial.println("Update perm");
   StaticJsonDocument<200> doc;
-  doc["deviceId"] = data["deviceId"];
-  doc["wifi_ssid"] = data["wifi_ssid"];
-  doc["wifi_psk"] = data["wifi_psk"];
+  copy_value("deviceId", data, doc);
+  copy_value("wifi_ssid", data, doc);
+  copy_value("wifi_psk", data, doc);
 
+  Serial.println("Writing JSON");
   permStorageUtil.write_json(doc);
 }
 
