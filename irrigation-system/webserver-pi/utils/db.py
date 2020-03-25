@@ -12,7 +12,8 @@ def connect():
 
 def execute(sql, values=None):
     try:
-      logging.debug(sql)
+      # logging.debug(sql)
+      # logging.debug(values)
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)
     except mariadb.Error as error:
@@ -44,7 +45,7 @@ ORDER BY time_bucket
            low_timestamp_seconds=low_timestamp_seconds,
            high_timestamp_seconds=high_timestamp_seconds,
            field=field)
-    print(query)
+    # print(query)
     cursor = execute(query)
     return cursor.fetchall()
 

@@ -1,5 +1,5 @@
-#my_dataviz svg:first-child {
-  display: none;
+div#moisture_viz svg:first-child {
+    display: none;
 }
 
 /* Setup Wifi */

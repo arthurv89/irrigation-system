@@ -46,6 +46,9 @@ String do_get_request(String url) {
 
 
 String do_post_request(String url, String json_payload) {
+  Serial.println("[HTTP] Post request to: " + url);
+  Serial.println("[HTTP] Payload: " + json_payload);
+
   HTTPClient httpClient;
   httpClient.begin(url);
   httpClient.addHeader("Content-Type", "application/json");

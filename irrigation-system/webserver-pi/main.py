@@ -81,19 +81,29 @@ def _get_valve_instructions():
 
 
 
+def get_sensor_bin(type):
+    # logging.info(request.args.get('deviceId'));
+    # if request.args.get('deviceId') == "72094380487927049551":
+    #     logging.info("Redirecting sensor to moisture binary")
+    #     return send_from_directory('bin/sensor', 'moisture.bin')
+
+    return send_from_directory('bin/sensor', type + '.bin')
+
+
 
 @app.route('/bin/blink', methods=['GET'])
 def _get_blink_bin():
     speed = request.args.get('speed')
+    get_bin()
     return send_from_directory('bin/blink', speed + '.bin')
 
 @app.route('/bin/temperature', methods=['GET'])
 def _get_temperature_bin():
-    return send_from_directory('bin/sensor', 'temperature.bin')
+    return get_sensor_bin('temperature')
 
 @app.route('/bin/moisture', methods=['GET'])
 def _get_moisture_bin():
-    return send_from_directory('bin/sensor', 'moisture.bin')
+    return get_sensor_bin('moisture')
 
 @app.route('/bin/valve', methods=['GET'])
 def _get_valve_bin():

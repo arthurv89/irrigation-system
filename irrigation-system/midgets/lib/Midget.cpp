@@ -119,7 +119,7 @@ void update_code() {
   ESPhttpUpdate.rebootOnUpdate(false);
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
-  int update_res = ESPhttpUpdate.update(ip, port, "/bin/" + iRunner->getType());
+  int update_res = ESPhttpUpdate.update(ip, port, "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
   Serial.println(update_res);
 
   switch(update_res) {

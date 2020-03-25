@@ -5,6 +5,10 @@ using namespace std;
 #include "IRunner.h"
 #include "MoistureSensor.h"
 
+const int moisture_sensor_in = A0;
+const int pin1 = D3;
+const int pin2 = D4;
+
 class Runner: public IRunner
 {
 public:
@@ -29,7 +33,7 @@ public:
   }
 
   void add_sensor_values(JsonObject &doc) {
-    doc["moisture"] = get_moisture_value();
+    doc["moisture"] = get_moisture_value(moisture_sensor_in, pin1, pin2);
   }
 };
 

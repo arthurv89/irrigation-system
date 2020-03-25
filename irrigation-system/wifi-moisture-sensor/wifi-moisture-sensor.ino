@@ -169,7 +169,7 @@ void send_request(WiFiClientSecure& client, int moisture_value, String owner, St
   String postData = create_json(moisture_value, owner, deviceId);
   Serial.print("Post data: " );
   Serial.println(postData);
-  
+
   client.println("POST /prod/post-data HTTP/1.1");
   client.println("Host: " + String(host));
   client.println("Cache-Control: no-cache");
@@ -275,7 +275,9 @@ void parse_headers(WiFiClientSecure& client) {
 }
 
 int get_moisture_value() {
+  pinMode(moisture_sensor_in, INPUT);
   int moisture_value = analogRead(moisture_sensor_in);
+  pinMode(moisture_sensor_in, OUTPUT);
   Serial.print("Moisture value: ");
   Serial.println(moisture_value);
   return moisture_value;

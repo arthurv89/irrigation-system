@@ -19,6 +19,7 @@ def connect(main_ssid, main_password, ssid=None):
     wire.power(True)
     logging.debug("OS: " + properties.os)
     target_ssid = main_ssid if ssid is None else ssid
+    target_password = "" if ssid is None else main_password
     if properties.os == "pi":
         wpa_supplicant_contents = textwrap.dedent("""\
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -56,7 +57,7 @@ network={{
         return True
     elif properties.os == "macosx":
         logging.debug("Connecting to SSID " + target_ssid + " using Mac OS command")
-        return wire.connect(ssid=target_ssid,password='')
+        return wire.connect(ssid=target_ssid,password=target_password)
         # for i in range(1, 10):
         #     cur = wire.current()
         #     logging.debug("Current: ", cur)
