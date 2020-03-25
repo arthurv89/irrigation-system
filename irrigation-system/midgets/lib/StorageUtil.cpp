@@ -9,14 +9,14 @@ EEPROMUtil eepromUtil;
 
 int deviceIdLength = 20;
 
-StaticJsonDocument<200> data;
+StaticJsonDocument<200> data = emptyJsonObject();
 
 void initializeStorage(bool resetStorage) {
   eepromUtil.initializeEEPROMStorage();
   permStorageUtil.initializePermStorage();
 
   if(resetStorage) {
-    StaticJsonDocument<200> doc;
+    StaticJsonDocument<200> doc = emptyJsonObject();
     data = doc;
     updateEEPROM();
     updatePerm();
@@ -45,7 +45,7 @@ void copy_value(String key, StaticJsonDocument<200>& from_json, StaticJsonDocume
 }
 
 void readPermStorageValues() {
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<200> doc = emptyJsonObject();
   DeserializationError error = deserializeJson(doc, permStorageUtil.read_json());
   if(!error) {
     copy_value("deviceId", doc, data);
@@ -55,7 +55,7 @@ void readPermStorageValues() {
 }
 
 void readEEPROMValues() {
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<200> doc = emptyJsonObject();
   DeserializationError error = deserializeJson(doc, eepromUtil.read_json());
   if(!error) {
     copy_value("deviceId", doc, data);
@@ -67,7 +67,7 @@ void readEEPROMValues() {
 }
 
 void updateEEPROM() {
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<200> doc = emptyJsonObject();
   copy_value("deviceId", data, doc);
   copy_value("cycle", data, doc);
   copy_value("wifi_ssid", data, doc);
@@ -78,7 +78,7 @@ void updateEEPROM() {
 
 void updatePerm() {
   Serial.println("Update perm");
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<200> doc = emptyJsonObject();
   copy_value("deviceId", data, doc);
   copy_value("wifi_ssid", data, doc);
   copy_value("wifi_psk", data, doc);
@@ -112,7 +112,13 @@ void setCycle(int cycle) {
   updateEEPROM();
 }
 
+boolean containsKey(String key) {
+  return data.containsKey(key);
+}
+
 String getWifiSsid() {
+  Serial.println("Getting WIFI SSID. JSON data = ");
+  Serial.println(_serializeJson(data));
   return data["wifi_ssid"];
 }
 

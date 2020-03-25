@@ -36,7 +36,7 @@ IRunner* iRunner;
 
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
 String settings_url = "http://192.168.1.3:8123/api/v2/get-settings";
-StaticJsonDocument<200> settings;
+StaticJsonDocument<200> settings = emptyJsonObject();
 
 
 void setupMidget(IRunner* _iRunner) {
@@ -80,12 +80,11 @@ boolean is_wifi_setup() {
   Serial.println(ssid);
   Serial.println(psk);
 
-  Serial.println(ssid);
+  Serial.println(containsKey("wifi_ssid"));
   Serial.println(ssid == NULL);
-  Serial.println(ssid);
   Serial.println(ssid.length());
 
-  return !(ssid == NULL) && ssid && ssid.length() > 0;
+  return containsKey("wifi_ssid") && !(ssid == NULL) && ssid && ssid.length() > 0;
 }
 
 void do_big_calculation() {
@@ -140,7 +139,7 @@ void update_code() {
 }
 
 String create_payload() {
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<200> doc = emptyJsonObject();
 
   JsonObject meta  = doc.createNestedObject("meta");
   meta["heapFreeMem"] = ESP.getFreeHeap();

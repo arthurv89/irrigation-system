@@ -39,3 +39,10 @@ String _serializeJson(StaticJsonDocument<200> doc) {
   serializeJson(doc, str);
   return str;
 }
+
+StaticJsonDocument<200> emptyJsonObject() {
+  StaticJsonDocument<200> doc;
+  JsonObject obj = doc.createNestedObject("_");
+  // JsonObject& object = doc.createObject();
+  return doc;
+}
