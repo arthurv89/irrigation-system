@@ -14,6 +14,7 @@ def store_data(form):
     put_value("moisture", form)
     put_value("temperature", form)
     put_value("light", form)
+    put_value("humidity", form)
 
 def put_value(key, form):
     timestamp = int(datetime.utcnow().strftime("%s"))

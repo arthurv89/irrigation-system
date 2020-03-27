@@ -39,7 +39,9 @@ public:
   }
 
   void add_sensor_values(JsonObject &doc) {
-    doc["temperature"] = get_temperature_value(dht);
+    DHTReading measurement = getDHTMeasurement(dht);
+    doc["temperature"] = measurement.temperature;
+    doc["humidity"] = measurement.humidity;
     doc["light"] = analogRead(light_sensor_pin);
   }
 };

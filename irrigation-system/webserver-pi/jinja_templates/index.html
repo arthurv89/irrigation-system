@@ -54,9 +54,27 @@
                 </svg>
               </div>
             </div>
+
+            <hr/>
+
+            <div>
+              <h2>Humidity</h2>
+              <div id="humidity_viz">
+                <svg :view-box.camel="svgViewBox" preserveAspectRatio="xMidYMid meet">
+                  <g :style="stageTransform">
+                    <g class="axis x" ref="xAxis"></g>
+                    <g class="axis y" ref="yAxis"></g>
+                    <path class="area" ref="area"></path>
+                    <path class="line" ref="line"></path>
+                    <g class="points" ref="points"></g>
+                  </g>
+                </svg>
+              </div>
+            </div>
         </div>
     </div>
     <script src="js/graph.js"></script>
     <script>render({{timeseries_moisture | safe}}, "moisture_viz")</script>
     <script>render({{timeseries_temperature | safe}}, "temperature_viz")</script>
     <script>render({{timeseries_light | safe}}, "light_viz")</script>
+    <script>render({{timeseries_humidity | safe}}, "humidity_viz")</script>

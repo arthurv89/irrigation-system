@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "TemperatureSensor.h"
-#include"DHTLib.h"
+#include "DHTLib.h"
+#include "DHTReading.h"
 
 // Import required libraries
 #include <Adafruit_Sensor.h>
@@ -19,27 +20,26 @@
   */
 
 
-// const int temperature_sensor_in = A0;
-
 #define DHTTYPE    DHT11     // DHT 11
-int get_temperature_value(DHT dht) {
-  float temperature = dht.readTemperature();
 
+DHTReading getDHTMeasurement(DHT dht) {
+  DHTReading reading;
+
+  float temperature = dht.readTemperature();
   if (isnan(temperature)) {
-    Serial.println("Failed to read from DHT sensor!");
-    return -1;
+    Serial.println("Failed to read temperature from DHT sensor!");
+    reading.temperature = -1;
   } else {
-    return temperature;
+    reading.temperature = temperature;
   }
-//   // Read Humidity
-//   float newH = dht.readHumidity();
-//   // if humidity read failed, don't change h value
-//   if (isnan(newH)) {
-//     Serial.println("Failed to read from DHT sensor!");
-//   }
-//   else {
-//     h = newH;
-// //      Serial.println("HUMIDITY");
-// //      Serial.println(h);
-//   }
+
+  float humidity = dht.readHumidity();
+  if (isnan(humidity)) {
+    Serial.println("Failed to read humidity from DHT sensor!");
+    reading.humidity = -1;
+  } else {
+    reading.humidity = humidity;
+  }
+
+  return reading;
 }

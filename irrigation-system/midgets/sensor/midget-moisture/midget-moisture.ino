@@ -6,8 +6,8 @@ using namespace std;
 #include "MoistureSensor.h"
 
 const int moisture_sensor_in = A0;
-const int pin1 = D3;
-const int pin2 = D4;
+const int pin1 = D5;
+const int pin2 = D6;
 
 class Runner: public IRunner
 {

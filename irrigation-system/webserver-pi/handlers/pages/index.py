@@ -14,7 +14,8 @@ def handle():
     timeseries_arr = [
         timeseries("moisture", lambda row: 100 - (row['moisture'] / 1024 * 100), 100),
         timeseries("temperature", lambda row: row['temperature'], 50),
-        timeseries("light", lambda row: row['light'], 1024)
+        timeseries("light", lambda row: row['light'], 100),
+        timeseries("humidity", lambda row: row['humidity'], 100)
     ]
     # print(timeseries_arr)
     template_context = dict(
@@ -22,6 +23,7 @@ def handle():
         timeseries_moisture=json.dumps(timeseries_arr[0]),
         timeseries_temperature=json.dumps(timeseries_arr[1]),
         timeseries_light=json.dumps(timeseries_arr[2]),
+        timeseries_humidity=json.dumps(timeseries_arr[3]),
 
     )
 

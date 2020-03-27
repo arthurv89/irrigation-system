@@ -1,3 +1,4 @@
 #include <DHT.h>
+#include "DHTReading.h"
 
-int get_temperature_value(DHT dht);
+DHTReading getDHTMeasurement(DHT dht);

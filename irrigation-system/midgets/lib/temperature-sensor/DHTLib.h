@@ -20,10 +20,6 @@
 #ifndef DHTLIB_H
 #define DHTLIB_H
 /*-------------------------------------------------------------*/
-/*		Includes and dependencies			*/
-/*-------------------------------------------------------------*/
-#include "DHTLibPort.h"
-/*-------------------------------------------------------------*/
 /*		Macros and definitions				*/
 /*-------------------------------------------------------------*/
 
@@ -57,7 +53,7 @@ void dhtlib_init();
  * Reads the current temperature and humidity, returns an enumerated value
  * defining if the comunication with the sensor was succesfull. This function
  * places the temperature and humidity readings on the provided buffers.
- * 
+ *
  * @param pxTemperature Pointer to place the temperature reading
  * @param pxHumidity Pointer to place the humidity reading
  *
