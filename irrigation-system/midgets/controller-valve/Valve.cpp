@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "Internet.h"
 #include "Midget.h"
+#include "Pin.h"
 
 const int builtin_on_value = LOW;
 const int builtin_off_value = HIGH;
@@ -14,6 +15,13 @@ const long blink_period = 5000;
 
 
 void handle(IRunner* iRunner) {
+  StaticJsonDocument<200> instructions = get_instructions();
+  disconnectWifi();
+  execute_instructions(instructions, iRunner);
+  connect_wifi();
+}
+
+StaticJsonDocument<200> get_instructions() {
   fetch_settings();
   StaticJsonDocument<200> settings = get_settings();
   String ip = settings["controller_addr"]["ip"];
@@ -29,6 +37,10 @@ void handle(IRunner* iRunner) {
   serializeJson(instructions, str);
   Serial.println(str);
 
+  return instructions;
+}
+
+void execute_instructions(StaticJsonDocument<200> instructions, IRunner* iRunner){
   Serial.println("Instructions");
   JsonArray open = instructions["open"];
   for (JsonVariant value : open) {
@@ -43,18 +55,19 @@ void handle(IRunner* iRunner) {
 void handleInstruction(int valve, int pin, int period_ms) {
     Serial.print("Valve " + String(valve));
     Serial.print(" Pin " + String(pin));
+    Serial.println(" On");
 
     setPin(pin, HIGH);
-    Serial.print(" On");
+    Serial.println("Delay " + String(period_ms) + " ms");
     delay(period_ms);
 
     setPin(pin, LOW);
-    Serial.print(" Off");
+    Serial.println(" Off");
     Serial.println();
 }
 
 void setPin(int pin, int value) {
-  digitalWrite(pin, value);
+  _digitalWrite(pin, value);
 
   int builtin_value = -1;
   if(value == HIGH) {
@@ -62,5 +75,5 @@ void setPin(int pin, int value) {
   } else {
     builtin_value = builtin_off_value;
   }
-  digitalWrite(LED_BUILTIN, builtin_value);
+  _digitalWrite(LED_BUILTIN, builtin_value);
 }

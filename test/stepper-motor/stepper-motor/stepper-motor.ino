@@ -68,8 +68,8 @@ void clockwise()
 
 void setOutput(int out)
 {
-  digitalWrite(motorPin1, bitRead(lookup[out], 0));
-  digitalWrite(motorPin2, bitRead(lookup[out], 1));
-  digitalWrite(motorPin3, bitRead(lookup[out], 2));
-  digitalWrite(motorPin4, bitRead(lookup[out], 3));
+  _digitalWrite(motorPin1, bitRead(lookup[out], 0));
+  _digitalWrite(motorPin2, bitRead(lookup[out], 1));
+  _digitalWrite(motorPin3, bitRead(lookup[out], 2));
+  _digitalWrite(motorPin4, bitRead(lookup[out], 3));
 }

@@ -1,6 +1,6 @@
 #include "Midget.h"
 #include "IRunner.h"
-
+#include "Pin.h"
 #include "Internet.h"
 #include "StorageUtil.h"
 #include "Request.h"
@@ -52,7 +52,8 @@ void setupMidget(IRunner* _iRunner) {
 void loopMidget() {
     pinMode(iRunner->getButtonPin(), INPUT_PULLUP);
 
-    buttonPressed = digitalRead(iRunner->getButtonPin()) == 0;
+    buttonPressed = false;
+    // buttonPressed = digitalRead(iRunner->getButtonPin()) == 0;
     Serial.println("PIN " + String(iRunner->getButtonPin()) + " = " + String(buttonPressed) + ", cycle=" + getCycle());
 
     int cycle = getCycle();
@@ -62,11 +63,14 @@ void loopMidget() {
     } else {
       Serial.println("Wifi already set up");
       if(buttonPressed) {
+        Serial.println("Button pressed");
         setup_wifi();
       } else if(cycle >= 5 || cycle < 0) {
+        Serial.println("Cycle: " + String(cycle));
         setCycle(0);
         do_big_calculation();
       } else {
+        Serial.println("No button press");
         no_button_press();
       }
     }
@@ -80,10 +84,6 @@ boolean is_wifi_setup() {
   Serial.println(ssid);
   Serial.println(psk);
 
-  Serial.println(containsKey("wifi_ssid"));
-  Serial.println(ssid == NULL);
-  Serial.println(ssid.length());
-
   return containsKey("wifi_ssid") && !(ssid == NULL) && ssid && ssid.length() > 0;
 }
 
@@ -93,20 +93,11 @@ void do_big_calculation() {
 
   long long beforeMillis = millis();
 
-  String ssid = getWifiSsid();
-  String psk = getWifiPsk();
-
-  String payload = create_payload();
-
-  Serial.println("--------------------> Submit data over wifi");
-  Serial.println("Data: " + payload);
-
-  connect_wifi(ssid.c_str(), psk.c_str());
-
-  Serial.println();
-  Serial.println("==========");
+  connect_wifi();
 
   fetch_settings();
+
+  String payload = create_payload();
   submit_results(payload);
   digitalWrite(LED_BUILTIN, LOW);
   update_code();
@@ -172,6 +163,8 @@ void deep_sleep(int interval, long long beforeMillis, long long afterMillis) {
 
 void sleep(int us) {
   setCycle(getCycle() + 1);
+  Serial.println("Sleeping for " + String(us) + " microseconds");
+  delay(1000);
   ESP.deepSleep(us, WAKE_RF_DEFAULT);
 }
 
@@ -187,6 +180,9 @@ void fetch_settings() {
 }
 
 void submit_results(String payload) {
+  Serial.println("--------------------> Submit data over wifi");
+  Serial.println("Data: " + payload);
+
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
   String controller_addr = ip + ":" + port;

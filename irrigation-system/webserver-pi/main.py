@@ -148,6 +148,8 @@ def handle_stream(handler):
 def handle(handler, type):
     try:
         result = handler.handle()
+        logging.info("Result");
+        logging.info(result);
         if type == "json":
             response = jsonify({
                 "status": "OK",

@@ -61,9 +61,9 @@ void loop() {
 
 void blink() {
   Serial.println("On for " + String(speed) + " seconds");
-  digitalWrite(LED_BUILTIN, LOW);
+  _digitalWrite(LED_BUILTIN, LOW);
   delay(speed);
-  digitalWrite(LED_BUILTIN, HIGH);
+  _digitalWrite(LED_BUILTIN, HIGH);
   delay(speed);
 }
 

@@ -4,8 +4,9 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <ESP8266HTTPClient.h>
+#include "StorageUtil.h"
 
-void connect_wifi(String wifiName, String password) {
+void conn(String wifiName, String password) {
   WiFi.forceSleepWake();
   delay( 1 );
 
@@ -23,4 +24,15 @@ void connect_wifi(String wifiName, String password) {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+}
+
+void connect_wifi() {
+    String ssid = getWifiSsid();
+    String psk = getWifiPsk();
+
+    conn(ssid.c_str(), psk.c_str());
+}
+
+void disconnectWifi() {
+  WiFi.disconnect();
 }

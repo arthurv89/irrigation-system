@@ -5,9 +5,9 @@ void setup() {
 }
 
 void loop() {
-  digitalWrite(relay_out, HIGH);
+  _digitalWrite(relay_out, HIGH);
   delay(5000);
-  digitalWrite(relay_out, LOW);
+  _digitalWrite(relay_out, LOW);
   delay(10000);
   
 }

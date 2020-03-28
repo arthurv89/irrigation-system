@@ -52,7 +52,7 @@ void handle() {
 }
 
 void setPin(int pin, int value) {
-  digitalWrite(pin, value);
+  _digitalWrite(pin, value);
 
   int builtin_value = -1;
   if(value == HIGH) {
@@ -60,5 +60,5 @@ void setPin(int pin, int value) {
   } else {
     builtin_value = builtin_off_value;
   }
-  digitalWrite(LED_BUILTIN, builtin_value);
+  _digitalWrite(LED_BUILTIN, builtin_value);
 }

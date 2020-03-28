@@ -26,6 +26,9 @@ void EEPROMUtil::write_json(StaticJsonDocument<200> doc) {
 String EEPROMUtil::read_json() {
   Serial.println("Reading EEPROM");
   int len = readInt(0);
+  if(len > 512) {
+    return "ERROR!!!";
+  }
   Serial.println("Length: " + String(len));
 
   int startPos = 2;

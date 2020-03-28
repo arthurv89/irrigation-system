@@ -2,7 +2,7 @@ const d2Pin = 4;
 const low = 0;
 const high = 1;
 
-function digitalWrite(pin, value) {
+function _digitalWrite(pin, value) {
   return {
     "function": "dw",
     "params": {
@@ -28,9 +28,9 @@ exports.handler = async (event) => {
   if(queryParams['owner'] == "casabatata") {
     const response = {
         "instructions":[
-          digitalWrite(d2Pin, high),
+          _digitalWrite(d2Pin, high),
           delay(10000),
-          digitalWrite(d2Pin, low)
+          _digitalWrite(d2Pin, low)
         ]
     };
     console.log(JSON.stringify(response));

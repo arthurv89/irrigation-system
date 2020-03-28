@@ -113,7 +113,7 @@ void handle_loop() {
       ledState = LOW;
     }
 
-    digitalWrite(led,  ledState);
+    _digitalWrite(led,  ledState);
     if(ledState == HIGH) {
       Serial.println("LED: ON");
     } else {

@@ -15,9 +15,9 @@ int get_moisture_value(int moisture_sensor_in, int pin1, int pin2) {
 int read_moisture_value(int moisture_sensor_in, int ground_pin, int voltage_pin) {
     pinMode(moisture_sensor_in, INPUT);
     pinMode(ground_pin, OUTPUT);
-    digitalWrite(ground_pin, LOW);
+    _digitalWrite(ground_pin, LOW);
     pinMode(voltage_pin, OUTPUT);
-    digitalWrite(voltage_pin, HIGH);
+    _digitalWrite(voltage_pin, HIGH);
 
     int value = analogRead(moisture_sensor_in);
 

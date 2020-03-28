@@ -21,9 +21,9 @@ void loop() {
 
   if(moisture_value > moisture_threshold) {
     // It's wet: Open the Solenoid to give water.
-      digitalWrite(relay_out, HIGH);
+      _digitalWrite(relay_out, HIGH);
       delay(solenoid_open_time);
-      digitalWrite(relay_out, LOW);
+      _digitalWrite(relay_out, LOW);
   }
   
   delay(loop_delay_time);
