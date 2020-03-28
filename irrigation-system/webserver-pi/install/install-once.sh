@@ -29,7 +29,7 @@ CREATE TABLE irsys.`sensors` (
 
 CREATE TABLE irsys.`open_times` (
   `id` binary(16) NOT NULL,
-  `valve` varchar(50) NOT NULL,
+  `hose_id` varchar(50) NOT NULL,
   `time` timestamp NOT NULL,
   `opening_time` int(11) NOT NULL,
   PRIMARY KEY (`id`)
@@ -40,6 +40,17 @@ CREATE TABLE irsys.`wifi` (
   `ssid` varchar(60) NOT NULL,
   `password` varchar(60) NOT NULL,
   PRIMARY KEY (`ssid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+DROP TABLE valve_connector;
+CREATE TABLE irsys.`valve_connector` (
+  `id` binary(16) NOT NULL,
+  `valve_id` varchar(60) NOT NULL,
+  `hose_id` varchar(60) NOT NULL,
+  `hose_position` int(5) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE (valve_id, hose_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

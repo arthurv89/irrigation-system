@@ -35,16 +35,16 @@ def get_sensor_data(field, low_timestamp_seconds, high_timestamp_seconds, time_b
 
 def get_sensor_data_from_db(field, low_timestamp_seconds, high_timestamp_seconds, time_bucket_size_seconds):
     query = """
-SELECT DISTINCT(deviceId) AS deviceId, AVG(value) AS avg_{field}, FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size_seconds}) AS time_bucket
-FROM sensor_values
-WHERE UNIX_TIMESTAMP(time) >= {low_timestamp_seconds} AND UNIX_TIMESTAMP(time) <= {high_timestamp_seconds}
-  AND `type` = "{field}"
-GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size_seconds}), deviceId
-ORDER BY time_bucket
-""".format(time_bucket_size_seconds=time_bucket_size_seconds,
-           low_timestamp_seconds=low_timestamp_seconds,
-           high_timestamp_seconds=high_timestamp_seconds,
-           field=field)
+            SELECT DISTINCT(deviceId) AS deviceId, AVG(value) AS avg_{field}, FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size_seconds}) AS time_bucket
+            FROM sensor_values
+            WHERE UNIX_TIMESTAMP(time) >= {low_timestamp_seconds} AND UNIX_TIMESTAMP(time) <= {high_timestamp_seconds}
+              AND `type` = "{field}"
+            GROUP BY FLOOR(UNIX_TIMESTAMP(time)/{time_bucket_size_seconds}), deviceId
+            ORDER BY time_bucket""".format(
+                time_bucket_size_seconds=time_bucket_size_seconds,
+                low_timestamp_seconds=low_timestamp_seconds,
+                high_timestamp_seconds=high_timestamp_seconds,
+                field=field)
     # print(query)
     cursor = execute(query)
     return cursor.fetchall()
@@ -52,8 +52,8 @@ ORDER BY time_bucket
 
 def get_wifi_credentials():
     query = """
-SELECT ssid, password
-FROM wifi"""
+        SELECT ssid, password
+        FROM wifi"""
     cursor = execute(query)
 
     row = cursor.fetchone()
@@ -70,11 +70,11 @@ def put_wifi_credentials(ssid, password):
         "password": password
     }
 
-    query = ("INSERT INTO wifi "
-              "(ssid, password) "
-              "VALUES (%(ssid)s, %(password)s) "
-              "ON DUPLICATE KEY UPDATE "
-              "  password = %(password)s")
+    query = (" INSERT INTO wifi"
+             " (ssid, password)"
+             " VALUES (%(ssid)s, %(password)s)"
+             " ON DUPLICATE KEY UPDATE"
+             "    password = %(password)s")
     execute(query, values)
     connection.commit()
 
@@ -90,9 +90,9 @@ def put_sensor_value(deviceId, time, owner, type, value):
       'value': value
     }
 
-    query = ("INSERT INTO sensor_values "
-              "(id, deviceId, time, owner, type, value) "
-              "VALUES (%(id)s, %(deviceId)s, %(time)s, %(owner)s, %(type)s, %(value)s)")
+    query = (" INSERT INTO sensor_values"
+             " (id, deviceId, time, owner, type, value)"
+             " VALUES (%(id)s, %(deviceId)s, %(time)s, %(owner)s, %(type)s, %(value)s)")
 
     execute(query, values)
     connection.commit()
@@ -107,38 +107,82 @@ def write_sensor_association(deviceId, time):
       'time': datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
     }
 
-    query = ("INSERT INTO sensors "
-              "(id, deviceId, time) "
-              "VALUES (%(id)s, %(deviceId)s, %(time)s)")
+    query = (" INSERT INTO sensors"
+             " (id, deviceId, time)"
+             " VALUES (%(id)s, %(deviceId)s, %(time)s)")
     execute(query, values)
     connection.commit()
 
 
+def get_not_recently_opened_valves():
+    query = (" SELECT hose_id"
+             " FROM open_times"
+             " WHERE time < NOW() - INTERVAL 20 MINUTE"
+             " GROUP BY hose_id")
+    cursor = execute(query)
 
-def write_opening(valve, opening_time):
+    return list(map(lambda row: {
+        "hose_id": row[0]
+    }, cursor.fetchall()))
+
+
+def average_moisture(hose_ids):
+    # logging.info(hose_ids)
+    format_strings = ','.join(['%s'] * len(hose_ids))
+    sql = (""
+            " SELECT deviceId, AVG(value) AS avg_value"
+            " FROM sensor_values"
+            " WHERE time < NOW() - INTERVAL 20 MINUTE"
+            "   AND type = 'moisture'"
+            "   AND deviceId IN(%s)"
+            " GROUP BY deviceId") % format_strings
+
+    cursor = execute(sql,
+                tuple(hose_ids))
+
+    return list(map(lambda row: {
+        "deviceId": row[0],
+        "avg_value": row[1]
+    }, cursor.fetchall()))
+
+
+def write_opening(hose_id, opening_time):
     values = {
       'id': uuid.uuid4().bytes,
-      'valve': valve,
+      'hose_id': hose_id,
       'time': datetime.now() .strftime('%Y-%m-%d %H:%M:%S'),
       'opening_time': opening_time
     }
 
-    query = ("INSERT INTO open_times "
-              "(id, valve, time, opening_time) "
-              "VALUES (%(id)s, %(valve)s, %(time)s, %(opening_time)s)")
+    query = (" INSERT INTO open_times"
+             " (id, hose_id, time, opening_time)"
+             " VALUES (%(id)s, %(hose_id)s, %(time)s, %(opening_time)s)")
 
     execute(query, values)
     connection.commit()
 
+def get_hoses_for_valve(valveId):
+    query = (" SELECT hose_id, hose_position"
+             " FROM valve_connector"
+             " WHERE valve_id='{valveId}'").format(valveId=valveId)
+
+    cursor = execute(query)
+
+    return list(map(lambda row: {
+        "hose_id": row[0],
+        "hose_position": row[1]
+    }, cursor.fetchall()))
+
 
 def get_connected_sensors():
-    query = """
-SELECT deviceId
-FROM sensors"""
+    query = """ SELECT deviceId
+                FROM sensors"""
     cursor = execute(query)
 
     return list(map(lambda row: {
         "ssid": row[0]
     }, cursor.fetchall()))
 
+
+# Init: connect now
 connection = connect()

@@ -27,7 +27,7 @@ StaticJsonDocument<200> get_instructions() {
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
   String controller_addr = ip + ":" + port;
-  String url = "http://" + controller_addr + "/api/valveInstructions";
+  String url = "http://" + controller_addr + "/api/valveInstructions?deviceId=" + getDeviceId();
 
   String valveInstructionsJson = do_get_request(url);
 

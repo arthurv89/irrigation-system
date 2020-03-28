@@ -149,8 +149,8 @@ def handle(handler, type):
     try:
         result = handler.handle()
         logging.info("Result");
-        logging.info(result);
         if type == "json":
+            logging.info(result);
             response = jsonify({
                 "status": "OK",
                 "response": result
