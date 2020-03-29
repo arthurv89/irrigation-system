@@ -6,6 +6,7 @@
 #include "Internet.h"
 #include "Midget.h"
 #include "Pin.h"
+#include "StorageUtil.h"
 
 const int builtin_on_value = LOW;
 const int builtin_off_value = HIGH;

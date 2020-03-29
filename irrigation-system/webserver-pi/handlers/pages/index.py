@@ -36,7 +36,7 @@ def handle():
 
 def timeseries(key, transform_value_func, max_y):
     high_timestamp = int(time.time())
-    low_timestamp = high_timestamp - 1 * one_day
+    low_timestamp = high_timestamp - 2 * one_day
 
     res = db.get_sensor_data(key, low_timestamp, high_timestamp, time_bucket_size)
     # res = db.get_temperature_values_per_device_per_timebucket(low_timestamp, high_timestamp, time_bucket_size)

@@ -19,7 +19,7 @@ using namespace std;
 #include "Valve.h"
 
 const int pins = 3;
-const int valvePins[pins] = {D1, D2, D3};
+const int valvePins[pins] = {D5, D6, D7};
 
 
 class Runner: public IRunner
@@ -34,7 +34,7 @@ public:
   }
 
   int getButtonPin() {
-    return D8;
+    return D1;
   }
 
   String getWifiName(String deviceId) {

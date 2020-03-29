@@ -38,10 +38,13 @@ GROUP BY hose_id;
 DELETE FROM valve_connector WHERE 1=1;
 
 INSERT INTO valve_connector(id, valve_id, hose_id, hose_position)
-VALUES ("0", "v1", "12053270542092411048", 0);
+VALUES ("0", "00029759903296627115", "12053270542092411048", 0);
 
 INSERT INTO valve_connector(id, valve_id, hose_id, hose_position)
-VALUES ("1", "v1", "12053270542092411049", 1);
+VALUES ("1", "00029759903296627115", "12053270542092411049", 1);
+
+INSERT INTO valve_connector(id, valve_id, hose_id, hose_position)
+VALUES ("1", "00029759903296627115", "12053270542092411050", 2);
 
 
 

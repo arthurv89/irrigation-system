@@ -12,13 +12,13 @@ def connect():
 
 def execute(sql, values=None):
     try:
-      # logging.debug(sql)
-      # logging.debug(values)
+      logging.debug(sql)
+      logging.debug(values)
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)
     except mariadb.Error as error:
       connect()
-      os.system('play -n synth %s sin %s' % (2000/1000, 1000))
+      os.system('play -n synth %s sin %s' % (500/1000, 300))
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)
     return cursor
@@ -128,6 +128,8 @@ def get_not_recently_opened_valves():
 
 def average_moisture(hose_ids):
     # logging.info(hose_ids)
+    if len(hose_ids) == 0:
+        hose_ids = ['']
     format_strings = ','.join(['%s'] * len(hose_ids))
     sql = (""
             " SELECT deviceId, AVG(value) AS avg_value"
@@ -142,7 +144,7 @@ def average_moisture(hose_ids):
 
     return list(map(lambda row: {
         "deviceId": row[0],
-        "avg_value": row[1]
+        "avg_value": float(row[1])
     }, cursor.fetchall()))
 
 
