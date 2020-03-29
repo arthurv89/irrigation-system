@@ -44,7 +44,7 @@ INSERT INTO valve_connector(id, valve_id, hose_id, hose_position)
 VALUES ("1", "00029759903296627115", "12053270542092411049", 1);
 
 INSERT INTO valve_connector(id, valve_id, hose_id, hose_position)
-VALUES ("1", "00029759903296627115", "12053270542092411050", 2);
+VALUES ("2", "00029759903296627115", "12053270542092411050", 2);
 
 
 

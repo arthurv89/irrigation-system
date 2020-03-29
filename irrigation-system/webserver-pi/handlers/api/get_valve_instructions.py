@@ -1,3 +1,4 @@
+from datetime import datetime
 from utils import db
 import logging
 import time
@@ -7,18 +8,28 @@ from flask import request
 minute = 60
 period = 15 * minute
 
-moisture_threshold = 800
+moisture_threshold = 10
 open_time = 5000
 
 def handle():
+    hour = datetime.now().hour
+    if hour < 6 or hour > 19:
+        logging.debug("Not the right time to open.")
+        return {
+            "open": to_open
+        }
+
     high_timestamp = int(time.time())
     low_timestamp = high_timestamp - 2 * period
 
     deviceId = request.args.get('deviceId')
 
-    not_recently_opened_valves = db.get_not_recently_opened_valves()
-    # logging.debug("not_recently_opened_valves")
-    # logging.debug(not_recently_opened_valves)
+    recently_opened_hoses_rows = db.get_recently_opened_hoses()
+    # logging.debug("recently_opened_hoses_rows")
+    # logging.debug(recently_opened_hoses_rows)
+    recently_opened_hoses = {row['hose_id']: row['hose_id'] for row in recently_opened_hoses_rows}
+    # logging.debug("recently_opened_hoses")
+    # logging.debug(recently_opened_hoses)
 
     hose_rows = db.get_hoses_for_valve(deviceId)
     # logging.debug("hose_rows")
@@ -34,9 +45,13 @@ def handle():
 
     to_open = []
     for hose_position, hose_id in enumerate(hoses):
-        if hose_id in moisture and moisture[hose_id] < moisture_threshold:
-            obj = open_obj(hose_position, 4000)
+        if hose_id in moisture and moisture[hose_id] > moisture_threshold and hose_id not in recently_opened_hoses:
+            obj = open_obj(hose_position, open_time)
             to_open.append(obj)
+
+            db.write_opening(hose_id, open_time)
+            logging.debug("Written open valve to DB")
+
 
     return {
         "open": to_open

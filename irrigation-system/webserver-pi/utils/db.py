@@ -12,8 +12,8 @@ def connect():
 
 def execute(sql, values=None):
     try:
-      logging.debug(sql)
-      logging.debug(values)
+      # logging.debug(sql)
+      # logging.debug(values)
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)
     except mariadb.Error as error:
@@ -114,10 +114,10 @@ def write_sensor_association(deviceId, time):
     connection.commit()
 
 
-def get_not_recently_opened_valves():
+def get_recently_opened_hoses():
     query = (" SELECT hose_id"
              " FROM open_times"
-             " WHERE time < NOW() - INTERVAL 20 MINUTE"
+             " WHERE time > NOW() - INTERVAL 20 MINUTE"
              " GROUP BY hose_id")
     cursor = execute(query)
 
