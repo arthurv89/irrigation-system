@@ -24,6 +24,22 @@
               {%endfor%}
             </table>
 
+            <h2>Opening of valve</h2>
+            <table style="width: 100%">
+              <tr>
+                <th>Hose</th>
+                <th>Time</th>
+                <th>Opening time</th>
+              </tr>
+              {%for obj in valve_openings%}
+                <tr>
+                  <td>{{obj['hose_id']}}</td>
+                  <td>{{obj['time']}}</td>
+                  <td>{{obj['opening_time']}}</td>
+                </tr>
+              {%endfor%}
+            </table>
+
             <div>
               <h2>Moisture</h2>
               <div id="moisture_viz">

@@ -41,7 +41,7 @@ def get_latest_sensor_data():
             FROM sensor_values
             GROUP BY type
         ) t2 on t1.time = t2.time and t1.type = t2.type
-        ORDER BY time DESC;"""
+        ORDER BY time DESC, type"""
 
     cursor = execute(query)
 
@@ -51,6 +51,22 @@ def get_latest_sensor_data():
         "owner": row[2],
         "type": row[3],
         "value": row[4]
+    }, cursor.fetchall()))
+
+
+def get_valve_openings():
+    query = """
+        SELECT hose_id, time, opening_time
+        FROM open_times
+        ORDER BY time DESC
+        LIMIT 5"""
+
+    cursor = execute(query)
+
+    return list(map(lambda row: {
+        "hose_id": row[0],
+        "time": row[1],
+        "opening_time": row[2]
     }, cursor.fetchall()))
 
 
