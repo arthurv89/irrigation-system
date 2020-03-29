@@ -6,6 +6,24 @@
         <div class="col-lg-7 col-md-12">
             <h1>IRSYS</h1>
 
+            <h2>History</h2>
+            <table style="width: 100%">
+              <tr>
+                <th>Time</th>
+                <th>Type</th>
+                <th>DeviceId</th>
+                <th>Value</th>
+              </tr>
+              {%for obj in latest_sensor_values%}
+                <tr>
+                  <td>{{obj['time']}}</td>
+                  <td>{{obj['type']}}</td>
+                  <td>{{obj['deviceId']}}</td>
+                  <td>{{obj['value']}}</td>
+                </tr>
+              {%endfor%}
+            </table>
+
             <div>
               <h2>Moisture</h2>
               <div id="moisture_viz">

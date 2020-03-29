@@ -16,7 +16,7 @@ def handle():
     if hour < 6 or hour > 19:
         logging.debug("Not the right time to open.")
         return {
-            "open": to_open
+            "open": []
         }
 
     high_timestamp = int(time.time())

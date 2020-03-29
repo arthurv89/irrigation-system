@@ -32,6 +32,27 @@ def get_sensor_data(field, low_timestamp_seconds, high_timestamp_seconds, time_b
         "timestamp_bucket": row[2] * time_bucket_size_seconds
     }, data))
 
+def get_latest_sensor_data():
+    query = """
+        select t1.deviceId, t1.time, t1.owner, t1.type, t1.value
+        from sensor_values t1
+        join (
+            SELECT type, MAX(time) AS time
+            FROM sensor_values
+            GROUP BY type
+        ) t2 on t1.time = t2.time and t1.type = t2.type
+        ORDER BY time DESC;"""
+
+    cursor = execute(query)
+
+    return list(map(lambda row: {
+        "deviceId": row[0],
+        "time": row[1],
+        "owner": row[2],
+        "type": row[3],
+        "value": row[4]
+    }, cursor.fetchall()))
+
 
 def get_sensor_data_from_db(field, low_timestamp_seconds, high_timestamp_seconds, time_bucket_size_seconds):
     query = """

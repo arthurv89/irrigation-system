@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "MoistureSensor.h"
+#include "Pin.h"
 
 const int polarity = 0;
 

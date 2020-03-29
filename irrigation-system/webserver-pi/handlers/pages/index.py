@@ -11,6 +11,9 @@ one_day = 86400 # seconds
 time_bucket_size = 5 * 60 # seconds
 
 def handle():
+    latest_sensor_values = db.get_latest_sensor_data()
+    logging.debug(latest_sensor_values)
+
     timeseries_arr = [
         timeseries("moisture", lambda row: 100 - (row['moisture'] / 1024 * 100), 100),
         timeseries("temperature", lambda row: row['temperature'], 50),
@@ -24,7 +27,7 @@ def handle():
         timeseries_temperature=json.dumps(timeseries_arr[1]),
         timeseries_light=json.dumps(timeseries_arr[2]),
         timeseries_humidity=json.dumps(timeseries_arr[3]),
-
+        latest_sensor_values=latest_sensor_values
     )
 
 

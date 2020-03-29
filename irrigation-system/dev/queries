@@ -1,3 +1,14 @@
 SELECT deviceId, time, owner, type, value
 FROM sensor_values
 ORDER BY time;
+
+
+select t1.*
+from sensor_values t1
+join
+(
+    SELECT type, MAX(time) AS time
+    FROM sensor_values
+    GROUP BY type
+) t2 on t1.time = t2.time and t1.type = t2.type
+ORDER BY time;
