@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "StorageUtil.h"
 #include "PermStorageUtil.h"
 #include "EEPROMUtil.h"
@@ -9,7 +8,7 @@ EEPROMUtil eepromUtil;
 
 int deviceIdLength = 20;
 
-StaticJsonDocument<200> data = emptyJsonObject();
+StaticJsonDocument<200> response_data = emptyJsonObject();
 
 void initializeStorage(bool resetStorage) {
   eepromUtil.initializeEEPROMStorage();
@@ -17,22 +16,22 @@ void initializeStorage(bool resetStorage) {
 
   if(resetStorage) {
     StaticJsonDocument<200> doc = emptyJsonObject();
-    data = doc;
+    response_data = doc;
     updateEEPROM();
     updatePerm();
   }
 
   readEEPROMValues();
-  if(!data["deviceId"]) {
+  if(!response_data["deviceId"]) {
     // EEPROM not initialised yet.
     readPermStorageValues();
   }
 
-  if(!data["deviceId"]) {
+  if(!response_data["deviceId"]) {
     // Perm storage also nevery initialised.
     // Initialise now.
-    data["deviceId"] = createDeviceId();
-    data["cycle"] = 0;
+    response_data["deviceId"] = createDeviceId();
+    response_data["cycle"] = 0;
     updateEEPROM();
     updatePerm();
   }
@@ -48,9 +47,9 @@ void readPermStorageValues() {
   StaticJsonDocument<200> doc = emptyJsonObject();
   DeserializationError error = deserializeJson(doc, permStorageUtil.read_json());
   if(!error) {
-    copy_value("deviceId", doc, data);
-    copy_value("wifi_ssid", doc, data);
-    copy_value("wifi_psk", doc, data);
+    copy_value("deviceId", doc, response_data);
+    copy_value("wifi_ssid", doc, response_data);
+    copy_value("wifi_psk", doc, response_data);
   }
 }
 
@@ -58,20 +57,20 @@ void readEEPROMValues() {
   StaticJsonDocument<200> doc = emptyJsonObject();
   DeserializationError error = deserializeJson(doc, eepromUtil.read_json());
   if(!error) {
-    copy_value("deviceId", doc, data);
-    copy_value("cycle", doc, data);
-    copy_value("wifi_ssid", doc, data);
-    copy_value("wifi_psk", doc, data);
+    copy_value("deviceId", doc, response_data);
+    copy_value("cycle", doc, response_data);
+    copy_value("wifi_ssid", doc, response_data);
+    copy_value("wifi_psk", doc, response_data);
   }
-  Serial.println(_serializeJson(data));
+  Serial.println(_serializeJson(response_data));
 }
 
 void updateEEPROM() {
   StaticJsonDocument<200> doc = emptyJsonObject();
-  copy_value("deviceId", data, doc);
-  copy_value("cycle", data, doc);
-  copy_value("wifi_ssid", data, doc);
-  copy_value("wifi_psk", data, doc);
+  copy_value("deviceId", response_data, doc);
+  copy_value("cycle", response_data, doc);
+  copy_value("wifi_ssid", response_data, doc);
+  copy_value("wifi_psk", response_data, doc);
 
   eepromUtil.write_json(doc);
 }
@@ -79,9 +78,9 @@ void updateEEPROM() {
 void updatePerm() {
   Serial.println("Update perm");
   StaticJsonDocument<200> doc = emptyJsonObject();
-  copy_value("deviceId", data, doc);
-  copy_value("wifi_ssid", data, doc);
-  copy_value("wifi_psk", data, doc);
+  copy_value("deviceId", response_data, doc);
+  copy_value("wifi_ssid", response_data, doc);
+  copy_value("wifi_psk", response_data, doc);
 
   Serial.println("Writing JSON");
   permStorageUtil.write_json(doc);
@@ -100,36 +99,36 @@ String createDeviceId() {
 
 
 String getDeviceId() {
-  return data["deviceId"];
+  return response_data["deviceId"];
 }
 
 int getCycle() {
-  return data["cycle"];
+  return response_data["cycle"];
 }
 
 void setCycle(int cycle) {
-  data["cycle"] = cycle;
+  response_data["cycle"] = cycle;
   updateEEPROM();
 }
 
 boolean containsKey(String key) {
-  return data.containsKey(key);
+  return response_data.containsKey(key);
 }
 
 String getWifiSsid() {
-  Serial.println("Getting WIFI SSID. JSON data = ");
-  Serial.println(_serializeJson(data));
-  return data["wifi_ssid"];
+  Serial.println("Getting WIFI SSID. JSON response_data = ");
+  Serial.println(_serializeJson(response_data));
+  return response_data["wifi_ssid"];
 }
 
 String getWifiPsk() {
-  return data["wifi_psk"];
+  return response_data["wifi_psk"];
 }
 
 void setWifiCredentials(String ssid, String psk) {
-  if(data["wifi_ssid"] != ssid || data["wifi_psk"] != psk) {
-    data["wifi_ssid"] = ssid;
-    data["wifi_psk"] = psk;
+  if(response_data["wifi_ssid"] != ssid || response_data["wifi_psk"] != psk) {
+    response_data["wifi_ssid"] = ssid;
+    response_data["wifi_psk"] = psk;
     updateEEPROM();
     updatePerm();
   }

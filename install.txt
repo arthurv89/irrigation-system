@@ -1,0 +1,3 @@
+https://arduinojson.org/?utm_source=meta&utm_medium=library.properties
+WiFiManager Ttzatzu
+WiFiClientSecure

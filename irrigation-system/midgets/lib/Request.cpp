@@ -46,23 +46,25 @@ String do_get_request(String url) {
 
 
 String do_post_request(String url, String json_payload) {
+  WiFiClient client;
+
   Serial.println("[HTTP] Post request to: " + url);
   Serial.println("[HTTP] Payload: " + json_payload);
 
-  HTTPClient httpClient;
-  httpClient.begin(url);
-  httpClient.addHeader("Content-Type", "application/json");
+  HTTPClient http;
+  http.begin(client, url);
+  http.addHeader("Content-Type", "application/json");
 
-  int httpCode = httpClient.POST(json_payload);
+  int httpCode = http.POST(json_payload);
 
   String response = "";
   if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-    response = httpClient.getString();
+    response = http.getString();
   }
 
   Serial.println("httpcode");
   Serial.println(httpCode);
-  httpClient.end();
+  http.end();
 
   return response;
 }

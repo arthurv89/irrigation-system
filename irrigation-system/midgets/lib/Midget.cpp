@@ -7,13 +7,13 @@
 #include "Utils.h"
 #include "BlinkTimes.h"
 
-#include <ArduinoJson.h>
+#include <ArduinoJson.h> // https://arduinojson.org/?utm_source=meta&utm_medium=library.properties
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include <WiFiManager.h>         // https://github.com/tzapu/WiFiManager
+#include "WiFiManager.h"         // https://github.com/tzapu/WiFiManager
 #include "ESP8266httpUpdate.h"
 
 
@@ -37,7 +37,7 @@ IRunner* iRunner;
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
 String settings_url = "http://192.168.1.3:8123/api/v2/get-settings";
 StaticJsonDocument<200> settings = emptyJsonObject();
-
+WiFiClient wiFiClient;
 
 void setupMidget(IRunner* _iRunner) {
     iRunner = _iRunner;
@@ -110,7 +110,7 @@ void update_code() {
   ESPhttpUpdate.rebootOnUpdate(false);
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
-  int update_res = ESPhttpUpdate.update(ip, port, "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
+  int update_res = ESPhttpUpdate.update(wiFiClient, ip + ":" + port + "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
   Serial.println(update_res);
 
   switch(update_res) {

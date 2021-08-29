@@ -1,5 +1,3 @@
-using namespace std;
-
 #include <ArduinoJson.h>
 
 #ifndef EEPROM_UTIL_H

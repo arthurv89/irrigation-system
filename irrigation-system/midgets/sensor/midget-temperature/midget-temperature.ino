@@ -1,5 +1,3 @@
-using namespace std;
-
 #include "Arduino.h"
 #include <ArduinoJson.h>
 #include "Midget.h"
