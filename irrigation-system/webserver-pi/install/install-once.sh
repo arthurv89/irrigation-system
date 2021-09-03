@@ -30,7 +30,8 @@ CREATE TABLE irsys.`sensors` (
 CREATE TABLE irsys.`open_times` (
   `id` binary(16) NOT NULL,
   `hose_id` varchar(50) NOT NULL,
-  `time` timestamp NOT NULL,
+  `starttime` timestamp NOT NULL,
+  `endtime` timestamp NOT NULL,
   `opening_time` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

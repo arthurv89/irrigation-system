@@ -5,18 +5,29 @@ from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
 from handlers.pages import index, connect_sensors, setup_wifi
 from handlers.api import health, submit, find_ssids, save_wifi, get_settings, get_settings_v2, connect_sensor, get_connected_sensors, get_valve_instructions
+from flask_log_request_id import RequestID, RequestIDLogFilter
 
 import time
 import os
 import properties
 
 app = Flask(__name__, template_folder="jinja_templates")
-app.logger.setLevel(logging.INFO)
+# app.logger.setLevel(logging.INFO)
 
-logging.basicConfig(
-    filename='/tmp/irsys.log',
-    level=logging.DEBUG,
-    format='%(asctime)s [%(levelname)s]: %(message)s')
+RequestID(app)
+app.config['LOG_REQUEST_ID_GENERATE_IF_NOT_FOUND'] = True
+# app.config['LOG_REQUEST_ID_LOG_ALL_REQUESTS'] = True
+# app.config['LOG_REQUEST_ID_G_OBJECT_ATTRIBUTE'] = 'True'
+
+# logging.basicConfig(
+#     filename='/tmp/irsys.log',
+#     level=logging.DEBUG,
+#     format='[%(request_id)s] %(asctime)s [%(levelname)s]: %(message)s')
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(request_id)s - %(message)s"))
+handler.addFilter(RequestIDLogFilter())  # << Add request id contextual filter
+logging.getLogger().addHandler(handler)
+logging.getLogger().setLevel('DEBUG')
 
 properties.os = os.getenv('IRSYS_OS')
 if properties.os not in ["pi", "macosx"]:

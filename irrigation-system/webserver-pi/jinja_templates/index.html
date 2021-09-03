@@ -28,13 +28,15 @@
             <table style="width: 100%">
               <tr>
                 <th>Hose</th>
-                <th>Time</th>
+                <th>Start time</th>
+                <th>End time</th>
                 <th>Opening time</th>
               </tr>
               {%for obj in valve_openings%}
                 <tr>
                   <td>{{obj['hose_id']}}</td>
-                  <td>{{obj['time']}}</td>
+                  <td>{{obj['starttime']}}</td>
+                  <td>{{obj['endtime']}}</td>
                   <td>{{obj['opening_time']}}</td>
                 </tr>
               {%endfor%}

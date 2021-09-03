@@ -1,9 +1,10 @@
 import logging
 import mysql.connector as mariadb
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
 import time
 import os
+import pytz
 
 def connect():
     connection = mariadb.connect(user='irsys', password='Waterme1!@#', database='irsys')
@@ -57,16 +58,17 @@ def get_latest_sensor_data():
 
 def get_valve_openings():
     query = """
-        SELECT hose_id, time, opening_time
+        SELECT hose_id, starttime, endtime, opening_time
         FROM open_times
-        ORDER BY time DESC
+        ORDER BY starttime DESC
         LIMIT 5"""
 
     cursor = execute(query)
 
     return list(map(lambda row: {
         "hose_id": row[0],
-        "time": row[1],
+        "starttime": row[1],
+        "endtime": row[2],
         "opening_time": row[2]
     }, cursor.fetchall()))
 
@@ -152,16 +154,29 @@ def write_sensor_association(deviceId, time):
     connection.commit()
 
 
-def get_recently_opened_hoses():
-    query = (" SELECT hose_id"
+def get_last_opened(hose_ids):
+    query = (" SELECT hose_id, MAX(endtime) AS last_closed"
              " FROM open_times"
-             " WHERE time > NOW() - INTERVAL 20 MINUTE"
-             " GROUP BY hose_id")
+             " WHERE hose_id IN('" + ('\', \''.join(hose_ids)) + "')"
+             " GROUP BY hose_id"
+            )
     cursor = execute(query)
 
-    return list(map(lambda row: {
-        "hose_id": row[0]
-    }, cursor.fetchall()))
+    result = cursor.fetchall()
+    # logging.debug(result)
+
+    rows = {
+        row[0]: {
+            "hose_id": row[0],
+            "last_closed": pytz.utc.localize(row[1])
+        } for row in result
+    }
+    # logging.debug(rows)
+
+    return {
+        hose_id: rows[hose_id] if hose_id in rows else None
+        for hose_id in hose_ids
+    }
 
 
 def average_moisture(hose_ids):
@@ -190,13 +205,14 @@ def write_opening(hose_id, opening_time):
     values = {
       'id': uuid.uuid4().bytes,
       'hose_id': hose_id,
-      'time': datetime.now() .strftime('%Y-%m-%d %H:%M:%S'),
+      'starttime': datetime.now().astimezone(pytz.utc).strftime('%Y-%m-%d %H:%M:%S'),
+      'endtime': (datetime.now().astimezone(pytz.utc) + timedelta(0, opening_time)).strftime('%Y-%m-%d %H:%M:%S'),
       'opening_time': opening_time
     }
 
     query = (" INSERT INTO open_times"
-             " (id, hose_id, time, opening_time)"
-             " VALUES (%(id)s, %(hose_id)s, %(time)s, %(opening_time)s)")
+             " (id, hose_id, starttime, endtime, opening_time)"
+             " VALUES (%(id)s, %(hose_id)s, %(starttime)s, %(endtime)s, %(opening_time)s)")
 
     execute(query, values)
     connection.commit()
