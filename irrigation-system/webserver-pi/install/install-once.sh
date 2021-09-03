@@ -3,7 +3,7 @@ sudo mysql -u root -p
 
 ```sql
 CREATE DATABASE irsys;
-CREATE USER 'irsys'@'localhost' IDENTIFIED BY 'Waterme1';
+CREATE USER 'irsys'@'localhost' IDENTIFIED BY 'Waterme1!@#';
 GRANT ALL PRIVILEGES ON irsys.* TO 'irsys'@'localhost';
 
 # GRANT ALL PRIVILEGES ON irsys.* TO 'phpmyadmin'@'localhost';

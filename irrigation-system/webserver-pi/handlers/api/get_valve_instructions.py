@@ -13,11 +13,11 @@ open_time = 5000
 
 def handle():
     hour = datetime.now().hour
-    if hour < 6 or hour > 19:
-        logging.debug("Not the right time to open.")
-        return {
-            "open": []
-        }
+    # if hour < 6 or hour > 19:
+    #     logging.debug("Not the right time to open.")
+    #     return {
+    #         "open": []
+    #     }
 
     high_timestamp = int(time.time())
     low_timestamp = high_timestamp - 2 * period
@@ -25,8 +25,8 @@ def handle():
     deviceId = request.args.get('deviceId')
 
     recently_opened_hoses_rows = db.get_recently_opened_hoses()
-    # logging.debug("recently_opened_hoses_rows")
-    # logging.debug(recently_opened_hoses_rows)
+    logging.debug("recently_opened_hoses_rows")
+    logging.debug(recently_opened_hoses_rows)
     recently_opened_hoses = {row['hose_id']: row['hose_id'] for row in recently_opened_hoses_rows}
     # logging.debug("recently_opened_hoses")
     # logging.debug(recently_opened_hoses)
@@ -35,17 +35,22 @@ def handle():
     # logging.debug("hose_rows")
     # logging.debug(hose_rows)
     hoses = {row['hose_id']: row['hose_position'] for row in hose_rows}
-    # logging.debug("hoses")
-    # logging.debug(hoses)
+    logging.debug("hoses")
+    logging.debug(hoses)
 
-    sensor_data_rows = db.average_moisture(hoses.keys())
-    moisture = {row['deviceId']: row['avg_value'] for row in sensor_data_rows}
+    # sensor_data_rows = db.average_moisture(hoses.keys())
+    # moisture = {row['deviceId']: row['avg_value'] for row in sensor_data_rows}
     # logging.debug("moisture")
     # logging.debug(moisture)
 
     to_open = []
     for hose_position, hose_id in enumerate(hoses):
-        if hose_id in moisture and moisture[hose_id] > moisture_threshold and hose_id not in recently_opened_hoses:
+        # logging.debug(moisture)
+        # if hose_id in moisture:
+            # logging.debug(moisture[hose_id])
+            # logging.debug(recently_opened_hoses)
+            # if moisture[hose_id] > moisture_threshold and hose_id not in recently_opened_hoses:
+        if hose_id not in recently_opened_hoses:
             obj = open_obj(hose_position, open_time)
             to_open.append(obj)
 

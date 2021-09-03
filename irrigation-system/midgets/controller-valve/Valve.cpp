@@ -7,6 +7,8 @@
 #include "Midget.h"
 #include "Pin.h"
 #include "StorageUtil.h"
+#include "LiquidCrystal_I2C.h"
+#include <Wire.h>
 
 const int builtin_on_value = LOW;
 const int builtin_off_value = HIGH;
@@ -16,10 +18,23 @@ const long blink_period = 5000;
 
 
 void handle(IRunner* iRunner) {
+  setLcdText(iRunner, "Hello, NodeMCU!");
+
   StaticJsonDocument<200> instructions = get_instructions();
   disconnectWifi();
   execute_instructions(instructions, iRunner);
   connect_wifi();
+}
+
+void setLcdText(IRunner* iRunner, String text) {
+  Serial.println("Printing to LCD");
+  Wire.begin(D2, D1);
+  LiquidCrystal_I2C lcd = iRunner->getLcd();
+
+  lcd.begin();
+  lcd.home();
+  lcd.print(text);
+  delay(1000);
 }
 
 StaticJsonDocument<200> get_instructions() {

@@ -18,8 +18,13 @@ using namespace std;
 #include "IRunner.h"
 #include "Valve.h"
 
+#include "LiquidCrystal_I2C.h"
+#include <Wire.h>
+
 const int pins = 3;
 const int valvePins[pins] = {D5, D6, D7};
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 
 class Runner: public IRunner
@@ -48,12 +53,21 @@ public:
   int getValvePin(int valve) {
     return valvePins[valve];
   }
+
+  LiquidCrystal_I2C getLcd() {
+    return lcd;
+  }
 };
 
 
 void setup() {
   IRunner* runner = new Runner;
   setupMidget(runner);
+
+
+  Wire.begin(D2, D1);
+  lcd.begin();
+
 
   for(int p=0; p<pins; p++) {
     int pin = valvePins[p];

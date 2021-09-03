@@ -1,4 +1,4 @@
-pip3 install flask-api access_points wireless packaging network netifaces wifi pip install mysql-connector-python
+pip3 install flask-api access_points wireless packaging network netifaces wifi pip install mysql-connector-python requests
 
 sudo apt install mariadb-server
 # brew install mariadb-server

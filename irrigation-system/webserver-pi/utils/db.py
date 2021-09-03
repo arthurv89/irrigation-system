@@ -6,7 +6,7 @@ import time
 import os
 
 def connect():
-    connection = mariadb.connect(user='irsys', password='Waterme1', database='irsys')
+    connection = mariadb.connect(user='irsys', password='Waterme1!@#', database='irsys')
     connection.reconnect(attempts=1, delay=0)
     return connection
 
@@ -16,6 +16,7 @@ def execute(sql, values=None):
       # logging.debug(values)
       cursor = connection.cursor(buffered=True)
       cursor.execute(sql, values)
+      connection.commit() # To avoid caching the result
     except mariadb.Error as error:
       connect()
       os.system('play -n synth %s sin %s' % (500/1000, 300))
@@ -204,6 +205,7 @@ def get_hoses_for_valve(valveId):
     query = (" SELECT hose_id, hose_position"
              " FROM valve_connector"
              " WHERE valve_id='{valveId}'").format(valveId=valveId)
+    # logging.debug(query)
 
     cursor = execute(query)
 

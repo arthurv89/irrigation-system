@@ -35,7 +35,7 @@ String header;
 IRunner* iRunner;
 
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
-String settings_url = "http://192.168.1.3:8123/api/v2/get-settings";
+String settings_url = "http://192.168.1.170:8123/api/v2/get-settings";
 StaticJsonDocument<200> settings = emptyJsonObject();
 WiFiClient wiFiClient;
 
@@ -70,7 +70,6 @@ void loopMidget() {
         setCycle(0);
         do_big_calculation();
       } else {
-        Serial.println("No button press");
         no_button_press();
       }
     }
@@ -106,10 +105,10 @@ void do_big_calculation() {
 }
 
 void update_code() {
-  Serial.println("Updating our code.");
   ESPhttpUpdate.rebootOnUpdate(false);
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
+  Serial.println("Getting new bin: " + ip + ":" + port + "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
   int update_res = ESPhttpUpdate.update(wiFiClient, ip + ":" + port + "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
   Serial.println(update_res);
 

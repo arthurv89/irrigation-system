@@ -11,6 +11,7 @@ import os
 import properties
 
 app = Flask(__name__, template_folder="jinja_templates")
+app.logger.setLevel(logging.INFO)
 
 logging.basicConfig(
     filename='/tmp/irsys.log',
