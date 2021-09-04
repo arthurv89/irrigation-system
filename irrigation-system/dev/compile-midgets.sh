@@ -1,15 +1,26 @@
 set -x
 set -e
 
+datetime=`date '+%d-%m-%Y_%H-%M-%S'`
+version="$datetime"
+
+
 base="/Users/swipecrowd/workspace/arduino/irrigation-system/irrigation-system"
 arduinoPath="/Applications/Arduino.app/Contents/MacOS/Arduino"
 binPath="$base/webserver-pi/bin"
-echo $binPath
+target="$binPath/valve/valve-$version.bin"
+
+
+echo "#include \"Version.h\"
+
+String getVersion() {
+  return \"$version\";
+}
+" > $base/midgets/controller-valve/Version.cpp
 
 cd "$base/midgets/controller-valve"
-rm -rf build
-"$arduinoPath" --pref build.path=build --verbose --board esp8266:esp8266:nodemcuv2 --verify *.ino
-mv build/controller-valve.ino.bin $binPath/valve/real/valve.bin
+"$arduinoPath" --pref build.path=build --board esp8266:esp8266:nodemcuv2 --verify *.ino
+cp build/controller-valve.ino.bin $target
 
 # cd $base/midgets/sensor/midget-moisture
 # rm -rf build
