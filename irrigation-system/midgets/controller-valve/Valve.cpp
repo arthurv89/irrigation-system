@@ -19,7 +19,7 @@ const long blink_period = 5000;
 LiquidCrystal_I2C* _lcd;
 
 void setLcdText(String text) {
-  Serial.println("Printing to LCD");
+  Serial.println("Printing to LCD: " + text);
   Wire.begin(D2, D1);
 
   _lcd->begin();

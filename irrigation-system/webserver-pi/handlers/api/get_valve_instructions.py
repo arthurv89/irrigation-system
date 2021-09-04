@@ -30,18 +30,19 @@ def handle():
     hose_rows = db.get_hoses_for_valve(deviceId)
     hose_ids = [row['hose_id'] for row in hose_rows]
 
+    logging.debug("hose_ids")
+    logging.debug(hose_ids)
+
     # logging.debug("hose_rows")
     # logging.debug(hose_rows)
+
     hoses = {row['hose_id']: row['hose_position'] for row in hose_rows}
     # logging.debug("hoses")
     # logging.debug(hoses)
 
     hose_rows = db.get_last_opened(hose_ids)
-    # logging.debug("hose_rows")
-    # logging.debug(hose_rows)
-    # recently_opened_hoses = {row['hose_id']: row['hose_id'] for row in recently_opened_hoses_rows}
-    # logging.debug("recently_opened_hoses")
-    # logging.debug(recently_opened_hoses)
+    logging.debug("hose_rows")
+    logging.debug(hose_rows)
 
     # sensor_data_rows = db.average_moisture(hoses.keys())
     # moisture = {row['deviceId']: row['avg_value'] for row in sensor_data_rows}

@@ -109,7 +109,7 @@ void update_code() {
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
   Serial.println("Getting new bin: " + ip + ":" + port + "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
-  int update_res = ESPhttpUpdate.update(wiFiClient, ip + ":" + port + "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
+  int update_res = ESPhttpUpdate.update(wiFiClient, ip, port, "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
   Serial.println(update_res);
 
   switch(update_res) {
