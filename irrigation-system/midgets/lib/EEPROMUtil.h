@@ -5,7 +5,7 @@
 class EEPROMUtil {
   public:
     void initializeEEPROMStorage();
-    void write_json(StaticJsonDocument<2048> doc);
+    void write_json(StaticJsonDocument<200> doc);
     String read_json();
 
   private:

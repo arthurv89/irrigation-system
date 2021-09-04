@@ -5,5 +5,5 @@ String to_str(long l);
 
 
 DynamicJsonDocument _deserializeJson(String json);
-String _serializeJson(StaticJsonDocument<2048> doc);
-StaticJsonDocument<2048> _emptyJsonObject();
+String _serializeJson(StaticJsonDocument<200> doc);
+StaticJsonDocument<200> emptyJsonObject();

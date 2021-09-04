@@ -19,7 +19,7 @@ void submit_results(String payload);
 
 void update_code();
 
-StaticJsonDocument<2048> get_settings();
+StaticJsonDocument<200> get_settings();
 
 boolean is_wifi_setup();
 

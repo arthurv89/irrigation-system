@@ -31,7 +31,7 @@ String PermStorageUtil::read_json() {
   }
 }
 
-void PermStorageUtil::write_json(StaticJsonDocument<2048> doc) {
+void PermStorageUtil::write_json(StaticJsonDocument<200> doc) {
   Serial.println("Serialising...");
   String contents = _serializeJson(doc);
 

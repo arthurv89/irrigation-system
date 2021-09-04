@@ -11,7 +11,7 @@ String getWifiPsk();
 boolean containsKey(String key);
 
 // Private
-void copy_value(String key, StaticJsonDocument<2048>& from_json, StaticJsonDocument<2048>& to_json);
+void copy_value(String key, StaticJsonDocument<200>& from_json, StaticJsonDocument<200>& to_json);
 void readEEPROMValues();
 void readPermStorageValues();
 String createDeviceId();

@@ -2,8 +2,8 @@
 #include <ArduinoJson.h>
 
 void handle(IRunner* iRunner);
-void handleInstruction(JsonArray instruction);
+void handleInstruction(int valve, int pin, int period_ms);
 void setPin(int pin, int value);
-StaticJsonDocument<2048> get_response();
-void execute_instructions(StaticJsonDocument<2048> response);
-void setLcdText(String text);
+StaticJsonDocument<200> get_instructions();
+void execute_instructions(StaticJsonDocument<200> instructions, IRunner* iRunner);
+void setLcdText(IRunner* iRunner, String text);

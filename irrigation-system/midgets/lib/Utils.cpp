@@ -8,7 +8,7 @@ String to_str(long l) {
 
 
 DynamicJsonDocument _deserializeJson(String json) {
-  DynamicJsonDocument doc(4096);
+  DynamicJsonDocument doc(1024);
   DeserializationError error = deserializeJson(doc, json);
   if (error) {
     Serial.println();
@@ -34,14 +34,14 @@ DynamicJsonDocument _deserializeJson(String json) {
   return doc;
 }
 
-String _serializeJson(StaticJsonDocument<2048> doc) {
+String _serializeJson(StaticJsonDocument<200> doc) {
   String str;
   serializeJson(doc, str);
   return str;
 }
 
-StaticJsonDocument<2048> _emptyJsonObject() {
-  StaticJsonDocument<2048> doc;
+StaticJsonDocument<200> emptyJsonObject() {
+  StaticJsonDocument<200> doc;
   JsonObject obj = doc.createNestedObject("_");
   // JsonObject& object = doc.createObject();
   return doc;
