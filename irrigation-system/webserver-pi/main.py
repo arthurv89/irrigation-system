@@ -6,7 +6,7 @@ from flask_api import status
 from handlers.pages import index, connect_sensors, setup_wifi
 from handlers.api import health, submit, find_ssids, save_wifi, get_settings, get_settings_v2, connect_sensor, get_connected_sensors, get_valve_instructions
 from flask_log_request_id import RequestID, RequestIDLogFilter
-
+import glob
 import time
 import os
 import properties
@@ -119,7 +119,18 @@ def _get_moisture_bin():
 
 @app.route('/bin/valve', methods=['GET'])
 def _get_valve_bin():
-    return send_from_directory('bin/valve', 'valve.bin')
+    version = request.args.get('version')
+
+    list_of_files = glob.glob('bin/valve/valve-*.bin') # * means all if need specific format then *.csv
+    latest_file = max(list_of_files, key=os.path.getctime).split("/")[-1]
+
+    user_version = "valve-" + version + ".bin"
+    logging.debug("Last file: " + latest_file)
+    logging.debug("Version: " + user_version)
+    if latest_file == user_version:
+        return "", status.HTTP_404_NOT_FOUND
+    else:
+        return send_from_directory('bin/valve', latest_file)
 
 
 

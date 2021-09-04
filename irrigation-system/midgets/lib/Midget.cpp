@@ -15,6 +15,7 @@
 #include <ESP8266WebServer.h>
 #include "WiFiManager.h"         // https://github.com/tzapu/WiFiManager
 #include "ESP8266httpUpdate.h"
+#include "Version.h"
 
 
 bool buttonPressed;
@@ -24,6 +25,7 @@ long long previousMillis = 0;
 const int interval = 3000; // Should be 300000 (5 minutes)
 
 const int delay_ms = 3000;
+const int cycles = 0;
 
 /*********************************************
                      Setup
@@ -65,7 +67,7 @@ void loopMidget() {
       if(buttonPressed) {
         Serial.println("Button pressed");
         setup_wifi();
-      } else if(cycle >= 5 || cycle < 0) {
+      } else if(cycle >= cycles || cycle < 0) {
         Serial.println("Cycle: " + String(cycle));
         setCycle(0);
         do_big_calculation();
@@ -108,8 +110,9 @@ void update_code() {
   ESPhttpUpdate.rebootOnUpdate(false);
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
-  Serial.println("Getting new bin: " + ip + ":" + port + "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
-  int update_res = ESPhttpUpdate.update(wiFiClient, ip, port, "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId());
+  String path = "/bin/" + iRunner->getType() + "?deviceId=" + getDeviceId() + "&version=" + getVersion();
+  Serial.println("Getting new bin: " + ip + ":" + port + path);
+  int update_res = ESPhttpUpdate.update(wiFiClient, ip, port, path);
   Serial.println(update_res);
 
   switch(update_res) {
