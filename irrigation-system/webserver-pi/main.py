@@ -1,5 +1,6 @@
 import sys
 import json
+import glob
 import logging
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
@@ -119,7 +120,19 @@ def _get_moisture_bin():
 
 @app.route('/bin/valve', methods=['GET'])
 def _get_valve_bin():
-    return send_from_directory('bin/valve', 'valve.bin')
+    version = request.args.get('version')
+
+    list_of_files = glob.glob('bin/valve/valve-*.bin') # * means all if need specific format then *.csv
+    latest_file = max(list_of_files, key=os.path.getctime).split("/")[-1]
+
+    user_version = "valve-" + version + ".bin"
+    logging.debug("Last file: " + latest_file)
+    logging.debug("Version: " + user_version)
+    return "", status.HTTP_404_NOT_FOUND
+    # if latest_file == user_version:
+    #     return "", status.HTTP_404_NOT_FOUND
+    # else:
+    #     return send_from_directory('bin/valve', latest_file)
 
 
 
