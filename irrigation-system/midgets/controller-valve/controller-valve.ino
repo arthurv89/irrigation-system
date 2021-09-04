@@ -54,8 +54,8 @@ public:
     return valvePins[valve];
   }
 
-  LiquidCrystal_I2C getLcd() {
-    return lcd;
+  LiquidCrystal_I2C* getLcd() {
+    return &lcd;
   }
 };
 

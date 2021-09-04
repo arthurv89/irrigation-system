@@ -16,26 +16,34 @@ const int builtin_off_value = HIGH;
 const long interval = 0;
 const long blink_period = 5000;
 
+LiquidCrystal_I2C* _lcd;
+
+void setLcdText(String text) {
+  Serial.println("Printing to LCD");
+  Wire.begin(D2, D1);
+
+  _lcd->begin();
+  _lcd->home();
+  _lcd->print(text);
+  delay(1000);
+}
 
 void handle(IRunner* iRunner) {
-  setLcdText(iRunner, "Hello, NodeMCU!");
+  _lcd = iRunner->getLcd();
+
+  setLcdText("Hello, Arthur!");
 
   StaticJsonDocument<200> instructions = get_instructions();
+  setLcdText("Disconnecting Wifi");
   disconnectWifi();
+
+  setLcdText("Disconnecting Wifi");
   execute_instructions(instructions, iRunner);
+
+  setLcdText("Connecting to Wifi");
   connect_wifi();
 }
 
-void setLcdText(IRunner* iRunner, String text) {
-  Serial.println("Printing to LCD");
-  Wire.begin(D2, D1);
-  LiquidCrystal_I2C lcd = iRunner->getLcd();
-
-  lcd.begin();
-  lcd.home();
-  lcd.print(text);
-  delay(1000);
-}
 
 StaticJsonDocument<200> get_instructions() {
   fetch_settings();
@@ -69,17 +77,20 @@ void execute_instructions(StaticJsonDocument<200> instructions, IRunner* iRunner
 }
 
 void handleInstruction(int valve, int pin, int period_ms) {
-    Serial.print("Valve " + String(valve));
-    Serial.print(" Pin " + String(pin));
-    Serial.println(" On");
+  Serial.print("Valve " + String(valve));
+  Serial.print(" Pin " + String(pin));
+  Serial.println(" On");
+  setLcdText("V " + String(valve) + " P " + String(pin) + " ON");
 
-    setPin(pin, HIGH);
-    Serial.println("Delay " + String(period_ms) + " ms");
-    delay(period_ms);
+  setPin(pin, HIGH);
+  Serial.println("Delay " + String(period_ms) + " ms");
+  setLcdText("Delay " + String(period_ms) + " ms");
+  delay(period_ms);
 
-    setPin(pin, LOW);
-    Serial.println(" Off");
-    Serial.println();
+  setPin(pin, LOW);
+  setLcdText("V " + String(valve) + " P " + String(pin) + " OFF");
+  Serial.println(" Off");
+  Serial.println();
 }
 
 void setPin(int pin, int value) {

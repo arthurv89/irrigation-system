@@ -1,5 +1,5 @@
 echo "Press [CTRL+C] to stop.."
-endpoint="http://192.168.1.170:8123/api/submit"
+endpoint="http://192.168.1.192:8123/api/submit"
 
 while :
 do

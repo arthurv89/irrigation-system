@@ -10,7 +10,7 @@ class IRunner {
     virtual int getButtonPin() = 0;
     virtual int getValvePin(int valve) = 0;
     virtual String getWifiName(String deviceId) = 0;
-    virtual LiquidCrystal_I2C getLcd();
+    virtual LiquidCrystal_I2C* getLcd();
 
     virtual bool setup_wifi() = 0;
 

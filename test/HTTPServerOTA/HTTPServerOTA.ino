@@ -81,7 +81,7 @@ void connect() {
 
 void update() {
   ESPhttpUpdate.rebootOnUpdate(false);
-  int update_res = ESPhttpUpdate.update("192.168.1.170", 8123, "/bin/blink?speed=" + speed_str);
+  int update_res = ESPhttpUpdate.update("192.168.1.192", 8123, "/bin/blink?speed=" + speed_str);
   Serial.println(update_res);
 
   switch(update_res) {

@@ -35,7 +35,7 @@ String header;
 IRunner* iRunner;
 
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
-String settings_url = "http://192.168.1.170:8123/api/v2/get-settings";
+String settings_url = "http://192.168.1.192:8123/api/v2/get-settings";
 StaticJsonDocument<200> settings = emptyJsonObject();
 WiFiClient wiFiClient;
 
