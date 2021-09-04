@@ -49,37 +49,41 @@ def handle():
     # logging.debug("moisture")
     # logging.debug(moisture)
 
-    to_open = []
-    for hose_position, hose_id in enumerate(hoses):
-        # if moisture[hose_id] > moisture_threshold and hose_id not in recently_opened_hoses:
-        hose_row = hose_rows[hose_id]
-        if hose_row is not None:
-            last_closed = hose_row["last_closed"]
+    instructions = []
+    # obj = open_obj(0, 1000000)
+    # instructions.append(obj)
+    for i in range(3):
+        for hose_position, hose_id in enumerate(hoses):
+            # if moisture[hose_id] > moisture_threshold and hose_id not in recently_opened_hoses:
 
-            time_diff = datetime.now().astimezone(pytz.utc) - last_closed
-            time_since_last_closed = time_diff.total_seconds()
-
-            if time_since_last_closed < 0:
-                logging.debug("Still open. " + str(-time_since_last_closed) + " more seconds")
-                obj = open_obj(hose_position, open_time)
-                to_open.append(obj)
-            elif time_since_last_closed < time_between_opening:
-                logging.debug("Too soon to open again. Try again in " + str(time_between_opening - time_since_last_closed) + " seconds")
-            else:
-                logging.debug("Time to open again for " + str(open_time) + " seconds")
-                db.write_opening(hose_id, open_time)
-        else:
-            logging.debug("Never opened. Open now for " + str(open_time) + " seconds")
-            db.write_opening(hose_id, open_time)
+            # hose_row = hose_rows[hose_id]
+            # if hose_row is not None:
+            #     last_closed = hose_row["last_closed"]
+            #
+            #     time_diff = datetime.now().astimezone(pytz.utc) - last_closed
+            #     time_since_last_closed = time_diff.total_seconds()
+            #
+            #     if time_since_last_closed < 0:
+            #         time_left = -time_since_last_closed
+            #         logging.debug("Still open. " + str(time_left) + " more seconds")
+            #         # obj = open_obj(hose_position, time_left)
+            #         # instructions.append(obj)
+            #     elif time_since_last_closed < time_between_opening:
+            #         logging.debug("Too soon to open again. Try again in " + str(time_between_opening - time_since_last_closed) + " seconds")
+            #     else:
+            #         logging.debug("Time to open again for " + str(open_time) + " seconds")
+            #         db.write_opening(hose_id, open_time)
+            # else:
+            #     logging.debug("Never opened. Open now for " + str(open_time) + " seconds")
+            #     db.write_opening(hose_id, open_time)
+            # obj = open_obj(hose_position, 10)
+            # instructions.append(obj)
+            obj = open_obj(hose_position, 0.1)
+            instructions.append(obj)
     logging.debug("")
 
 
-    return {
-        "open": to_open
-    }
+    return instructions
 
 def open_obj(hose_position, time):
-    return {
-        "valve": hose_position,
-        "time": time
-    }
+    return [hose_position, time]
