@@ -16,81 +16,82 @@ const int builtin_off_value = HIGH;
 const long interval = 0;
 const long blink_period = 5000;
 
-LiquidCrystal_I2C* _lcd;
+IRunner* _iRunner;
 
-void setLcdText(String text) {
-  Serial.println("Printing to LCD: " + text);
+void setLcdText(String line1, String line2) {
+  Serial.println("Printing to LCD: | " + line1 + " | " + line2 + " | ");
   Wire.begin(D2, D1);
 
-  _lcd->begin();
-  _lcd->home();
-  _lcd->print(text);
-  delay(1000);
+  LiquidCrystal_I2C* lcd = _iRunner->getLcd();
+  lcd->begin();
+  lcd->home();
+  lcd->print(line1);
+  lcd->setCursor(0,1) ;
+  lcd->print(line2);
+}
+
+void setLcdText(String line1) {
+  setLcdText(line1, "");
 }
 
 void handle(IRunner* iRunner) {
-  _lcd = iRunner->getLcd();
+  _iRunner = iRunner;
 
-  setLcdText("Hello, Arthur!");
+  StaticJsonDocument<2048> response = get_response();
+  // setLcdText("Disconnecting Wifi");
+  // disconnectWifi();
 
-  StaticJsonDocument<200> instructions = get_instructions();
-  setLcdText("Disconnecting Wifi");
-  disconnectWifi();
+  execute_instructions(response);
 
-  setLcdText("Disconnecting Wifi");
-  execute_instructions(instructions, iRunner);
-
-  setLcdText("Connecting to Wifi");
-  connect_wifi();
+  // setLcdText("Connecting Wifi");
+  // connect_wifi();
 }
 
 
-StaticJsonDocument<200> get_instructions() {
+StaticJsonDocument<2048> get_response() {
   fetch_settings();
-  StaticJsonDocument<200> settings = get_settings();
+  StaticJsonDocument<2048> settings = get_settings();
   String ip = settings["controller_addr"]["ip"];
   int port = settings["controller_addr"]["port"];
   String controller_addr = ip + ":" + port;
   String url = "http://" + controller_addr + "/api/valveInstructions?deviceId=" + getDeviceId();
 
   String valveInstructionsJson = do_get_request(url);
+  Serial.println("valveInstructionsJson");
+  Serial.println(valveInstructionsJson);
 
-  StaticJsonDocument<200> instructions = _deserializeJson(valveInstructionsJson)["response"];
+  StaticJsonDocument<2048> response = _deserializeJson(valveInstructionsJson)["response"];
 
-  String str;
-  serializeJson(instructions, str);
-  Serial.println(str);
+  String deserSerJson = _serializeJson(response);
+  Serial.println("deserSerJson");
+  Serial.println(deserSerJson);
 
-  return instructions;
+  return response;
 }
 
-void execute_instructions(StaticJsonDocument<200> instructions, IRunner* iRunner){
-  Serial.println("Instructions");
-  JsonArray open = instructions["open"];
-  for (JsonVariant value : open) {
-    JsonObject obj = value.as<JsonObject>();
-    int valve = obj["valve"];
-    int pin = iRunner->getValvePin(valve);
-    int period_ms = obj["time"];
-    handleInstruction(valve, pin, period_ms);
+void execute_instructions(StaticJsonDocument<2048> response){
+  JsonArray instructions = response.as<JsonArray>();;
+  setLcdText("Executing " + String(instructions.size()), "instructions");
+  for (JsonArray openInstruction : instructions) {
+    handleInstruction(openInstruction);
   }
+  setLcdText("Finished exec", String(instructions.size()) + " instructions");
+  Serial.println("Done executing instructions");
 }
 
-void handleInstruction(int valve, int pin, int period_ms) {
-  Serial.print("Valve " + String(valve));
-  Serial.print(" Pin " + String(pin));
-  Serial.println(" On");
-  setLcdText("V " + String(valve) + " P " + String(pin) + " ON");
+void handleInstruction(JsonArray instruction) {
+  int valve = instruction[0];
+  float period_seconds = instruction[1];
+  int period_ms = period_seconds * 1000;
+  int _pin = _iRunner->getValvePin(valve);
 
-  setPin(pin, HIGH);
-  Serial.println("Delay " + String(period_ms) + " ms");
-  setLcdText("Delay " + String(period_ms) + " ms");
+  setLcdText("V" + String(valve) + " P" + String(_pin) + " ON", String(period_ms) + " ms)");
+
+  setPin(_pin, HIGH);
   delay(period_ms);
 
-  setPin(pin, LOW);
-  setLcdText("V " + String(valve) + " P " + String(pin) + " OFF");
-  Serial.println(" Off");
-  Serial.println();
+  setPin(_pin, LOW);
+  setLcdText("V" + String(valve) + " P" + String(_pin), " OFF");
 }
 
 void setPin(int pin, int value) {

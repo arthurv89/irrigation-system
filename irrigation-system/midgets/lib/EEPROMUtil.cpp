@@ -8,14 +8,12 @@ void EEPROMUtil::initializeEEPROMStorage() {
 }
 
 
-void EEPROMUtil::write_json(StaticJsonDocument<200> doc) {
+void EEPROMUtil::write_json(StaticJsonDocument<2048> doc) {
   String str = _serializeJson(doc);
-  Serial.println("Writing EEPROM");
+  Serial.println("Writing contents to EEPROM: " + str);
 
-  Serial.println("Length: " + String(str.length()));
   writeInt(0, str.length());
 
-  Serial.println("Writing contents: " + str);
   int startPos = 2;
   for (int i=0; i < str.length(); i++) {
     EEPROM.write(i + startPos, str[i]);
@@ -29,7 +27,6 @@ String EEPROMUtil::read_json() {
   if(len > 512) {
     return "ERROR!!!";
   }
-  Serial.println("Length: " + String(len));
 
   int startPos = 2;
 
@@ -40,7 +37,6 @@ String EEPROMUtil::read_json() {
   }
 
   chars[len] = '\0';
-  Serial.println("Read contents: " + String(chars));
   return chars;
 }
 

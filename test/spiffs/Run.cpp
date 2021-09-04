@@ -11,14 +11,14 @@ void _setup() {
 
   SPIFFS.begin();
 
-  StaticJsonDocument<200> json = create_json();
+  StaticJsonDocument<2048> json = create_json();
   String str = ser(json);
   write_file(path, str);
   String contents = read_file(path);
   Serial.println("contents");
   Serial.println(contents);
 
-  StaticJsonDocument<200> new_json = copy_json(json);
+  StaticJsonDocument<2048> new_json = copy_json(json);
   String new_str = ser(new_json);
   write_file(path, new_str);
   String new_contents = read_file(path);
@@ -26,13 +26,13 @@ void _setup() {
   Serial.println(new_contents );
 }
 
-String ser(StaticJsonDocument<200> json) {
+String ser(StaticJsonDocument<2048> json) {
   String str;
   serializeJson(json, str);
   return str;
 }
 
-void copy_value(String key, StaticJsonDocument<200>& from_json, StaticJsonDocument<200>& to_json) {
+void copy_value(String key, StaticJsonDocument<2048>& from_json, StaticJsonDocument<2048>& to_json) {
   // Serial.println("Copy " + key + "?");
 
   if(from_json.containsKey(key)) {
@@ -41,12 +41,12 @@ void copy_value(String key, StaticJsonDocument<200>& from_json, StaticJsonDocume
   }
 }
 
-StaticJsonDocument<200> copy_json(StaticJsonDocument<200> json) {
+StaticJsonDocument<2048> copy_json(StaticJsonDocument<2048> json) {
   Serial.println("");
   Serial.println("Prev JSON");
   Serial.println(ser(json));
 
-  StaticJsonDocument<200> new_json;
+  StaticJsonDocument<2048> new_json;
 
   Serial.println("");
   Serial.println("New JSON");
@@ -82,8 +82,8 @@ String to_str(boolean b) {
   }
 }
 
-StaticJsonDocument<200> create_json() {
-  StaticJsonDocument<200> json;
+StaticJsonDocument<2048> create_json() {
+  StaticJsonDocument<2048> json;
   String x = "a";
   int y = 1;
 //  String z;

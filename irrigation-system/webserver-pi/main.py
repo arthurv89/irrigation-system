@@ -163,10 +163,10 @@ def handle(handler, type):
         logging.info("Result");
         if type == "json":
             logging.info(result);
-            response = jsonify({
+            response = json.dumps({
                 "status": "OK",
                 "response": result
-            })
+            }, separators=(',', ':'))
         elif type == "html":
             response = result
         else:

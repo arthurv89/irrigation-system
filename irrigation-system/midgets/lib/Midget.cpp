@@ -24,6 +24,7 @@ long long previousMillis = 0;
 const int interval = 3000; // Should be 300000 (5 minutes)
 
 const int delay_ms = 3000;
+const int cycles = 1;
 
 /*********************************************
                      Setup
@@ -36,7 +37,7 @@ IRunner* iRunner;
 
 // Settings URL can be changed to a static file in S3 (as long as we can find the settings for this specific owner)
 String settings_url = "http://192.168.1.192:8123/api/v2/get-settings";
-StaticJsonDocument<200> settings = emptyJsonObject();
+StaticJsonDocument<2048> settings = _emptyJsonObject();
 WiFiClient wiFiClient;
 
 void setupMidget(IRunner* _iRunner) {
@@ -61,11 +62,11 @@ void loopMidget() {
       Serial.println("Wifi not yet set up");
       setup_wifi();
     } else {
-      Serial.println("Wifi already set up");
+      // Serial.println("Wifi already set up");
       if(buttonPressed) {
         Serial.println("Button pressed");
         setup_wifi();
-      } else if(cycle >= 5 || cycle < 0) {
+      } else if(cycle >= cycles || cycle < 0) {
         Serial.println("Cycle: " + String(cycle));
         setCycle(0);
         do_big_calculation();
@@ -79,9 +80,7 @@ boolean is_wifi_setup() {
   String ssid = getWifiSsid();
   String psk = getWifiPsk();
 
-  Serial.println("WIFI credentials");
-  Serial.println(ssid);
-  Serial.println(psk);
+  Serial.println("WIFI credentials: " + ssid + " | " + psk);
 
   return containsKey("wifi_ssid") && !(ssid == NULL) && ssid && ssid.length() > 0;
 }
@@ -129,7 +128,7 @@ void update_code() {
 }
 
 String create_payload() {
-  StaticJsonDocument<200> doc = emptyJsonObject();
+  StaticJsonDocument<2048> doc = _emptyJsonObject();
 
   JsonObject meta  = doc.createNestedObject("meta");
   meta["heapFreeMem"] = ESP.getFreeHeap();
@@ -144,7 +143,7 @@ String create_payload() {
 
 void no_button_press() {
   // Just wait for the next cycle to see if a button is pressed
-  Serial.println("No button press");
+  // Serial.println("No button press");
   sleep(delay_ms * 1000);
 }
 
@@ -153,9 +152,9 @@ void deep_sleep(int interval, long long beforeMillis, long long afterMillis) {
   long long delay_time_millis = max(1LL, interval - (afterMillis - beforeMillis));
 
   Serial.println("Sleeping for some time: " + to_str(delay_time_millis));
-  Serial.println(String(interval));
-  Serial.println(to_str(beforeMillis));
-  Serial.println(to_str(afterMillis));
+  // Serial.println(String(interval));
+  // Serial.println(to_str(beforeMillis));
+  // Serial.println(to_str(afterMillis));
 
   sleep(delay_time_millis * 1000);
 }
@@ -163,7 +162,7 @@ void deep_sleep(int interval, long long beforeMillis, long long afterMillis) {
 void sleep(int us) {
   setCycle(getCycle() + 1);
   Serial.println("Sleeping for " + String(us) + " microseconds");
-  delay(1000);
+  // delay(1000);
   ESP.deepSleep(us, WAKE_RF_DEFAULT);
 }
 
@@ -209,6 +208,6 @@ void setup_wifi() {
   sleep(100 * 1000);
 }
 
-StaticJsonDocument<200> get_settings() {
+StaticJsonDocument<2048> get_settings() {
   return settings;
 }

@@ -8,14 +8,14 @@ EEPROMUtil eepromUtil;
 
 int deviceIdLength = 20;
 
-StaticJsonDocument<200> response_data = emptyJsonObject();
+StaticJsonDocument<2048> response_data = _emptyJsonObject();
 
 void initializeStorage(bool resetStorage) {
   eepromUtil.initializeEEPROMStorage();
   permStorageUtil.initializePermStorage();
 
   if(resetStorage) {
-    StaticJsonDocument<200> doc = emptyJsonObject();
+    StaticJsonDocument<2048> doc = _emptyJsonObject();
     response_data = doc;
     updateEEPROM();
     updatePerm();
@@ -37,14 +37,14 @@ void initializeStorage(bool resetStorage) {
   }
 }
 
-void copy_value(String key, StaticJsonDocument<200>& from_json, StaticJsonDocument<200>& to_json) {
+void copy_value(String key, StaticJsonDocument<2048>& from_json, StaticJsonDocument<2048>& to_json) {
   if(from_json.containsKey(key)) {
     to_json[key] = from_json[key];
   }
 }
 
 void readPermStorageValues() {
-  StaticJsonDocument<200> doc = emptyJsonObject();
+  StaticJsonDocument<2048> doc = _emptyJsonObject();
   DeserializationError error = deserializeJson(doc, permStorageUtil.read_json());
   if(!error) {
     copy_value("deviceId", doc, response_data);
@@ -54,7 +54,7 @@ void readPermStorageValues() {
 }
 
 void readEEPROMValues() {
-  StaticJsonDocument<200> doc = emptyJsonObject();
+  StaticJsonDocument<2048> doc = _emptyJsonObject();
   DeserializationError error = deserializeJson(doc, eepromUtil.read_json());
   if(!error) {
     copy_value("deviceId", doc, response_data);
@@ -66,7 +66,7 @@ void readEEPROMValues() {
 }
 
 void updateEEPROM() {
-  StaticJsonDocument<200> doc = emptyJsonObject();
+  StaticJsonDocument<2048> doc = _emptyJsonObject();
   copy_value("deviceId", response_data, doc);
   copy_value("cycle", response_data, doc);
   copy_value("wifi_ssid", response_data, doc);
@@ -77,7 +77,7 @@ void updateEEPROM() {
 
 void updatePerm() {
   Serial.println("Update perm");
-  StaticJsonDocument<200> doc = emptyJsonObject();
+  StaticJsonDocument<2048> doc = _emptyJsonObject();
   copy_value("deviceId", response_data, doc);
   copy_value("wifi_ssid", response_data, doc);
   copy_value("wifi_psk", response_data, doc);

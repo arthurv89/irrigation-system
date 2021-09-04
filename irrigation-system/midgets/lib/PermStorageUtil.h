@@ -8,6 +8,6 @@ class PermStorageUtil {
   public:
     void initializePermStorage();
     String read_json();
-    void write_json(StaticJsonDocument<200> doc);
+    void write_json(StaticJsonDocument<2048> doc);
 };
 #endif
