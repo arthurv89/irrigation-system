@@ -33,7 +33,7 @@ void loop() {
     speed = 1000;
     speed_str = "slow";
   }
-  
+
   Serial.println();
   Serial.println("Start loop");
   Serial.println("Speed = " + String(speed));
@@ -81,7 +81,7 @@ void connect() {
 
 void update() {
   ESPhttpUpdate.rebootOnUpdate(false);
-  int update_res = ESPhttpUpdate.update("192.168.1.192", 8123, "/bin/blink?speed=" + speed_str);
+  int update_res = ESPhttpUpdate.update("192.168.1.159", 8123, "/bin/blink?speed=" + speed_str);
   Serial.println(update_res);
 
   switch(update_res) {

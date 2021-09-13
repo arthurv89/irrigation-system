@@ -85,13 +85,15 @@ void handleInstruction(JsonArray instruction) {
   int period_ms = period_seconds * 1000;
   int _pin = _iRunner->getValvePin(valve);
 
-  setLcdText("V" + String(valve) + " P" + String(_pin) + " ON", String(period_ms) + " ms)");
+  setLcdText("V" + String(valve) + " P" + String(_pin) + " ON", String(period_ms) + " ms");
+  // Serial.println("V" + String(valve) + " P" + String(_pin) + " ON" + "\n" + String(period_ms) + " ms");
 
   setPin(_pin, HIGH);
   delay(period_ms);
 
   setPin(_pin, LOW);
   setLcdText("V" + String(valve) + " P" + String(_pin), " OFF");
+  // Serial.println("V" + String(valve) + " P" + String(_pin) + "\n" + " OFF");
 }
 
 void setPin(int pin, int value) {
