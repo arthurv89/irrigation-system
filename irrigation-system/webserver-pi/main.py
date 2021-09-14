@@ -3,7 +3,7 @@ import json
 import logging
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
-from handlers.pages import index, connect_sensors, setup_wifi
+from handlers.pages import index, connect_sensors, setup_wifi, controller_actions
 from handlers.api import health, submit, find_ssids, save_wifi, get_settings, get_settings_v2, connect_sensor, get_connected_sensors, get_valve_instructions
 from flask_log_request_id import RequestID, RequestIDLogFilter
 import glob
@@ -45,10 +45,13 @@ def _index():
 def _connect_sensors():
     return handle(connect_sensors, "html")
 
-
 @app.route('/setup-wifi', methods=['GET'])
 def _setup_wifi():
     return handle(setup_wifi, "html")
+
+@app.route('/controller-actions', methods=['GET'])
+def _controller_actions():
+    return handle(controller_actions, "html")
 
 
 
