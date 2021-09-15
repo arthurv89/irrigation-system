@@ -1,12 +1,108 @@
+<script>
+  const deviceId = "37961240619157332318";
+  const valves = {
+    1: { status: false, disabled: false },
+    2: { status: false, disabled: false },
+    3: { status: false, disabled: false },
+  }
+  const opening_time = 10
+
+  function disableButton(valvePosition) {
+    valves[valvePosition]['disabled'] = true;
+  }
+
+  function enableButton(valvePosition) {
+    valves[valvePosition]['disabled'] = false;
+  }
+
+  function toggleStatus(valvePosition) {
+    valves[valvePosition]['status'] = !valves[valvePosition]['status']
+  }
+
+  function handleToggleValveClick(valvePosition) {
+    toggleStatus(valvePosition)
+    disableButton(valvePosition);
+    renderButtons();
+    $.ajax('/api/valve', {
+        type: "POST",
+        data: {
+          "deviceId": deviceId,
+          "valvePosition": valvePosition,
+          "status": valves[valvePosition]['status'],
+          "opening_time": opening_time
+        }
+    })
+    .done(function(json) {
+      enableButton(valvePosition)
+      renderButtons();
+    })
+    .fail(function(data) {
+        console.log('Error: ', data);
+        toggleStatus(valvePosition)
+        enableButton(valvePosition)
+        renderButtons();
+    });
+    return false;
+  }
+
+  function addValveHandlers(valvePosition) {
+    getButton(valvePosition).click(function() {
+      handleToggleValveClick(valvePosition)
+    });
+  }
+
+  function buttonId(valvePosition) {
+    return `valve-${valvePosition}`;
+  }
+
+  function getButton(valvePosition) {
+    return $(`#${buttonId(valvePosition)}`);
+  }
+
+  function createButton(valvePosition, status, disabled) {
+    const newStatus = status ? "off" : "on";
+    const button = $(`
+      <button
+          id="${buttonId(valvePosition)}"
+          class="toggle-valve valve-${status} btn btn-primary"
+          data-valve-id="${valvePosition}"
+        >
+        Turn ${newStatus} valve ${valvePosition}
+      </button>`)
+    button.prop('disabled', disabled);
+
+    return button;
+  }
+
+  function renderButtons() {
+    $('#button-container *').remove()
+
+     var container = $('<div />');
+     for (const valvePosition in valves) {
+       const valve = valves[valvePosition]
+       const status = valve['status'];
+       const disabled = valve['disabled']
+
+       const button = createButton(valvePosition, status, disabled)
+       container.append(button);
+     }
+     $('#button-container').html(container);
+
+     Object.keys(valves).forEach((valvePosition, i) => {
+       addValveHandlers(valvePosition);
+     });
+  }
+
+  $(document).ready(function() {
+    renderButtons();
+  });
+ </script>
+
 <div class="box-header well">
     <h2>Controller actions</h2>
 </div>
 <div class="box-content row">
     <div class="col-lg-7 col-md-12">
-      <p>
-        <button class="scan-now btn btn-primary">Turn on valve 1</button>
-        <button class="scan-now btn btn-primary">Turn on valve 2</button>
-        <button class="scan-now btn btn-primary">Turn on valve 3</button>
-      </p>
+      <div id="button-container"></div>
     </div>
 </div>

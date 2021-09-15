@@ -1,13 +1,12 @@
 import sys
-import json
 import logging
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
-from handlers.pages import index, connect_sensors, setup_wifi, controller_actions
-from handlers.api import health, submit, find_ssids, save_wifi, get_settings, get_settings_v2, connect_sensor, get_connected_sensors, get_valve_instructions
+from handlers.pages import setup_wifi, connect_sensors, index
+from handlers.pages import controller_actions
+from handlers.api import get_settings_v2, find_ssids, submit, save_wifi, get_settings, connect_sensor, get_connected_sensors, get_valve_instructions, set_valve, health
 from flask_log_request_id import RequestID, RequestIDLogFilter
 import glob
-import time
 import os
 import properties
 
@@ -35,25 +34,27 @@ if properties.os not in ["pi", "macosx"]:
 
 properties.working_directory = os.getenv('IRSYS_RUN_DIR') + "/.."
 
+
 # Pages
 
 @app.route('/', methods=['GET'])
 def _index():
     return handle(index, "html")
 
+
 @app.route('/connect-sensors', methods=['GET'])
 def _connect_sensors():
     return handle(connect_sensors, "html")
+
 
 @app.route('/setup-wifi', methods=['GET'])
 def _setup_wifi():
     return handle(setup_wifi, "html")
 
+
 @app.route('/controller-actions', methods=['GET'])
 def _controller_actions():
     return handle(controller_actions, "html")
-
-
 
 
 # API
@@ -62,38 +63,50 @@ def _controller_actions():
 def _get_settings_v2():
     return handle(get_settings_v2, "json")
 
+
 @app.route('/api/get-settings', methods=['GET'])
 def _get_settings():
     return handle(get_settings, "json")
+
 
 @app.route('/api/submit', methods=['POST'])
 def _submit():
     return handle(submit, "json")
 
+
 @app.route('/api/health', methods=['GET'])
 def _health():
     return handle(health, "json")
+
 
 @app.route('/api/find-ssids', methods=['POST'])
 def _find_ssids():
     return handle(find_ssids, "json")
 
+
 @app.route('/api/save-wifi', methods=['POST'])
 def _save_wifi():
     return handle(save_wifi, "json")
+
 
 @app.route('/api/connect-sensor', methods=['POST'])
 def _connect_sensor():
     return handle(connect_sensor, "json")
 
+
 @app.route('/api/get-connected-sensors', methods=['POST'])
 def _get_connected_sensors():
     return handle(get_connected_sensors, "json")
+
 
 @app.route('/api/valveInstructions', methods=['GET'])
 def _get_valve_instructions():
     return handle(get_valve_instructions, "json")
 
+
+@app.route('/api/valve', methods=['POST'])
+def _set_valve():
+    return handle(set_valve, "json")
 
 
 def get_sensor_bin(type):
@@ -105,26 +118,28 @@ def get_sensor_bin(type):
     return send_from_directory('bin/sensor', type + '.bin')
 
 
-
 @app.route('/bin/blink', methods=['GET'])
 def _get_blink_bin():
     speed = request.args.get('speed')
     get_bin()
     return send_from_directory('bin/blink', speed + '.bin')
 
+
 @app.route('/bin/temperature', methods=['GET'])
 def _get_temperature_bin():
     return get_sensor_bin('temperature')
+
 
 @app.route('/bin/moisture', methods=['GET'])
 def _get_moisture_bin():
     return get_sensor_bin('moisture')
 
+
 @app.route('/bin/valve', methods=['GET'])
 def _get_valve_bin():
     version = request.args.get('version')
 
-    list_of_files = glob.glob('bin/valve/valve-*.bin') # * means all if need specific format then *.csv
+    list_of_files = glob.glob('bin/valve/valve-*.bin')  # * means all if need specific format then *.csv
     latest_file = max(list_of_files, key=os.path.getctime).split("/")[-1]
 
     user_version = "valve-" + version + ".bin"
@@ -136,47 +151,48 @@ def _get_valve_bin():
         return send_from_directory('bin/valve', latest_file)
 
 
-
-
 # Static resources
 
 @app.route('/css/<path:path>')
 def send_css(path):
     return send_from_directory('static/css', path)
 
+
 @app.route('/webfonts/<path:path>')
 def send_webfonts(path):
     return send_from_directory('static/webfonts', path)
+
 
 @app.route('/js/<path:path>')
 def send_js(path):
     return send_from_directory('static/js', path)
 
+
 @app.route('/img/<path:path>')
 def send_img(path):
     return send_from_directory('static/img', path)
 
+
 @app.route('/bower_components/<path:path>')
 def send_bower_components(path):
     return send_from_directory('static/bower_components', path)
+
 
 @app.route('/fonts/<path:path>')
 def send_fonts(path):
     return send_from_directory('static/fonts', path)
 
 
-
 def handle_stream(handler):
     return Response(handler.handle_stream(), content_type='text/event-stream')
-
 
 
 def handle(handler, type):
     try:
         result = handler.handle()
-        logging.info("Result");
+        logging.info("Result")
         if type == "json":
-            logging.info(result);
+            logging.info(result)
             response = jsonify({
                 "status": "OK",
                 "response": result
@@ -208,3 +224,7 @@ def handle(handler, type):
             "status": "Failed"
         }
         return response, status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
+if __name__ == "__main__":
+    app.run(port=8123)

@@ -1,7 +1,4 @@
-from flask import Flask, request, render_template, jsonify
-import json
-import textwrap
-import os
+from flask import Flask, request
 from utils import db, wifiUtil
 import logging
 

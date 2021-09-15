@@ -1,3 +1,6 @@
+**/.idea/
+**/*.iml
+
 test/HTTPServerOTA/HTTPServerOTA.ino.nodemcu.bin
 test/HTTPServerOTA/build/
 test/spiffs/build/

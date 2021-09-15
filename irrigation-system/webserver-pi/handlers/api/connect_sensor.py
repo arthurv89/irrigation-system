@@ -1,6 +1,6 @@
 from access_points import get_scanner
 import logging
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request
 import json
 import sys
 import traceback

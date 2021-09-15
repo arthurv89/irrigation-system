@@ -1,10 +1,8 @@
 import logging
 import subprocess
-from utils import db
 from wireless import Wireless
 import properties
 import textwrap
-import uuid
 
 wire = Wireless()
 

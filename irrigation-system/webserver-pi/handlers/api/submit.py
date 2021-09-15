@@ -1,7 +1,6 @@
-import json
-from utils import request
 import properties
 from datetime import datetime
+from utils import request
 from utils import db
 import logging
 

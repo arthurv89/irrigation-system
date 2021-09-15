@@ -1,8 +1,7 @@
 import sys
-sys.path.append("..") # Adds higher directory to python modules path.
+sys.path.append("../src") # Adds higher directory to python modules path.
 import logging
 import time
-import json
 from utils import db
 
 minute = 60
