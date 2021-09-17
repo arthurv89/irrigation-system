@@ -1,13 +1,11 @@
 import logging
-import sys
 import uuid
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, Any, Union
+from typing import Any
 
 import mysql.connector as mariadb
 import pytz
-import os
-from dataclasses import dataclass
 
 
 @dataclass
@@ -25,6 +23,7 @@ class LastOpened:
     valve_id: ValveId
     last_closed: datetime
 
+
 @dataclass
 class Valve:
     valve_id: ValveId
@@ -33,7 +32,7 @@ class Valve:
 
 def connect():
     connection = mariadb.connect(user='irsys', password='Waterme1!@#', database='irsys')
-    connection.reconnect(attempts=1, delay=0)
+    connection.reconnect(attempts=99999999, delay=0)
     return connection
 
 
@@ -46,7 +45,7 @@ def execute(sql, values=None):
         connection.commit()  # To avoid caching the result
     except mariadb.Error as error:
         connect()
-        os.system('play -n synth %s sin %s' % (500 / 1000, 300))
+        # os.system('play -n synth %s sin %s' % (500 / 1000, 300))
         cursor = connection.cursor(buffered=True)
         try:
             cursor.execute(sql, values)
@@ -54,6 +53,10 @@ def execute(sql, values=None):
             message = e.message if hasattr(e, 'message') else e
             logging.error(f'SQL Error in query {sql}: \n{message}')
             raise Exception("SQL error")
+    #     else:
+    #         connection.close()
+    # else:
+    #     connection.close()
     return cursor
 
 
@@ -192,17 +195,18 @@ def get_last_opened(valves: list[Valve]) -> dict[str, LastOpened]:
              " FROM open_times"
              " WHERE valve_id IN('" + ('\', \''.join(valve_id_strs)) + "')"
              " GROUP BY valve_id"
-             )
+            )
     cursor = execute(query)
 
     result = cursor.fetchall()
 
     return {
         row[0]: LastOpened(
-            valve_id = ValveId(row[0]),
-            last_closed = pytz.utc.localize(row[1])
+            valve_id=ValveId(row[0]),
+            last_closed=pytz.utc.localize(row[1])
         ) for row in result
     }
+
 
 def average_moisture(valve_ids):
     # logging.info(valve_ids)

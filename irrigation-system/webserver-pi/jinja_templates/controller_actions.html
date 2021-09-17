@@ -1,11 +1,7 @@
 <script>
   const deviceId = "37961240619157332318";
-  const valves = {
-    1: { status: false, disabled: false },
-    2: { status: false, disabled: false },
-    3: { status: false, disabled: false },
-  }
-  const opening_time = 10
+  var valves = {}
+  const opening_time = 60
 
   function disableButton(valvePosition) {
     valves[valvePosition]['disabled'] = true;
@@ -59,15 +55,16 @@
     return $(`#${buttonId(valvePosition)}`);
   }
 
-  function createButton(valvePosition, status, disabled) {
+  function createButton(valvePosition, timeRemaining, status, disabled) {
     const newStatus = status ? "off" : "on";
+    const remainingStr = status ? `(${timeRemaining} sec)` : "";
     const button = $(`
       <button
           id="${buttonId(valvePosition)}"
           class="toggle-valve valve-${status} btn btn-primary"
           data-valve-id="${valvePosition}"
         >
-        Turn ${newStatus} valve ${valvePosition}
+        Turn ${newStatus} valve ${parseInt(valvePosition)+1} ${remainingStr}
       </button>`)
     button.prop('disabled', disabled);
 
@@ -82,8 +79,9 @@
        const valve = valves[valvePosition]
        const status = valve['status'];
        const disabled = valve['disabled']
+       const timeRemaining = valve['timeRemaining']
 
-       const button = createButton(valvePosition, status, disabled)
+       const button = createButton(valvePosition, timeRemaining, status, disabled)
        container.append(button);
      }
      $('#button-container').html(container);
@@ -93,8 +91,30 @@
      });
   }
 
+  function get_valves() {
+    $.ajax('/api/valve-status?deviceId=' + deviceId, {
+        type: "GET",
+    })
+    .done(function(json) {
+      for(i in json.response) {
+        const obj = json.response[i]
+        const valvePosition = obj['valve_position']
+        valves[valvePosition] = {
+            "status": obj['open'],
+            "disabled": !obj['can_open'] || obj['open'],
+            "timeRemaining": obj['time_remaining']
+        }
+      }
+      console.log(valves)
+      renderButtons();
+    })
+    .fail(function(data) {
+        console.log('Error: ', data);
+    });
+  }
+
   $(document).ready(function() {
-    renderButtons();
+    setInterval( get_valves, 1000 )
   });
  </script>
 

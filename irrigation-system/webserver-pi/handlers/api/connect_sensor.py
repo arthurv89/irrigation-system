@@ -1,3 +1,5 @@
+import os
+
 from access_points import get_scanner
 import logging
 from flask import Flask, request
@@ -11,6 +13,7 @@ import requests
 from utils import db, wifiUtil
 
 app = Flask(__name__, template_folder="jinja_templates")
+
 
 def handle():
     def _run():
@@ -39,7 +42,7 @@ def handle():
             logging.debug("*** format_exception:")
             # exc_type below is ignored on 3.5 and later
             logging.debug(repr(traceback.format_exception(exc_type, exc_value,
-                                                  exc_traceback)))
+                                                          exc_traceback)))
             logging.debug("*** extract_tb:")
             logging.debug(repr(traceback.extract_tb(exc_traceback)))
             logging.debug("*** format_tb:")
@@ -56,7 +59,6 @@ def handle():
         if not hasSsid:
             logging.debug("Could not find network with SSID " + new_ssid)
             return False
-
 
         logging.debug("Found sensor with name " + new_ssid)
         is_connected = wifiUtil.connect_moisture_sensor(main_wifi_credentials, new_ssid)
@@ -85,7 +87,6 @@ def handle():
 
         return True
 
-
     def find_cell(ssid):
         # logging.debug("FINDING CELL")
         for i in range(0, 5):
@@ -101,9 +102,6 @@ def handle():
         db.write_sensor_association(device_id, int(time()))
         logging.debug("Written assocation of sensor " + device_id + " to the database")
 
-
-
-
     def scan(ssid):
         # logging.debug("SCANNNNN")
         wifi_scanner = get_scanner()
@@ -116,7 +114,6 @@ def handle():
 
         return False
 
-
     def save_credentials(ip, main_wifi_credentials):
         url = "http://" + ip + "/wifisave?s=" + main_wifi_credentials['ssid'] + "&p=" + main_wifi_credentials['password']
         logging.debug(url)
@@ -125,7 +122,6 @@ def handle():
         logging.debug(type(html))
         logging.debug(html)
         return "Credentials Saved" in html
-
 
     def get_gateway_ip():
         for i in range(0, 10):
