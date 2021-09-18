@@ -112,13 +112,13 @@ def get_status(valve_id: ValveId, valve_position: int, last_opened: typing.Optio
 
         if time_since_last_closed.total_seconds() < 0:
             time_left: timedelta = -time_since_last_closed
-            logging.debug("Still open. " + str(time_left) + " more milliseconds")
+            logging.debug("Still open. Time left: " + str(time_left))
             return Status(valve_id=valve_id, valve_position=valve_position, open=True, can_open=True, time_remaining=time_left)
         elif time_since_last_closed < time_between_opening:
-            logging.debug("Too soon to open again. Try again in " + str(time_between_opening - time_since_last_closed) + " milliseconds")
+            logging.debug("Too soon to open again. Try again in " + str(time_between_opening - time_since_last_closed))
             return Status(valve_id=valve_id, valve_position=valve_position, open=False, can_open=False, time_remaining=time_since_last_closed)
         else:
-            logging.debug("Time to open again for " + str(open_time) + " milliseconds")
+            logging.debug("Time to open again for " + str(open_time))
             return Status(valve_id=valve_id, valve_position=valve_position, open=False, can_open=True, time_remaining=open_time)
 
 
