@@ -15,28 +15,30 @@
     valves[valvePosition]['status'] = !valves[valvePosition]['status']
   }
 
+  function getTimeTextfieldValue(valvePosition) {
+    return $("#" + createTextfieldId(valvePosition)).val();
+  }
+
   function handleToggleValveClick(valvePosition) {
     toggleStatus(valvePosition)
+    const time = getTimeTextfieldValue(valvePosition);
     disableButton(valvePosition);
-    renderButtons();
     $.ajax('/api/valve', {
         type: "POST",
         data: {
           "deviceId": deviceId,
           "valvePosition": valvePosition,
           "status": valves[valvePosition]['status'],
-          "opening_time": opening_time
+          "opening_time": time
         }
     })
     .done(function(json) {
       enableButton(valvePosition)
-      renderButtons();
     })
     .fail(function(data) {
         console.log('Error: ', data);
         toggleStatus(valvePosition)
         enableButton(valvePosition)
-        renderButtons();
     });
     return false;
   }
@@ -47,48 +49,57 @@
     });
   }
 
-  function buttonId(valvePosition) {
-    return `valve-${valvePosition}`;
+  function createButtonId(valvePosition) {
+    return `valve-button-${valvePosition}`;
+  }
+
+  function createTextfieldId(valvePosition) {
+    return `valve-time-${valvePosition}`;
   }
 
   function getButton(valvePosition) {
-    return $(`#${buttonId(valvePosition)}`);
+    return $(`#${createButtonId(valvePosition)}`);
   }
 
-  function createButton(valvePosition, timeRemaining, status, disabled) {
+  function updateButton(button, valvePosition, endTime, status, disabled) {
+    const now = new Date();
+    const timeRemaining = (endTime - now) / 1000
     const newStatus = status ? "off" : "on";
     const remainingStr = status ? `(${timeRemaining} sec)` : "";
-    const button = $(`
-      <button
-          id="${buttonId(valvePosition)}"
-          class="toggle-valve valve-${status} btn btn-primary"
-          data-valve-id="${valvePosition}"
-        >
-        Turn ${newStatus} valve ${parseInt(valvePosition)+1} ${remainingStr}
-      </button>`)
+
+    button.addClass(`valve-${status}`)
+    button.removeClass(`valve-${!status}`);
+    button.data("valve-id", valvePosition);
+    button.text(`Turn ${newStatus} valve ${parseInt(valvePosition)+1} ${remainingStr}`);
     button.prop('disabled', disabled);
 
     return button;
   }
 
   function renderButtons() {
-    $('#button-container *').remove()
+    const container = $('#button-container');
 
-     var container = $('<div />');
-     for (const valvePosition in valves) {
-       const valve = valves[valvePosition]
-       const status = valve['status'];
-       const disabled = valve['disabled']
-       const timeRemaining = valve['timeRemaining']
+    for (const valvePosition in valves) {
+        const valve = valves[valvePosition]
+        const status = valve['status'];
+        const disabled = valve['disabled']
+        const endTime = valve['endTime']
+        const buttonId = createButtonId(valvePosition);
+        const textId = createTextfieldId(valvePosition);
+        var button = $("#" + buttonId);
+        if(button.length == 0) {
+            const div = $("<div/>");
+            time_input = $(`<input id="${textId}" value="${opening_time}" class="valve-time" />`);
+            div.append(time_input);
 
-       const button = createButton(valvePosition, timeRemaining, status, disabled)
-       container.append(button);
-     }
-     $('#button-container').html(container);
+            button = $(`<button id="${buttonId}" class="toggle-valve btn btn-primary" />`);
+            div.append(button);
+            container.append(div);
 
-     Object.keys(valves).forEach((valvePosition, i) => {
-       addValveHandlers(valvePosition);
-     });
+            addValveHandlers(valvePosition);
+        }
+        updateButton(button, valvePosition, endTime, status, disabled)
+    }
   }
 
   function get_valves() {
@@ -99,14 +110,16 @@
       for(i in json.response) {
         const obj = json.response[i]
         const valvePosition = obj['valve_position']
+
+        var endTime = new Date();
+        endTime.setSeconds(endTime.getSeconds() + obj['time_remaining'])
+
         valves[valvePosition] = {
             "status": obj['open'],
             "disabled": obj['open'],
-            "timeRemaining": obj['time_remaining']
+            "endTime": endTime
         }
       }
-      console.log(valves)
-      renderButtons();
     })
     .fail(function(data) {
         console.log('Error: ', data);
@@ -114,7 +127,8 @@
   }
 
   $(document).ready(function() {
-    setInterval( get_valves, 3000 )
+    setInterval( get_valves, 1000 )
+    setInterval( renderButtons, 300 )
   });
  </script>
 
