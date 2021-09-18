@@ -101,7 +101,7 @@
         const valvePosition = obj['valve_position']
         valves[valvePosition] = {
             "status": obj['open'],
-            "disabled": !obj['can_open'] || obj['open'],
+            "disabled": obj['open'],
             "timeRemaining": obj['time_remaining']
         }
       }
@@ -114,7 +114,7 @@
   }
 
   $(document).ready(function() {
-    setInterval( get_valves, 1000 )
+    setInterval( get_valves, 3000 )
   });
  </script>
 

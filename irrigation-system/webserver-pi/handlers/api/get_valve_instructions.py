@@ -1,7 +1,7 @@
 import logging
 import typing
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 from flask import request
@@ -9,14 +9,14 @@ from flask import request
 from utils import db
 from utils.db import ValveBoxId, Valve, LastOpened, ValveId
 
-open_time = 3
-time_between_opening = 10
+open_time = timedelta(seconds=20)
+time_between_opening = timedelta(hours=2)
 
 
 @dataclass
 class Instruction:
     valve_id: int
-    time: int
+    time: timedelta
 
 
 @dataclass
@@ -24,8 +24,14 @@ class Status:
     valve_id: ValveId
     valve_position: int
     open: bool
-    time_remaining: float
+    time_remaining: timedelta
     can_open: bool
+
+
+@dataclass
+class InstructionResponse:
+    valve_id: int
+    time_sec: int
 
 
 def handle():
@@ -33,8 +39,18 @@ def handle():
 
     # instructions = open_all_valves()
     instructions: list[Instruction] = smart_open_valves(device_id)
-    logging.debug("")
-    return instructions
+    response = to_instructions_response(instructions)
+    return response
+
+
+def to_instructions_response(instructions):
+    response: list[[]] = []
+    instruction: Instruction
+    for instruction in instructions:
+        valve_id = instruction.valve_id
+        time_sec_ms: int = int(instruction.time.total_seconds() * 1000)
+        response.append([valve_id, time_sec_ms])
+    return response
 
 
 def smart_open_valves(device_id) -> list[Instruction]:
@@ -92,18 +108,17 @@ def get_status(valve_id: ValveId, valve_position: int, last_opened: typing.Optio
     else:
         last_closed: datetime = last_opened.last_closed
 
-        time_diff = datetime.now().astimezone(pytz.utc) - last_closed
-        time_since_last_closed = time_diff.total_seconds()
+        time_since_last_closed: timedelta = datetime.now().astimezone(pytz.utc) - last_closed
 
-        if time_since_last_closed < 0:
-            time_left = -time_since_last_closed
-            logging.debug("Still open. " + str(time_left) + " more seconds")
+        if time_since_last_closed.total_seconds() < 0:
+            time_left: timedelta = -time_since_last_closed
+            logging.debug("Still open. " + str(time_left) + " more milliseconds")
             return Status(valve_id=valve_id, valve_position=valve_position, open=True, can_open=True, time_remaining=time_left)
         elif time_since_last_closed < time_between_opening:
-            logging.debug("Too soon to open again. Try again in " + str(time_between_opening - time_since_last_closed) + " seconds")
+            logging.debug("Too soon to open again. Try again in " + str(time_between_opening - time_since_last_closed) + " milliseconds")
             return Status(valve_id=valve_id, valve_position=valve_position, open=False, can_open=False, time_remaining=time_since_last_closed)
         else:
-            logging.debug("Time to open again for " + str(open_time) + " seconds")
+            logging.debug("Time to open again for " + str(open_time) + " milliseconds")
             return Status(valve_id=valve_id, valve_position=valve_position, open=False, can_open=True, time_remaining=open_time)
 
 
@@ -122,5 +137,6 @@ def get_status(valve_id: ValveId, valve_position: int, last_opened: typing.Optio
 #     return instructions
 
 
-def open_obj(valve_position, time) -> Instruction:
+def open_obj(valve_position: int, time: timedelta) -> Instruction:
+    print("time", time)
     return Instruction(valve_position, time)

@@ -20,7 +20,7 @@ def put_value(key, form):
     if key in form:
         logging.debug("Processing " + key + "!")
         db.put_sensor_value(
-            deviceId=form["deviceId"],
+            device_id=form["deviceId"],
             time=timestamp,
             owner=properties.owner,
             type=key,

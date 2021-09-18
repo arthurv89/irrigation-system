@@ -3,6 +3,7 @@ from flask import Flask, render_template
 import time
 
 from utils import db
+import socket
 
 app = Flask(__name__, template_folder="jinja_templates")
 
@@ -10,6 +11,11 @@ one_day = 86400 # seconds
 time_bucket_size = 5 * 60 # seconds
 
 def handle():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    address = s.getsockname()[0]
+    s.close()
+
     latest_sensor_values = db.get_latest_sensor_data()
     valve_openings = db.get_valve_openings()
 
@@ -27,7 +33,8 @@ def handle():
         timeseries_light=json.dumps(timeseries_arr[2]),
         timeseries_humidity=json.dumps(timeseries_arr[3]),
         latest_sensor_values=latest_sensor_values,
-        valve_openings=valve_openings
+        valve_openings=valve_openings,
+        address=address
     )
 
 

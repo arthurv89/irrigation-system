@@ -1,5 +1,6 @@
 import sys
-sys.path.append("../src") # Adds higher directory to python modules path.
+
+sys.path.append("../src")  # Adds higher directory to python modules path.
 import logging
 import time
 from utils import db
@@ -8,6 +9,7 @@ minute = 60
 period = 15 * minute
 
 moisture_threshold = 100
+
 
 def handle():
     logging.debug("[Start] Water the plants")
@@ -36,19 +38,21 @@ def handle():
             open_valves.append(device_id)
 
     for device_id in open_valves:
-        opening_time = 10
-        turn_on_valve(device_id, opening_time)
+        opening_time_ms = 10000
+        turn_on_valve(device_id, opening_time_ms)
 
         # This can be batched
-        write_opening(device_id, opening_time)
+        write_opening(device_id, opening_time_ms)
+
 
 def turn_on_valve(device_id, opening_time):
     logging.debug("Turning on " + device_id + " for " + str(opening_time) + " seconds")
     # TODO: set pins on the PI
 
-def write_opening(device_id, opening_time):
+
+def write_opening(device_id, opening_time_ms):
     # We could have multiple moisture sensors for a valve (or other way around) in the future
-    db.write_opening(device_id, opening_time)
+    db.write_opening(device_id, opening_time_ms)
     logging.debug("Written open valve to ES")
 
     # print(device_id)

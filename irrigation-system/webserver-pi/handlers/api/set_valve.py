@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 from flask import request
 
@@ -21,7 +22,7 @@ def handle():
         valve = valves[valve_position]
         logging.debug(valve)
 
-        db.write_opening(valve.valve_id, opening_time)
+        db.write_opening(valve.valve_id, timedelta(seconds=opening_time))
         logging.debug(db.get_valve_openings())
     else:
         logging.warning("Can't close valve_id yet!")

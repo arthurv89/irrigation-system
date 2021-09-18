@@ -81,8 +81,7 @@ void execute_instructions(StaticJsonDocument<200> response){
 
 void handleInstruction(JsonArray instruction) {
   int valve = instruction[0];
-  float period_seconds = instruction[1];
-  int period_ms = period_seconds * 1000;
+  float period_ms = instruction[1];
   int _pin = _iRunner->getValvePin(valve);
 
   setLcdText("V" + String(valve) + " P" + String(_pin) + " ON", String(period_ms) + " ms");

@@ -1,10 +1,12 @@
 import sys
 import logging
+
+from dataclasses import dataclass
 from flask import Flask, request, send_from_directory, Response, jsonify
 from flask_api import status
 from handlers.pages import setup_wifi, connect_sensors, index
 from handlers.pages import controller_actions
-from handlers.api import get_settings_v2, find_ssids, submit, save_wifi, get_settings, connect_sensor, get_connected_sensors, get_valve_instructions, set_valve, health, get_valve_status
+from handlers.api import find_ssids, submit, save_wifi, connect_sensor, get_connected_sensors, get_valve_instructions, set_valve, health, get_valve_status
 from flask_log_request_id import RequestID, RequestIDLogFilter
 import glob
 import os
@@ -58,16 +60,6 @@ def _controller_actions():
 
 
 # API
-
-@app.route('/api/v2/get-settings', methods=['GET'])
-def _get_settings_v2():
-    return handle(get_settings_v2, "json")
-
-
-@app.route('/api/get-settings', methods=['GET'])
-def _get_settings():
-    return handle(get_settings, "json")
-
 
 @app.route('/api/valve-status', methods=['GET'])
 def _get_valve_status():

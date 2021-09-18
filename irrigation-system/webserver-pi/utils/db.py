@@ -2,10 +2,10 @@ import logging
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Callable, Optional
 
-import mysql.connector as mariadb
 import pytz
+from mysql.connector import pooling
 
 
 @dataclass
@@ -30,34 +30,58 @@ class Valve:
     valve_position: int
 
 
-def connect():
-    connection = mariadb.connect(user='irsys', password='Waterme1!@#', database='irsys')
-    connection.reconnect(attempts=99999999, delay=0)
-    return connection
+# Create Connection Pool
+mysql_user = 'irsys'
+mysql_password = 'Waterme1!@#'
+mysql_db = 'irsys'
+
+fetchall = lambda c: c.fetchall()
+fetchone = lambda c: c.fetchone()
+donothing = lambda c: ()
+
+"""Creates and returns a Connection Pool"""
 
 
-def execute(sql, values=None):
+def create_connection_pool():
+    # Create Connection Pool
+    # connection = mariadb.connect(user=mysql_user, password=mysql_password, database=mysql_db)
+    pool = pooling.MySQLConnectionPool(
+        user=mysql_user,
+        password=mysql_password,
+        database=mysql_db,
+        pool_name="web-app",
+        pool_size=20
+    )
+
+    # Return Connection Pool
+    return pool
+
+
+def execute(sql: str,
+            fetch: Optional[Callable],
+            values=None):
     try:
+        connection = pool.get_connection()
+
         # logging.debug(sql)
         # logging.debug(values)
-        cursor = connection.cursor(buffered=True)
+        cursor = connection.cursor()
         cursor.execute(sql, values)
-        connection.commit()  # To avoid caching the result
-    except mariadb.Error as error:
-        connect()
-        # os.system('play -n synth %s sin %s' % (500 / 1000, 300))
-        cursor = connection.cursor(buffered=True)
+        if values is not None:
+            connection.commit()
+        result = fetch(cursor)
         try:
-            cursor.execute(sql, values)
+            connection.close()
         except Exception as e:
             message = e.message if hasattr(e, 'message') else e
-            logging.error(f'SQL Error in query {sql}: \n{message}')
-            raise Exception("SQL error")
-    #     else:
-    #         connection.close()
-    # else:
-    #     connection.close()
-    return cursor
+            logging.error("Could not close connection:")
+            logging.error(f"{message}")
+        return result
+    except Exception as e:
+        message = e.message if hasattr(e, 'message') else e
+
+        logging.error(f'SQL Error in query {sql}: \n{message}')
+        raise Exception("SQL error")
 
 
 def get_sensor_data(field, low_timestamp_seconds, high_timestamp_seconds, time_bucket_size_seconds):
@@ -81,7 +105,7 @@ def get_latest_sensor_data():
         ) t2 on t1.time = t2.time and t1.type = t2.type
         ORDER BY time DESC, type"""
 
-    cursor = execute(query)
+    result = execute(query, fetchall)
 
     return list(map(lambda row: {
         "deviceId": row[0],
@@ -89,7 +113,7 @@ def get_latest_sensor_data():
         "owner": row[2],
         "type": row[3],
         "value": row[4]
-    }, cursor.fetchall()))
+    }, result))
 
 
 def get_valve_openings():
@@ -99,14 +123,14 @@ def get_valve_openings():
         ORDER BY starttime DESC
         LIMIT 5"""
 
-    cursor = execute(query)
+    result = execute(query, fetchall)
 
     return list(map(lambda row: {
         "valve_id": row[0],
         "starttime": row[1],
         "endtime": row[2],
         "opening_time": row[2]
-    }, cursor.fetchall()))
+    }, result))
 
 
 def get_sensor_data_from_db(field, low_timestamp_seconds, high_timestamp_seconds, time_bucket_size_seconds):
@@ -122,15 +146,15 @@ def get_sensor_data_from_db(field, low_timestamp_seconds, high_timestamp_seconds
         high_timestamp_seconds=high_timestamp_seconds,
         field=field)
     # print(query)
-    cursor = execute(query)
-    return cursor.fetchall()
+    result = execute(query, fetchall)
+    return result
 
 
 def get_wifi_credentials():
     query = """
         SELECT ssid, password
         FROM wifi"""
-    cursor = execute(query)
+    cursor = execute(query, fetch=lambda c: c.fetchone())
 
     row = cursor.fetchone()
     return {
@@ -150,14 +174,13 @@ def put_wifi_credentials(ssid, password):
              " VALUES (%(ssid)s, %(password)s)"
              " ON DUPLICATE KEY UPDATE"
              "    password = %(password)s")
-    execute(query, values)
-    connection.commit()
+    execute(query, values=values, fetch=donothing)
 
 
-def put_sensor_value(deviceId, time, owner, type, value):
+def put_sensor_value(device_id: str, time: int, owner: str, type: str, value: str):
     values = {
         'id': uuid.uuid4().bytes,
-        'deviceId': deviceId,
+        'deviceId': device_id,
         'time': datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S.%f'),
         'owner': owner,
         'type': type,
@@ -168,24 +191,22 @@ def put_sensor_value(deviceId, time, owner, type, value):
              " (id, deviceId, time, owner, type, value)"
              " VALUES (%(id)s, %(deviceId)s, %(time)s, %(owner)s, %(type)s, %(value)s)")
 
-    execute(query, values)
-    connection.commit()
+    execute(query, values=values, fetch=donothing)
 
 
-def write_sensor_association(deviceId, time):
+def write_sensor_association(device_id, time):
     # logging.debug("deviceId", deviceId)
     # logging.debug("time", time)
     values = {
         'id': uuid.uuid4().bytes,
-        'deviceId': deviceId,
+        'deviceId': device_id,
         'time': datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S.%f')
     }
 
     query = (" INSERT INTO sensors"
              " (id, deviceId, time)"
              " VALUES (%(id)s, %(deviceId)s, %(time)s)")
-    execute(query, values)
-    connection.commit()
+    execute(query, fetch=donothing, values=values)
 
 
 def get_last_opened(valves: list[Valve]) -> dict[str, LastOpened]:
@@ -194,11 +215,9 @@ def get_last_opened(valves: list[Valve]) -> dict[str, LastOpened]:
     query = (" SELECT valve_id, MAX(endtime) AS last_closed"
              " FROM open_times"
              " WHERE valve_id IN('" + ('\', \''.join(valve_id_strs)) + "')"
-             " GROUP BY valve_id"
-            )
-    cursor = execute(query)
-
-    result = cursor.fetchall()
+                                                                       " GROUP BY valve_id"
+             )
+    result = execute(query, fetchall)
 
     return {
         row[0]: LastOpened(
@@ -221,30 +240,28 @@ def average_moisture(valve_ids):
            "   AND deviceId IN(%s)"
            " GROUP BY deviceId") % format_strings
 
-    cursor = execute(sql,
-                     tuple(valve_ids))
+    result = execute(sql, values=tuple(valve_ids), fetch=fetchall)
 
     return list(map(lambda row: {
         "deviceId": row[0],
         "avg_value": float(row[1])
-    }, cursor.fetchall()))
+    }, result))
 
 
-def write_opening(valve_id: ValveId, opening_time):
+def write_opening(valve_id: ValveId, opening_time: timedelta):
     values: dict[str, Any] = {
         'id': uuid.uuid4().bytes,
         'valve_id': valve_id.value,
         'starttime': datetime.now().astimezone(pytz.utc).strftime('%Y-%m-%d %H:%M:%S.%f'),
-        'endtime': (datetime.now().astimezone(pytz.utc) + timedelta(0, opening_time)).strftime('%Y-%m-%d %H:%M:%S.%f'),
-        'opening_time': opening_time
+        'endtime': (datetime.now().astimezone(pytz.utc) + opening_time).strftime('%Y-%m-%d %H:%M:%S.%f'),
+        'opening_time': opening_time.total_seconds()
     }
 
     query = (" INSERT INTO open_times"
              " (id, valve_id, starttime, endtime, opening_time)"
              " VALUES (%(id)s, %(valve_id)s, %(starttime)s, %(endtime)s, %(opening_time)s)")
 
-    execute(query, values)
-    connection.commit()
+    execute(query, fetch=fetchall, values=values)
 
 
 def get_valves_for_device(valve_box_id: ValveBoxId) -> list[Valve]:
@@ -253,23 +270,23 @@ def get_valves_for_device(valve_box_id: ValveBoxId) -> list[Valve]:
              " WHERE valve_box_id='{valve_box_id}'").format(valve_box_id=valve_box_id.value)
     # logging.debug(query)
 
-    cursor = execute(query)
+    result = execute(query, fetchall)
 
     return list(map(lambda row: Valve(
         valve_id=ValveId(row[0]),
         valve_position=row[1]
-    ), cursor.fetchall()))
+    ), result))
 
 
 def get_connected_sensors():
     query = """ SELECT deviceId
                 FROM sensors"""
-    cursor = execute(query)
+    result = execute(query, fetchall)
 
     return list(map(lambda row: {
         "ssid": row[0]
-    }, cursor.fetchall()))
+    }, result))
 
 
 # Init: connect now
-connection = connect()
+pool = create_connection_pool()
